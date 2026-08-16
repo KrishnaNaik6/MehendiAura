@@ -1,27 +1,48 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Star, Edit, Trash2, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { Search, Star, Edit, Trash2, CheckCircle2, XCircle, ExternalLink, X } from "lucide-react";
 import { toast } from "sonner";
 import { Service } from "@/types/database";
 import { toggleServiceActive, toggleServiceFeatured, deleteService } from "./actions";
 
 interface ServicesTableProps {
   initialServices: Service[];
+  selectedCategoryParam?: string;
 }
 
-export function ServicesTable({ initialServices }: ServicesTableProps) {
+export function ServicesTable({
+  initialServices,
+  selectedCategoryParam,
+}: ServicesTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [services, setServices] = useState(initialServices);
+  const [categoryFilter, setCategoryFilter] = useState<string>(selectedCategoryParam || "All");
   const router = useRouter();
 
-  const filteredServices = services.filter(
-    (s) =>
+  useEffect(() => {
+    if (selectedCategoryParam) {
+      setCategoryFilter(selectedCategoryParam);
+    }
+  }, [selectedCategoryParam]);
+
+  // Extract all unique categories present in initial services
+  const uniqueCategories = [
+    "All",
+    ...Array.from(new Set(initialServices.map((s) => s.category).filter(Boolean))),
+  ];
+
+  const filteredServices = services.filter((s) => {
+    const matchesSearch =
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      s.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "All" || s.category === categoryFilter;
+
+    return matchesSearch && matchesCategory;
+  });
 
   const handleToggleActive = async (service: Service) => {
     try {
@@ -80,21 +101,54 @@ export function ServicesTable({ initialServices }: ServicesTableProps) {
 
   return (
     <div className="bg-white rounded-3xl border border-gold-300/30 shadow-soft overflow-hidden space-y-4 p-6">
-      {/* Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-cream-200">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-brand-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search services or category..."
-            className="w-full pl-10 pr-4 py-2.5 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-          />
+      {/* Category Filter Badges & Search Bar */}
+      <div className="flex flex-col space-y-3 pb-4 border-b border-cream-200">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-bold text-brand-900 uppercase tracking-wider mr-1">
+            Filter Category:
+          </span>
+          {uniqueCategories.map((cat) => {
+            const isActive = categoryFilter === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  isActive
+                    ? "bg-brand-900 text-gold-300 border border-gold-400/40 shadow-xs"
+                    : "bg-cream-100 text-brand-800 border border-gold-300/30 hover:bg-cream-200"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+          {categoryFilter !== "All" && (
+            <button
+              onClick={() => setCategoryFilter("All")}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-red-600 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+            >
+              <X className="w-3 h-3" />
+              <span>Clear Filter</span>
+            </button>
+          )}
         </div>
 
-        <div className="text-xs text-brand-700 font-semibold">
-          Total Services: <span className="text-gold-700 font-bold">{filteredServices.length}</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-brand-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search service title..."
+              className="w-full pl-10 pr-4 py-2.5 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+
+          <div className="text-xs text-brand-700 font-semibold">
+            Showing <span className="text-gold-700 font-bold">{filteredServices.length}</span> of {services.length} services
+          </div>
         </div>
       </div>
 
@@ -116,7 +170,7 @@ export function ServicesTable({ initialServices }: ServicesTableProps) {
             {filteredServices.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-12 text-brand-600 text-sm">
-                  No services found. Click "Add New Service" to create one!
+                  No services match the selected filter. Click "Add New Service" to create one!
                 </td>
               </tr>
             ) : (

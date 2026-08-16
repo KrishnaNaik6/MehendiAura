@@ -1,12 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { MobileBottomBar } from "@/components/layout/MobileBottomBar";
 import { fetchBusinessSettings } from "@/lib/supabase/helper";
 import { getLocalBusinessSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { LanguageProvider } from "@/lib/i18n/context";
+import { PublicLayoutWrapper } from "@/components/layout/PublicLayoutWrapper";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mehendiaura.com";
@@ -47,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MehendiAura | Professional Mehendi Artist & Rounded Rental Jewellery",
+    title: "MehendiAura | Professional Mehendi Artist & Rental Jewellery",
     description: "Exquisite Bridal & Event Mehendi Services and Premium Rental Jewellery.",
   },
   robots: {
@@ -81,10 +79,7 @@ export default async function RootLayout({
       <body className="min-h-screen bg-cream-100 text-brand-800 antialiased flex flex-col selection:bg-gold-500 selection:text-white">
         <LanguageProvider>
           <Toaster position="top-right" richColors />
-          <Header settings={settings} />
-          <main className="flex-1 pb-20 lg:pb-0">{children}</main>
-          <Footer settings={settings} />
-          <MobileBottomBar settings={settings} />
+          <PublicLayoutWrapper settings={settings}>{children}</PublicLayoutWrapper>
         </LanguageProvider>
       </body>
     </html>
