@@ -6,10 +6,12 @@ import Link from "next/link";
 import { ArrowLeft, Save, Gem } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+import { ImageUploadInput } from "@/components/ui/ImageUploadInput";
 import { createJewellery } from "../actions";
 
 export default function NewJewelleryPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,6 +19,10 @@ export default function NewJewelleryPage() {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    if (imageUrl) {
+      formData.set("image_url", imageUrl);
+    }
+
     try {
       const res = await createJewellery(formData);
       if (res.error) {
@@ -148,14 +154,11 @@ export default function NewJewelleryPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Image URL (Unsplash or Supabase Public URL)
-              </label>
-              <input
-                type="url"
-                name="image_url"
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+              <ImageUploadInput
+                folder="jewellery"
+                value={imageUrl}
+                onChange={setImageUrl}
+                label="Jewellery Photo (Select File or Paste URL)"
               />
             </div>
           </div>

@@ -6,17 +6,27 @@ import Link from "next/link";
 import { ArrowLeft, Save, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+import { ImageUploadInput } from "@/components/ui/ImageUploadInput";
 import { createGalleryItem } from "../actions";
 
 export default function NewGalleryPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!imageUrl) {
+      toast.error("Image Required", { description: "Please upload a photo from your device or paste an image URL." });
+      return;
+    }
+
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("image_url", imageUrl);
+
     try {
       const res = await createGalleryItem(formData);
       if (res.error) {
@@ -52,7 +62,7 @@ export default function NewGalleryPage() {
               Add Photo to Showcase Gallery
             </h1>
             <p className="text-xs text-brand-600">
-              Add a new showcase image URL or upload to your photo gallery.
+              Upload a photo directly from your phone/computer or paste an image URL.
             </p>
           </div>
         </div>
@@ -91,15 +101,11 @@ export default function NewGalleryPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Image URL (Unsplash or Supabase Public Storage URL)
-              </label>
-              <input
-                type="url"
-                name="image_url"
-                required
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+              <ImageUploadInput
+                folder="gallery"
+                value={imageUrl}
+                onChange={setImageUrl}
+                label="Select Photo From Device"
               />
             </div>
 
