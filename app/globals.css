@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FDFBF7;
+  --foreground: #1B3B2B;
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-outfit: 'Outfit', sans-serif;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-outfit);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F8F3EA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C5A059;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B0853C;
+}
+
+/* Custom Utilities */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A059 50%, #8C6431 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-emerald-gradient {
+  background: linear-gradient(135deg, #1B3B2B 0%, #2E5A44 100%);
+}
+
+.glass-card {
+  background: rgba(253, 251, 247, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 160, 89, 0.2);
+}
