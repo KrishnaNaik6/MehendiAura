@@ -6,12 +6,12 @@ import Link from "next/link";
 import { ArrowLeft, Save, Gem } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { ImageUploadInput } from "@/components/ui/ImageUploadInput";
+import { MultiImageUploadInput } from "@/components/ui/MultiImageUploadInput";
 import { createJewellery } from "../actions";
 
 export default function NewJewelleryPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -19,8 +19,10 @@ export default function NewJewelleryPage() {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    if (imageUrl) {
-      formData.set("image_url", imageUrl);
+    formData.set("image_urls", JSON.stringify(imageUrls));
+
+    if (imageUrls.length > 0) {
+      formData.set("image_url", imageUrls[0]);
     }
 
     try {
@@ -58,7 +60,7 @@ export default function NewJewelleryPage() {
               Add New Rental Jewellery Set
             </h1>
             <p className="text-xs text-brand-600">
-              Create a new rental jewellery listing with English and Kannada details.
+              Create a new rental jewellery listing with single or multiple angle photos.
             </p>
           </div>
         </div>
@@ -73,7 +75,7 @@ export default function NewJewelleryPage() {
                 name="category"
                 required
                 defaultValue="Bridal Sets"
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500 font-semibold"
               >
                 <option value="Bridal Sets">Bridal Sets</option>
                 <option value="Necklace Sets">Necklace Sets</option>
@@ -140,12 +142,13 @@ export default function NewJewelleryPage() {
               />
             </div>
 
+            {/* Multiple Image Selector */}
             <div className="md:col-span-2">
-              <ImageUploadInput
+              <MultiImageUploadInput
                 folder="jewellery"
-                value={imageUrl}
-                onChange={setImageUrl}
-                label="Jewellery Photo (Select File or Paste URL)"
+                values={imageUrls}
+                onChange={setImageUrls}
+                label="Jewellery Set Photos (Single or Multiple Angles)"
               />
             </div>
           </div>

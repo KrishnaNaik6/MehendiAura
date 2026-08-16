@@ -23,7 +23,6 @@ export async function createJewellery(formData: FormData) {
     const short_description_kn = formData.get("short_description_kn") as string;
     const description_en = formData.get("description_en") as string || formData.get("description") as string;
     const description_kn = formData.get("description_kn") as string;
-    const image_url = formData.get("image_url") as string;
     const featured = formData.get("featured") === "true";
     const active = formData.get("active") !== "false";
     const display_order = parseInt((formData.get("display_order") as string) || "0", 10);
@@ -67,22 +66,42 @@ export async function createJewellery(formData: FormData) {
 
     if (error) throw error;
 
-    if (image_url && item) {
-      let storage_path = `jewellery/${Date.now()}.jpg`;
-      if (image_url.includes("mehendiaura-images/")) {
-        const parts = image_url.split("mehendiaura-images/");
-        if (parts.length > 1) {
-          storage_path = parts[1];
-        }
-      }
+    // Parse single or multiple image URLs
+    const rawUrls = (formData.get("image_urls") as string) || "[]";
+    let imageUrls: string[] = [];
 
-      await supabase.from("jewellery_images").insert({
-        jewellery_id: item.id,
-        image_url,
-        storage_path,
-        alt_text: name_en,
-        display_order: 1,
+    try {
+      imageUrls = JSON.parse(rawUrls);
+    } catch {
+      const singleUrl = formData.get("image_url") as string;
+      if (singleUrl) imageUrls = [singleUrl];
+    }
+
+    const singleUrlFallback = formData.get("image_url") as string;
+    if (imageUrls.length === 0 && singleUrlFallback) {
+      imageUrls = [singleUrlFallback];
+    }
+
+    if (imageUrls.length > 0 && item) {
+      const imageInserts = imageUrls.map((url, idx) => {
+        let storage_path = `jewellery/${Date.now()}-${idx}.webp`;
+        if (url.includes("mehendiaura-images/")) {
+          const parts = url.split("mehendiaura-images/");
+          if (parts.length > 1) {
+            storage_path = parts[1];
+          }
+        }
+
+        return {
+          jewellery_id: item.id,
+          image_url: url,
+          storage_path,
+          alt_text: name_en,
+          display_order: idx + 1,
+        };
       });
+
+      await supabase.from("jewellery_images").insert(imageInserts);
     }
 
     revalidatePath("/jewellery", "layout");
@@ -144,6 +163,28 @@ export async function updateJewellery(id: string, formData: FormData) {
 
     if (error) throw error;
 
+    // Optional update of attached images if provided
+    const rawUrls = (formData.get("image_urls") as string) || "[]";
+    let imageUrls: string[] = [];
+    try {
+      imageUrls = JSON.parse(rawUrls);
+    } catch {
+      const singleUrl = formData.get("image_url") as string;
+      if (singleUrl) imageUrls = [singleUrl];
+    }
+
+    if (imageUrls.length > 0) {
+      await supabase.from("jewellery_images").delete().eq("jewellery_id", id);
+      const imageInserts = imageUrls.map((url, idx) => ({
+        jewellery_id: id,
+        image_url: url,
+        storage_path: url.includes("mehendiaura-images/") ? url.split("mehendiaura-images/")[1] : `jewellery/${Date.now()}-${idx}.webp`,
+        alt_text: name_en,
+        display_order: idx + 1,
+      }));
+      await supabase.from("jewellery_images").insert(imageInserts);
+    }
+
     revalidatePath("/jewellery", "layout");
     revalidatePath("/admin/jewellery", "page");
     return { success: true };
@@ -156,7 +197,6 @@ export async function deleteJewellery(id: string) {
   try {
     const supabase = await createClient();
 
-    // 1. Fetch associated jewellery images to delete files from Supabase Storage bucket
     const { data: images } = await supabase
       .from("jewellery_images")
       .select("image_url, storage_path")
@@ -180,7 +220,6 @@ export async function deleteJewellery(id: string) {
       }
     }
 
-    // 2. Delete database row
     const { error } = await supabase.from("jewellery").delete().eq("id", id);
     if (error) throw error;
 

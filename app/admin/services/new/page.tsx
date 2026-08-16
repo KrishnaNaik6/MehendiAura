@@ -6,12 +6,12 @@ import Link from "next/link";
 import { ArrowLeft, Save, Sparkle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { ImageUploadInput } from "@/components/ui/ImageUploadInput";
+import { MultiImageUploadInput } from "@/components/ui/MultiImageUploadInput";
 import { createService } from "../actions";
 
 export default function NewServicePage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Bridal");
   const [customCategory, setCustomCategory] = useState("");
   const router = useRouter();
@@ -25,9 +25,10 @@ export default function NewServicePage() {
 
     const formData = new FormData(e.currentTarget);
     formData.set("category", finalCategory || "General Service");
+    formData.set("image_urls", JSON.stringify(imageUrls));
 
-    if (imageUrl) {
-      formData.set("image_url", imageUrl);
+    if (imageUrls.length > 0) {
+      formData.set("image_url", imageUrls[0]);
     }
 
     try {
@@ -80,7 +81,7 @@ export default function NewServicePage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500 font-semibold"
               >
                 <option value="Bridal">Bridal Mehendi</option>
                 <option value="Engagement">Engagement Mehendi</option>
@@ -146,12 +147,13 @@ export default function NewServicePage() {
               />
             </div>
 
+            {/* Multiple Photos Selector */}
             <div className="md:col-span-2">
-              <ImageUploadInput
+              <MultiImageUploadInput
                 folder="services"
-                value={imageUrl}
-                onChange={setImageUrl}
-                label="Service Cover Photo (Select File or Paste URL)"
+                values={imageUrls}
+                onChange={setImageUrls}
+                label="Service Photos (Attach Single or Multiple Images)"
               />
             </div>
           </div>
