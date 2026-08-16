@@ -30,6 +30,11 @@ export const metadata: Metadata = {
     "ಮೆಹೆಂದಿ ಕಲಾವಿದರು",
     "ಬಾಡಿಗೆ ಆಭರಣಗಳು",
   ],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   authors: [{ name: "MehendiAura" }],
   openGraph: {
     title: "MehendiAura | Professional Mehendi Artist & Rental Jewellery",
@@ -42,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MehendiAura | Professional Mehendi Artist & Rental Jewellery",
+    title: "MehendiAura | Professional Mehendi Artist & Rounded Rental Jewellery",
     description: "Exquisite Bridal & Event Mehendi Services and Premium Rental Jewellery.",
   },
   robots: {
@@ -70,6 +75,8 @@ export default async function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <JsonLd data={localBusinessSchema} />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className="min-h-screen bg-cream-100 text-brand-800 antialiased flex flex-col selection:bg-gold-500 selection:text-white">
         <LanguageProvider>
