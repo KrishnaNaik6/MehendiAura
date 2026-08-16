@@ -97,7 +97,8 @@ export interface BusinessSettings {
   hero_title: string
   hero_description: string
   about_content: string
-  // Multilingual Fields
+  // Multilingual Fields & Admin Default Locale Preference
+  default_locale?: "en" | "kn" | null
   hero_title_en?: string | null
   hero_title_kn?: string | null
   hero_description_en?: string | null

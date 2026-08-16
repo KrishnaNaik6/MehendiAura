@@ -73,7 +73,24 @@ export async function middleware(request: NextRequest) {
 
   if (!pathnameHasLocale) {
     const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value as Locale;
-    const locale = LOCALES.includes(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+    let locale: Locale = DEFAULT_LOCALE;
+
+    if (LOCALES.includes(cookieLocale)) {
+      locale = cookieLocale;
+    } else {
+      try {
+        const { data: settings } = await supabase
+          .from("business_settings")
+          .select("default_locale")
+          .limit(1)
+          .single();
+
+        const dbDefault = (settings?.default_locale as Locale) || DEFAULT_LOCALE;
+        locale = LOCALES.includes(dbDefault) ? dbDefault : DEFAULT_LOCALE;
+      } catch {
+        locale = DEFAULT_LOCALE;
+      }
+    }
 
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     return NextResponse.redirect(url);

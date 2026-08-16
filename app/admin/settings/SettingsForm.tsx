@@ -39,7 +39,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         toast.error("Save Failed", { description: res.error });
       } else {
         toast.success("Settings Updated", {
-          description: "Your business configuration has been saved successfully.",
+          description: "Your business configuration and default language preference have been saved successfully.",
         });
         router.refresh();
       }
@@ -184,7 +184,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       </div>
 
-      {/* 2. Multilingual Content Section */}
+      {/* 2. Multilingual & Default Language Configuration Section */}
       <div className="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-cream-200">
           <div className="w-10 h-10 rounded-xl bg-gold-600 text-brand-950 flex items-center justify-center shrink-0">
@@ -192,12 +192,30 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
           </div>
           <div>
             <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
-              Multilingual Headlines &amp; Brand Story (English &amp; ಕನ್ನಡ)
+              Default Language &amp; Multilingual Content (English &amp; ಕನ್ನಡ)
             </h2>
             <p className="text-xs text-brand-600">
-              Enter content for English and Kannada website visitors.
+              Set the default language for new website visitors and provide translations for headlines &amp; brand story.
             </p>
           </div>
+        </div>
+
+        {/* Admin Default Language Selection Control */}
+        <div className="p-5 rounded-2xl bg-gold-500/10 border border-gold-400/40 space-y-2">
+          <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider">
+            🌐 Default Website Language (For First-Time Visitors)
+          </label>
+          <p className="text-xs text-brand-700 leading-relaxed">
+            Choose which language new visitors will see by default when first opening your website. (Visitors can still switch anytime).
+          </p>
+          <select
+            name="default_locale"
+            defaultValue={initialSettings.default_locale || "en"}
+            className="w-full sm:w-72 px-4 py-3 bg-white border border-gold-400/60 rounded-xl text-sm font-bold text-brand-950 focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-xs"
+          >
+            <option value="en">🇬🇧 English (Default)</option>
+            <option value="kn">🇮🇳 ಕನ್ನಡ / Kannada (Default)</option>
+          </select>
         </div>
 
         {/* English Section */}

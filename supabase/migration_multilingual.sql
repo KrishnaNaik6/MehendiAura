@@ -4,8 +4,9 @@
 -- Preserves existing data by copying legacy columns into _en columns.
 -- ====================================================================
 
--- 1. BUSINESS SETTINGS MULTILINGUAL COLUMNS
+-- 1. BUSINESS SETTINGS MULTILINGUAL & DEFAULT LOCALE COLUMNS
 ALTER TABLE public.business_settings
+ADD COLUMN IF NOT EXISTS default_locale TEXT DEFAULT 'en',
 ADD COLUMN IF NOT EXISTS hero_title_en TEXT,
 ADD COLUMN IF NOT EXISTS hero_title_kn TEXT,
 ADD COLUMN IF NOT EXISTS hero_description_en TEXT,
@@ -16,6 +17,7 @@ ADD COLUMN IF NOT EXISTS about_content_kn TEXT;
 -- Safely populate default English columns from legacy columns if empty
 UPDATE public.business_settings
 SET 
+  default_locale = COALESCE(default_locale, 'en'),
   hero_title_en = COALESCE(hero_title_en, hero_title, 'Exquisite Mehendi Artistry & Premium Rental Jewellery'),
   hero_title_kn = COALESCE(hero_title_kn, 'ಅತ್ಯುತ್ತಮ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ಕಲೆ ಮತ್ತು ಪ್ರೀಮಿಯಂ ಬಾಡಿಗೆ ಆಭರಣಗಳು'),
   hero_description_en = COALESCE(hero_description_en, hero_description, 'Crafting unforgettable bridal mehendi designs & curating regal rental jewellery sets for weddings and grand celebrations.'),

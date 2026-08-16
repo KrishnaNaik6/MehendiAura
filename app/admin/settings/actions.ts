@@ -17,7 +17,8 @@ export async function updateBusinessSettings(formData: FormData) {
     const instagram_url = formData.get("instagram_url") as string;
     const facebook_url = formData.get("facebook_url") as string;
     const youtube_url = formData.get("youtube_url") as string;
-    
+    const default_locale = (formData.get("default_locale") as string) || "en";
+
     const hero_title_en = formData.get("hero_title_en") as string || formData.get("hero_title") as string;
     const hero_title_kn = formData.get("hero_title_kn") as string;
     const hero_description_en = formData.get("hero_description_en") as string || formData.get("hero_description") as string;
@@ -38,6 +39,7 @@ export async function updateBusinessSettings(formData: FormData) {
       instagram_url: instagram_url || null,
       facebook_url: facebook_url || null,
       youtube_url: youtube_url || null,
+      default_locale,
       hero_title: hero_title_en,
       hero_title_en,
       hero_title_kn: hero_title_kn || null,
