@@ -1,176 +1,153 @@
 import React from "react";
 import Link from "next/link";
-import {
-  Sparkles,
-  Sparkle,
-  Gem,
-  Image as ImageIcon,
-  Settings,
-  ShieldCheck,
-  PlusCircle,
-  ArrowRight,
-} from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { Card, CardHeader, CardBody } from "@/components/ui/Card";
-import { fetchBusinessSettings } from "@/lib/supabase/helper";
+import { Sparkles, Gem, Image as ImageIcon, Settings, MessageSquareQuote, HelpCircle, ArrowRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export default async function AdminDashboardPage() {
-  const settings = await fetchBusinessSettings();
+export default async function AdminDashboardOverview() {
+  const supabase = await createClient();
+
+  const [{ count: servicesCount }, { count: jewelleryCount }, { count: galleryCount }] = await Promise.all([
+    supabase.from("services").select("*", { count: "exact", head: true }),
+    supabase.from("jewellery").select("*", { count: "exact", head: true }),
+    supabase.from("gallery").select("*", { count: "exact", head: true }),
+  ]);
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-950 text-cream-100 p-8 rounded-3xl border border-gold-500/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/20 text-gold-300 text-xs font-semibold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Secure Admin Session Active</span>
+    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+      <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-950 text-cream-100 p-8 rounded-3xl border border-gold-500/30 shadow-md">
+        <span className="text-xs uppercase tracking-widest text-gold-400 font-semibold">
+          Control Panel Overview
+        </span>
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white mt-1">
+          Welcome to MehendiAura CMS
+        </h1>
+        <p className="text-sm text-cream-200 mt-2 max-w-2xl">
+          Manage your business information, mehendi service catalog, rental jewellery inventory, showcase gallery, customer reviews, and FAQs.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-brand-600 uppercase tracking-wider">Mehendi Services</span>
+            <div className="text-3xl font-serif font-bold text-brand-900 mt-1">{servicesCount || 0}</div>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white">
-            Welcome to {settings.business_name} CMS
-          </h1>
-          <p className="text-sm text-cream-200 max-w-xl">
-            Manage your Mehendi service offerings, rental jewellery inventory, photo gallery, testimonials, and contact details in real-time.
+          <div className="w-12 h-12 rounded-2xl bg-brand-800 text-gold-300 flex items-center justify-center">
+            <Sparkles className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-brand-600 uppercase tracking-wider">Rental Jewellery</span>
+            <div className="text-3xl font-serif font-bold text-emerald-700 mt-1">{jewelleryCount || 0}</div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-earth-800 text-gold-300 flex items-center justify-center">
+            <Gem className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-brand-600 uppercase tracking-wider">Gallery Photos</span>
+            <div className="text-3xl font-serif font-bold text-gold-700 mt-1">{galleryCount || 0}</div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-gold-600 text-brand-950 flex items-center justify-center">
+            <ImageIcon className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link href="/admin/services" className="group p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft hover:shadow-gold-glow transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-5 h-5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <h3 className="font-serif font-bold text-lg text-brand-900 group-hover:text-gold-700 transition-colors">
+            Manage Mehendi Services
+          </h3>
+          <p className="text-xs text-brand-600 mt-1">
+            Add, edit, or remove bridal, engagement, and festival henna packages.
           </p>
-        </div>
-
-        <Link
-          href="/admin/settings"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gold-500 hover:bg-gold-600 text-brand-950 font-bold text-sm shadow-md transition-all shrink-0"
-        >
-          <Settings className="w-4 h-4" />
-          <span>Business Settings</span>
         </Link>
-      </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card hoverEffect className="border-gold-300/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-gold-700 uppercase tracking-wider">
-              Mehendi Services
-            </span>
-            <Sparkle className="w-5 h-5 text-brand-800" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold font-serif text-brand-900">CMS Ready</div>
-            <p className="text-xs text-brand-600 mt-1">Manage categories, prices &amp; images</p>
-          </CardBody>
-        </Card>
-
-        <Card hoverEffect className="border-gold-300/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-gold-700 uppercase tracking-wider">
-              Rental Jewellery
-            </span>
-            <Gem className="w-5 h-5 text-brand-800" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold font-serif text-brand-900">CMS Ready</div>
-            <p className="text-xs text-brand-600 mt-1">Manage rental rates &amp; deposits</p>
-          </CardBody>
-        </Card>
-
-        <Card hoverEffect className="border-gold-300/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-gold-700 uppercase tracking-wider">
-              Showcase Gallery
-            </span>
-            <ImageIcon className="w-5 h-5 text-brand-800" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold font-serif text-brand-900">CMS Ready</div>
-            <p className="text-xs text-brand-600 mt-1">Upload &amp; organize event photos</p>
-          </CardBody>
-        </Card>
-
-        <Card hoverEffect className="border-gold-300/40 bg-brand-900 text-cream-100">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-gold-300 uppercase tracking-wider">
-              Database Sync
-            </span>
-            <Sparkles className="w-5 h-5 text-gold-400" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold font-serif text-gold-300">Supabase</div>
-            <p className="text-xs text-cream-300 mt-1">RLS Policies &amp; Storage Active</p>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Quick CMS Action Shortcuts */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
-        <h2 className="font-serif text-2xl font-bold text-brand-900 border-b border-cream-200 pb-4">
-          CMS Quick Shortcuts
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link
-            href="/admin/services"
-            className="p-6 rounded-2xl bg-cream-50 border border-gold-300/30 hover:border-gold-500 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
-                <Sparkle className="w-5 h-5" />
-              </div>
-              <PlusCircle className="w-5 h-5 text-gold-600 group-hover:scale-110 transition-transform" />
+        <Link href="/admin/jewellery" className="group p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft hover:shadow-gold-glow transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-earth-800 text-gold-300 flex items-center justify-center">
+              <Gem className="w-5 h-5" />
             </div>
-            <h3 className="font-serif font-bold text-lg text-brand-900 mb-1">
-              Manage Mehendi Services
-            </h3>
-            <p className="text-xs text-brand-700 leading-relaxed mb-4">
-              Add new service packages, update pricing info, duration, and upload high-res images.
-            </p>
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold-700 group-hover:text-brand-900">
-              <span>Open Services Manager</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </div>
-          </Link>
+            <ArrowRight className="w-5 h-5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <h3 className="font-serif font-bold text-lg text-brand-900 group-hover:text-gold-700 transition-colors">
+            Manage Rental Jewellery
+          </h3>
+          <p className="text-xs text-brand-600 mt-1">
+            Update Kundan, Temple, and Bridal sets, rates, deposits, and availability status.
+          </p>
+        </Link>
 
-          <Link
-            href="/admin/jewellery"
-            className="p-6 rounded-2xl bg-cream-50 border border-gold-300/30 hover:border-gold-500 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
-                <Gem className="w-5 h-5" />
-              </div>
-              <PlusCircle className="w-5 h-5 text-gold-600 group-hover:scale-110 transition-transform" />
+        <Link href="/admin/gallery" className="group p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft hover:shadow-gold-glow transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gold-600 text-brand-950 flex items-center justify-center">
+              <ImageIcon className="w-5 h-5" />
             </div>
-            <h3 className="font-serif font-bold text-lg text-brand-900 mb-1">
-              Manage Rental Jewellery
-            </h3>
-            <p className="text-xs text-brand-700 leading-relaxed mb-4">
-              Create rental jewellery listings, set rental rates, security deposits, and set availability.
-            </p>
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold-700 group-hover:text-brand-900">
-              <span>Open Jewellery Catalog</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </div>
-          </Link>
+            <ArrowRight className="w-5 h-5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <h3 className="font-serif font-bold text-lg text-brand-900 group-hover:text-gold-700 transition-colors">
+            Showcase Gallery CMS
+          </h3>
+          <p className="text-xs text-brand-600 mt-1">
+            Upload device photos directly, reorder, and activate showcase gallery items.
+          </p>
+        </Link>
 
-          <Link
-            href="/admin/settings"
-            className="p-6 rounded-2xl bg-cream-50 border border-gold-300/30 hover:border-gold-500 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
-                <Settings className="w-5 h-5" />
-              </div>
-              <ArrowRight className="w-5 h-5 text-gold-600 group-hover:scale-110 transition-transform" />
+        <Link href="/admin/testimonials" className="group p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft hover:shadow-gold-glow transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-900 text-gold-300 flex items-center justify-center">
+              <MessageSquareQuote className="w-5 h-5" />
             </div>
-            <h3 className="font-serif font-bold text-lg text-brand-900 mb-1">
-              Update Business Settings
-            </h3>
-            <p className="text-xs text-brand-700 leading-relaxed mb-4">
-              Update phone number, WhatsApp contact, studio address, business hours, and social media handles.
-            </p>
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold-700 group-hover:text-brand-900">
-              <span>Edit Business Settings</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-5 h-5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <h3 className="font-serif font-bold text-lg text-brand-900 group-hover:text-gold-700 transition-colors">
+            Testimonials CMS
+          </h3>
+          <p className="text-xs text-brand-600 mt-1">
+            Add real customer reviews, star ratings, and event tags for homepage display.
+          </p>
+        </Link>
+
+        <Link href="/admin/faqs" className="group p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft hover:shadow-gold-glow transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-900 text-gold-300 flex items-center justify-center">
+              <HelpCircle className="w-5 h-5" />
             </div>
-          </Link>
-        </div>
+            <ArrowRight className="w-5 h-5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <h3 className="font-serif font-bold text-lg text-brand-900 group-hover:text-gold-700 transition-colors">
+            FAQ CMS
+          </h3>
+          <p className="text-xs text-brand-600 mt-1">
+            Manage question and answer accordions displayed on your homepage.
+          </p>
+        </Link>
+
+        <Link href="/admin/settings" className="group p-6 rounded-2xl bg-white border border-gold-300/30 shadow-soft hover:shadow-gold-glow transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-900 text-gold-300 flex items-center justify-center">
+              <Settings className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-5 h-5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+          </div>
+          <h3 className="font-serif font-bold text-lg text-brand-900 group-hover:text-gold-700 transition-colors">
+            Business Settings
+          </h3>
+          <p className="text-xs text-brand-600 mt-1">
+            Update phone numbers, WhatsApp, address, hero banner text, and social links.
+          </p>
+        </Link>
       </div>
     </div>
   );
