@@ -52,26 +52,13 @@ export default function NewFaqPage() {
               Add FAQ Question &amp; Answer
             </h1>
             <p className="text-xs text-brand-600">
-              Create a new expandable accordion item for your website homepage.
+              Create an expandable accordion item with English and Kannada text.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Question
-              </label>
-              <input
-                type="text"
-                name="question"
-                required
-                placeholder="How long does the bridal mehendi stain last?"
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-              />
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
                 Category
@@ -101,17 +88,70 @@ export default function NewFaqPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Detailed Answer Explanation
-            </label>
-            <textarea
-              name="answer"
-              required
-              rows={4}
-              placeholder="With proper natural aftercare (clove steam, eucalyptus oil, and avoiding water for 8 hours), our 100% organic henna stain peaks at 24-48 hours and lasts 10 to 14 days."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
+          <div className="space-y-6 pt-4 border-t border-cream-200">
+            {/* English FAQ */}
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-gold-700 uppercase tracking-wider block">
+                🇬🇧 English Question &amp; Answer
+              </span>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Question (English) *
+                </label>
+                <input
+                  type="text"
+                  name="question_en"
+                  required
+                  placeholder="How long does the bridal mehendi stain last?"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Answer (English) *
+                </label>
+                <textarea
+                  name="answer_en"
+                  required
+                  rows={3}
+                  placeholder="With proper natural aftercare, our 100% organic henna stain peaks at 24-48 hours and lasts 10 to 14 days."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
+
+            {/* Kannada FAQ */}
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                🇮🇳 Kannada Question &amp; Answer (ಕನ್ನಡ)
+              </span>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಪ್ರಶ್ನೆ (Kannada Question)
+                </label>
+                <input
+                  type="text"
+                  name="question_kn"
+                  placeholder="ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ಬಣ್ಣ ಎಷ್ಟು ದಿನಗಳ ಕಾಲ ಇರುತ್ತದೆ?"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಉತ್ತರ (Kannada Answer)
+                </label>
+                <textarea
+                  name="answer_kn"
+                  rows={3}
+                  placeholder="ಸೂಕ್ತವಾದ ನೈಸರ್ಗಿಕ ಕಾಳಜಿಯೊಂದಿಗೆ, ನಮ್ಮ 100% ನೈಸರ್ಗಿಕ ಮೆಹೆಂದಿ ಬಣ್ಣವು 10 ರಿಂದ 14 ದಿನಗಳ ಕಾಲ ಗಾಢವಾಗಿ ಇರುತ್ತದೆ."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-6 pt-2">

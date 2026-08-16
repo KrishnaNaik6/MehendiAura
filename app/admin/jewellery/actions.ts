@@ -7,35 +7,57 @@ export async function createJewellery(formData: FormData) {
   try {
     const supabase = await createClient();
 
-    const name = formData.get("name") as string;
-    const slug = (formData.get("slug") as string) || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    const name_en = formData.get("name_en") as string || formData.get("name") as string;
+    const name_kn = formData.get("name_kn") as string;
     const category = (formData.get("category") as string) || "Bridal Sets";
-    const short_description = formData.get("short_description") as string;
-    const description = formData.get("description") as string;
     const rental_price = parseFloat((formData.get("rental_price") as string) || "0");
     const security_deposit = parseFloat((formData.get("security_deposit") as string) || "0");
     const availability_status = (formData.get("availability_status") as string) || "available";
-    const included_items_raw = formData.get("included_items") as string;
-    const included_items = included_items_raw
-      ? included_items_raw.split("\n").map((i) => i.trim()).filter(Boolean)
-      : [];
+    
+    const included_raw_en = (formData.get("included_items_en") as string) || (formData.get("included_items") as string) || "";
+    const included_raw_kn = (formData.get("included_items_kn") as string) || "";
+    const included_items_en = included_raw_en.split("\n").map((i) => i.trim()).filter(Boolean);
+    const included_items_kn = included_raw_kn.split("\n").map((i) => i.trim()).filter(Boolean);
+
+    const short_description_en = formData.get("short_description_en") as string || formData.get("short_description") as string;
+    const short_description_kn = formData.get("short_description_kn") as string;
+    const description_en = formData.get("description_en") as string || formData.get("description") as string;
+    const description_kn = formData.get("description_kn") as string;
+    const image_url = formData.get("image_url") as string;
     const featured = formData.get("featured") === "true";
     const active = formData.get("active") !== "false";
     const display_order = parseInt((formData.get("display_order") as string) || "0", 10);
-    const imageUrl = formData.get("image_url") as string;
+
+    if (!name_en || !short_description_en) {
+      return { error: "Please provide English Jewellery Set Name and Short Description." };
+    }
+
+    const slug = name_en
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
 
     const { data: item, error } = await supabase
       .from("jewellery")
       .insert({
-        name,
+        name: name_en,
+        name_en,
+        name_kn: name_kn || null,
         slug,
         category,
-        short_description,
-        description,
         rental_price: rental_price || null,
         security_deposit: security_deposit || null,
         availability_status,
-        included_items,
+        included_items: included_items_en,
+        included_items_en,
+        included_items_kn: included_items_kn.length > 0 ? included_items_kn : null,
+        short_description: short_description_en,
+        short_description_en,
+        short_description_kn: short_description_kn || null,
+        description: description_en || short_description_en,
+        description_en: description_en || short_description_en,
+        description_kn: description_kn || null,
         featured,
         active,
         display_order,
@@ -45,22 +67,21 @@ export async function createJewellery(formData: FormData) {
 
     if (error) throw error;
 
-    // Attach initial image if provided
-    if (imageUrl && item) {
+    if (image_url && item) {
       await supabase.from("jewellery_images").insert({
         jewellery_id: item.id,
-        image_url: imageUrl,
-        storage_path: `jewellery/${item.id}/main.jpg`,
-        alt_text: name,
+        image_url,
+        storage_path: `jewellery/${Date.now()}.jpg`,
+        alt_text: name_en,
         display_order: 1,
       });
     }
 
-    revalidatePath("/jewellery", "page");
+    revalidatePath("/jewellery", "layout");
     revalidatePath("/admin/jewellery", "page");
     return { success: true, itemId: item.id };
   } catch (error: any) {
-    return { error: error.message || "Failed to create jewellery entry." };
+    return { error: error.message || "Failed to create jewellery item." };
   }
 }
 
@@ -68,18 +89,22 @@ export async function updateJewellery(id: string, formData: FormData) {
   try {
     const supabase = await createClient();
 
-    const name = formData.get("name") as string;
-    const slug = formData.get("slug") as string;
+    const name_en = formData.get("name_en") as string || formData.get("name") as string;
+    const name_kn = formData.get("name_kn") as string;
     const category = formData.get("category") as string;
-    const short_description = formData.get("short_description") as string;
-    const description = formData.get("description") as string;
     const rental_price = parseFloat((formData.get("rental_price") as string) || "0");
     const security_deposit = parseFloat((formData.get("security_deposit") as string) || "0");
-    const availability_status = (formData.get("availability_status") as string) || "available";
-    const included_items_raw = formData.get("included_items") as string;
-    const included_items = included_items_raw
-      ? included_items_raw.split("\n").map((i) => i.trim()).filter(Boolean)
-      : [];
+    const availability_status = formData.get("availability_status") as string;
+
+    const included_raw_en = (formData.get("included_items_en") as string) || (formData.get("included_items") as string) || "";
+    const included_raw_kn = (formData.get("included_items_kn") as string) || "";
+    const included_items_en = included_raw_en.split("\n").map((i) => i.trim()).filter(Boolean);
+    const included_items_kn = included_raw_kn.split("\n").map((i) => i.trim()).filter(Boolean);
+
+    const short_description_en = formData.get("short_description_en") as string || formData.get("short_description") as string;
+    const short_description_kn = formData.get("short_description_kn") as string;
+    const description_en = formData.get("description_en") as string || formData.get("description") as string;
+    const description_kn = formData.get("description_kn") as string;
     const featured = formData.get("featured") === "true";
     const active = formData.get("active") === "true";
     const display_order = parseInt((formData.get("display_order") as string) || "0", 10);
@@ -87,26 +112,31 @@ export async function updateJewellery(id: string, formData: FormData) {
     const { error } = await supabase
       .from("jewellery")
       .update({
-        name,
-        slug,
+        name: name_en,
+        name_en,
+        name_kn: name_kn || null,
         category,
-        short_description,
-        description,
         rental_price: rental_price || null,
         security_deposit: security_deposit || null,
         availability_status,
-        included_items,
+        included_items: included_items_en,
+        included_items_en,
+        included_items_kn: included_items_kn.length > 0 ? included_items_kn : null,
+        short_description: short_description_en,
+        short_description_en,
+        short_description_kn: short_description_kn || null,
+        description: description_en,
+        description_en,
+        description_kn: description_kn || null,
         featured,
         active,
         display_order,
-        updated_at: new Date().toISOString(),
       })
       .eq("id", id);
 
     if (error) throw error;
 
-    revalidatePath("/jewellery", "page");
-    revalidatePath(`/jewellery/${slug}`, "page");
+    revalidatePath("/jewellery", "layout");
     revalidatePath("/admin/jewellery", "page");
     return { success: true };
   } catch (error: any) {
@@ -117,11 +147,10 @@ export async function updateJewellery(id: string, formData: FormData) {
 export async function deleteJewellery(id: string) {
   try {
     const supabase = await createClient();
-
     const { error } = await supabase.from("jewellery").delete().eq("id", id);
     if (error) throw error;
 
-    revalidatePath("/jewellery", "page");
+    revalidatePath("/jewellery", "layout");
     revalidatePath("/admin/jewellery", "page");
     return { success: true };
   } catch (error: any) {
@@ -132,15 +161,14 @@ export async function deleteJewellery(id: string) {
 export async function toggleJewelleryActive(id: string, currentActive: boolean) {
   try {
     const supabase = await createClient();
-
     const { error } = await supabase
       .from("jewellery")
-      .update({ active: !currentActive, updated_at: new Date().toISOString() })
+      .update({ active: !currentActive })
       .eq("id", id);
 
     if (error) throw error;
 
-    revalidatePath("/jewellery", "page");
+    revalidatePath("/jewellery", "layout");
     revalidatePath("/admin/jewellery", "page");
     return { success: true };
   } catch (error: any) {
@@ -151,16 +179,14 @@ export async function toggleJewelleryActive(id: string, currentActive: boolean) 
 export async function toggleJewelleryFeatured(id: string, currentFeatured: boolean) {
   try {
     const supabase = await createClient();
-
     const { error } = await supabase
       .from("jewellery")
-      .update({ featured: !currentFeatured, updated_at: new Date().toISOString() })
+      .update({ featured: !currentFeatured })
       .eq("id", id);
 
     if (error) throw error;
 
-    revalidatePath("/", "page");
-    revalidatePath("/jewellery", "page");
+    revalidatePath("/jewellery", "layout");
     revalidatePath("/admin/jewellery", "page");
     return { success: true };
   } catch (error: any) {

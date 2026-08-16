@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Sparkles, Phone, MessageSquare, MapPin, Clock, Lock, Instagram, Facebook, Youtube } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { useLanguage } from "@/lib/i18n/context";
 import { getWhatsAppUrl, buildGeneralWhatsAppMsg } from "@/lib/whatsapp";
 import { getCallUrl } from "@/lib/call";
 import { BusinessSettings } from "@/types/database";
@@ -11,13 +14,15 @@ interface FooterProps {
 }
 
 export function Footer({ settings }: FooterProps) {
+  const { locale, dictionary } = useLanguage();
+
   const phone = settings?.phone || process.env.NEXT_PUBLIC_DEFAULT_PHONE || "+919876543210";
   const whatsappNumber = settings?.whatsapp || process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP || "919876543210";
   const businessName = settings?.business_name || "MehendiAura";
   const address = settings?.address || "Main Studio & Rental Store, City Center";
   const hours = settings?.business_hours || "Mon - Sun: 9:00 AM - 9:00 PM";
 
-  const whatsappUrl = getWhatsAppUrl(whatsappNumber, buildGeneralWhatsAppMsg(businessName));
+  const whatsappUrl = getWhatsAppUrl(whatsappNumber, buildGeneralWhatsAppMsg(businessName, locale));
   const callUrl = getCallUrl(phone);
 
   return (
@@ -26,7 +31,7 @@ export function Footer({ settings }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-brand-800">
           {/* Brand Info Column */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
+            <Link href={`/${locale}`} className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-brand-950" />
               </div>
@@ -35,7 +40,7 @@ export function Footer({ settings }: FooterProps) {
               </span>
             </Link>
             <p className="text-sm text-cream-300 leading-relaxed">
-              Exquisite Bridal &amp; Event Mehendi designs paired with premium traditional Rental Jewellery for weddings, engagements, and grand celebrations.
+              {dictionary.common.tagline}
             </p>
             <div className="pt-2 flex items-center gap-3">
               <a
@@ -71,37 +76,37 @@ export function Footer({ settings }: FooterProps) {
           {/* Quick Links Column */}
           <div>
             <h3 className="font-serif text-lg font-bold text-gold-300 mb-4 pb-2 border-b border-gold-500/20 inline-block">
-              Quick Links
+              {dictionary.nav.home}
             </h3>
             <ul className="space-y-2.5 text-sm text-cream-300">
               <li>
-                <Link href="/" className="hover:text-gold-300 transition-colors">
-                  Home
+                <Link href={`/${locale}`} className="hover:text-gold-300 transition-colors">
+                  {dictionary.nav.home}
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-gold-300 transition-colors">
-                  Mehendi Services
+                <Link href={`/${locale}/services`} className="hover:text-gold-300 transition-colors">
+                  {dictionary.nav.services}
                 </Link>
               </li>
               <li>
-                <Link href="/jewellery" className="hover:text-gold-300 transition-colors">
-                  Rental Jewellery Catalog
+                <Link href={`/${locale}/jewellery`} className="hover:text-gold-300 transition-colors">
+                  {dictionary.nav.jewellery}
                 </Link>
               </li>
               <li>
-                <Link href="/gallery" className="hover:text-gold-300 transition-colors">
-                  Design Gallery
+                <Link href={`/${locale}/gallery`} className="hover:text-gold-300 transition-colors">
+                  {dictionary.nav.gallery}
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-gold-300 transition-colors">
-                  About Artist &amp; Business
+                <Link href={`/${locale}/about`} className="hover:text-gold-300 transition-colors">
+                  {dictionary.nav.about}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-gold-300 transition-colors">
-                  Contact Us
+                <Link href={`/${locale}/contact`} className="hover:text-gold-300 transition-colors">
+                  {dictionary.nav.contact}
                 </Link>
               </li>
             </ul>
@@ -110,12 +115,12 @@ export function Footer({ settings }: FooterProps) {
           {/* Business Services Column */}
           <div>
             <h3 className="font-serif text-lg font-bold text-gold-300 mb-4 pb-2 border-b border-gold-500/20 inline-block">
-              Our Collections
+              {dictionary.common.mehendi} &amp; {dictionary.common.jewellery}
             </h3>
             <ul className="space-y-2.5 text-sm text-cream-300">
-              <li>Bridal &amp; Wedding Mehendi</li>
-              <li>Arabic &amp; Minimal Mehendi</li>
-              <li>Guest &amp; Party Mehendi</li>
+              <li>{dictionary.common.bridal} {dictionary.common.mehendi}</li>
+              <li>Arabic &amp; Contemporary Henna</li>
+              <li>Guest &amp; Party Henna</li>
               <li>Bridal Jewellery Sets</li>
               <li>Temple &amp; Choker Sets</li>
               <li>Maang Tikka &amp; Vaddanam</li>
@@ -125,7 +130,7 @@ export function Footer({ settings }: FooterProps) {
           {/* Contact Details Column */}
           <div className="space-y-3">
             <h3 className="font-serif text-lg font-bold text-gold-300 mb-4 pb-2 border-b border-gold-500/20 inline-block">
-              Direct Contact
+              {dictionary.nav.contact}
             </h3>
             <div className="flex items-start gap-3 text-sm text-cream-300">
               <Phone className="w-4 h-4 text-gold-400 shrink-0 mt-1" />
@@ -133,7 +138,7 @@ export function Footer({ settings }: FooterProps) {
             </div>
             <div className="flex items-start gap-3 text-sm text-cream-300">
               <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
-              <span>WhatsApp Inquiries</span>
+              <span>{dictionary.common.enquireWhatsapp}</span>
             </div>
             <div className="flex items-start gap-3 text-sm text-cream-300">
               <MapPin className="w-4 h-4 text-gold-400 shrink-0 mt-1" />
@@ -155,7 +160,7 @@ export function Footer({ settings }: FooterProps) {
               className="inline-flex items-center gap-1.5 text-cream-300 hover:text-gold-300 transition-colors"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>Admin Portal</span>
+              <span>{dictionary.nav.adminLogin}</span>
             </Link>
           </div>
         </div>

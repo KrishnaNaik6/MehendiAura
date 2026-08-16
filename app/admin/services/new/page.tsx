@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Sparkle } from "lucide-react";
+import { ArrowLeft, Save, Sparkle, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { ImageUploadInput } from "@/components/ui/ImageUploadInput";
@@ -58,26 +58,13 @@ export default function NewServicePage() {
               Create New Mehendi Service
             </h1>
             <p className="text-xs text-brand-600">
-              Add a new service offering to your website catalog.
+              Add a new service offering with English and Kannada descriptions.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Service Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Royal Bridal Mehendi"
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-              />
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
                 Category
@@ -144,30 +131,95 @@ export default function NewServicePage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Short Description (Card Summary)
-            </label>
-            <textarea
-              name="short_description"
-              required
-              rows={2}
-              placeholder="Intricate full-arm and leg bridal henna art featuring custom dulha-dulhan portrait motifs."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
-          </div>
+          {/* Multilingual Name & Descriptions */}
+          <div className="space-y-6 pt-4 border-t border-cream-200">
+            {/* English Section */}
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-gold-700 uppercase tracking-wider block">
+                🇬🇧 English Content
+              </span>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Full Detailed Description
-            </label>
-            <textarea
-              name="description"
-              required
-              rows={5}
-              placeholder="Our signature Royal Bridal Mehendi package offers bespoke, highly detailed bridal henna patterns..."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Service Name (English) *
+                </label>
+                <input
+                  type="text"
+                  name="name_en"
+                  required
+                  placeholder="Royal Bridal Mehendi"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Short Description (English) *
+                </label>
+                <textarea
+                  name="short_description_en"
+                  required
+                  rows={2}
+                  placeholder="Intricate full-arm and leg bridal henna art featuring custom dulha-dulhan portrait motifs."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Full Detailed Description (English)
+                </label>
+                <textarea
+                  name="description_en"
+                  rows={4}
+                  placeholder="Our signature Royal Bridal Mehendi package offers bespoke, highly detailed bridal henna patterns..."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
+
+            {/* Kannada Section */}
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                🇮🇳 Kannada Content (ಕನ್ನಡ)
+              </span>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಸೇವೆಯ ಹೆಸರು (Kannada)
+                </label>
+                <input
+                  type="text"
+                  name="name_kn"
+                  placeholder="ರಾಯಲ್ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಸಂಕ್ಷಿಪ್ತ ವಿವರಣೆ (Kannada Short Description)
+                </label>
+                <textarea
+                  name="short_description_kn"
+                  rows={2}
+                  placeholder="ವರ-ವಧುವಿನ ಭಾವಚಿತ್ರಗಳನ್ನು ಒಳಗೊಂಡಿರುವ ಪೂರ್ಣ ಕೈ ಮತ್ತು ಕಾಲುಗಳ ಶ್ರೇಷ್ಠ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಸಂಪೂರ್ಣ ವಿವರಣೆ (Kannada Full Description)
+                </label>
+                <textarea
+                  name="description_kn"
+                  rows={4}
+                  placeholder="ನಮ್ಮ ರಾಯಲ್ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ಸೇವೆಯು ನೈಸರ್ಗಿಕ ಮೆಹೆಂದಿ ಬಣ್ಣದೊಂದಿಗೆ..."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-6 pt-2">

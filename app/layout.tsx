@@ -6,6 +6,7 @@ import { MobileBottomBar } from "@/components/layout/MobileBottomBar";
 import { fetchBusinessSettings } from "@/lib/supabase/helper";
 import { getLocalBusinessSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { LanguageProvider } from "@/lib/i18n/context";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mehendiaura.com";
@@ -26,6 +27,8 @@ export const metadata: Metadata = {
     "Kundan Jewellery Rental",
     "Indian Wedding Beauty",
     "Henna Artist",
+    "ಮೆಹೆಂದಿ ಕಲಾವಿದರು",
+    "ಬಾಡಿಗೆ ಆಭರಣಗಳು",
   ],
   authors: [{ name: "MehendiAura" }],
   openGraph: {
@@ -69,11 +72,13 @@ export default async function RootLayout({
         <JsonLd data={localBusinessSchema} />
       </head>
       <body className="min-h-screen bg-cream-100 text-brand-800 antialiased flex flex-col selection:bg-gold-500 selection:text-white">
-        <Toaster position="top-right" richColors />
-        <Header />
-        <main className="flex-1 pb-20 lg:pb-0">{children}</main>
-        <Footer />
-        <MobileBottomBar />
+        <LanguageProvider>
+          <Toaster position="top-right" richColors />
+          <Header settings={settings} />
+          <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+          <Footer settings={settings} />
+          <MobileBottomBar settings={settings} />
+        </LanguageProvider>
       </body>
     </html>
   );

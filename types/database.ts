@@ -97,6 +97,13 @@ export interface BusinessSettings {
   hero_title: string
   hero_description: string
   about_content: string
+  // Multilingual Fields
+  hero_title_en?: string | null
+  hero_title_kn?: string | null
+  hero_description_en?: string | null
+  hero_description_kn?: string | null
+  about_content_en?: string | null
+  about_content_kn?: string | null
   created_at: string
   updated_at: string
 }
@@ -113,6 +120,13 @@ export interface Service {
   featured: boolean
   active: boolean
   display_order: number
+  // Multilingual Fields
+  name_en?: string | null
+  name_kn?: string | null
+  short_description_en?: string | null
+  short_description_kn?: string | null
+  description_en?: string | null
+  description_kn?: string | null
   created_at: string
   updated_at: string
   service_images?: ServiceImage[]
@@ -124,6 +138,8 @@ export interface ServiceImage {
   image_url: string
   storage_path: string
   alt_text: string | null
+  alt_text_en?: string | null
+  alt_text_kn?: string | null
   display_order: number
   created_at: string
 }
@@ -142,6 +158,15 @@ export interface Jewellery {
   featured: boolean
   active: boolean
   display_order: number
+  // Multilingual Fields
+  name_en?: string | null
+  name_kn?: string | null
+  short_description_en?: string | null
+  short_description_kn?: string | null
+  description_en?: string | null
+  description_kn?: string | null
+  included_items_en?: string[] | null
+  included_items_kn?: string[] | null
   created_at: string
   updated_at: string
   jewellery_images?: JewelleryImage[]
@@ -153,6 +178,8 @@ export interface JewelleryImage {
   image_url: string
   storage_path: string
   alt_text: string | null
+  alt_text_en?: string | null
+  alt_text_kn?: string | null
   display_order: number
   created_at: string
 }
@@ -165,6 +192,13 @@ export interface GalleryItem {
   image_url: string
   storage_path: string
   alt_text: string | null
+  // Multilingual Fields
+  title_en?: string | null
+  title_kn?: string | null
+  description_en?: string | null
+  description_kn?: string | null
+  alt_text_en?: string | null
+  alt_text_kn?: string | null
   display_order: number
   active: boolean
   created_at: string
@@ -174,6 +208,9 @@ export interface Testimonial {
   id: string
   customer_name: string
   testimonial: string
+  // Multilingual Fields
+  testimonial_en?: string | null
+  testimonial_kn?: string | null
   rating: number
   event_type: string | null
   image_url: string | null
@@ -186,6 +223,11 @@ export interface FAQ {
   id: string
   question: string
   answer: string
+  // Multilingual Fields
+  question_en?: string | null
+  question_kn?: string | null
+  answer_en?: string | null
+  answer_kn?: string | null
   category: string | null
   active: boolean
   display_order: number

@@ -8,19 +8,22 @@ export async function createTestimonial(formData: FormData) {
     const supabase = await createClient();
 
     const customer_name = formData.get("customer_name") as string;
-    const testimonial = formData.get("testimonial") as string;
+    const testimonial_en = formData.get("testimonial_en") as string || formData.get("testimonial") as string;
+    const testimonial_kn = formData.get("testimonial_kn") as string;
     const rating = parseInt((formData.get("rating") as string) || "5", 10);
     const event_type = formData.get("event_type") as string;
     const active = formData.get("active") !== "false";
     const display_order = parseInt((formData.get("display_order") as string) || "0", 10);
 
-    if (!customer_name || !testimonial) {
-      return { error: "Please enter customer name and testimonial review text." };
+    if (!customer_name || !testimonial_en) {
+      return { error: "Please enter customer name and English review text." };
     }
 
     const { error } = await supabase.from("testimonials").insert({
       customer_name,
-      testimonial,
+      testimonial: testimonial_en,
+      testimonial_en,
+      testimonial_kn: testimonial_kn || null,
       rating,
       event_type: event_type || null,
       active,
@@ -29,7 +32,7 @@ export async function createTestimonial(formData: FormData) {
 
     if (error) throw error;
 
-    revalidatePath("/", "page");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/testimonials", "page");
     return { success: true };
   } catch (error: any) {
@@ -44,7 +47,7 @@ export async function deleteTestimonial(id: string) {
     const { error } = await supabase.from("testimonials").delete().eq("id", id);
     if (error) throw error;
 
-    revalidatePath("/", "page");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/testimonials", "page");
     return { success: true };
   } catch (error: any) {
@@ -63,7 +66,7 @@ export async function toggleTestimonialActive(id: string, currentActive: boolean
 
     if (error) throw error;
 
-    revalidatePath("/", "page");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/testimonials", "page");
     return { success: true };
   } catch (error: any) {

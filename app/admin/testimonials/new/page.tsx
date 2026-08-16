@@ -52,7 +52,7 @@ export default function NewTestimonialPage() {
               Add Customer Testimonial
             </h1>
             <p className="text-xs text-brand-600">
-              Add a real customer review and rating to display on your homepage.
+              Add customer review in English and Kannada.
             </p>
           </div>
         </div>
@@ -117,17 +117,31 @@ export default function NewTestimonialPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Customer Testimonial Review Text
-            </label>
-            <textarea
-              name="testimonial"
-              required
-              rows={4}
-              placeholder="The bridal mehendi stain lasted so dark and rich for over two weeks! The rental jewellery set matched my lehenga perfectly."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
+          <div className="space-y-6 pt-4 border-t border-cream-200">
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-gold-700 uppercase tracking-wider block">
+                🇬🇧 English Review
+              </span>
+              <textarea
+                name="testimonial_en"
+                required
+                rows={3}
+                placeholder="The bridal mehendi stain lasted so dark and rich for over two weeks! The rental jewellery set matched my lehenga perfectly."
+                className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+              />
+            </div>
+
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                🇮🇳 Kannada Review (ಕನ್ನಡ)
+              </span>
+              <textarea
+                name="testimonial_kn"
+                rows={3}
+                placeholder="ಮೆಹೆಂದಿ ಬಣ್ಣವು ಎರಡು ವಾರಗಳಿಗಿಂತ ಹೆಚ್ಚು ಕಾಲ ಬಹಳ ಗಾಢವಾಗಿ ಮತ್ತು ಸುಂದರವಾಗಿ ಇತ್ತು! ಬಾಡಿಗೆ ಆಭರಣವು ನನ್ನ ಉಡುಪಿಗೆ ಸೂಕ್ತವಾಗಿ ಹೊಂದಿಕೆಯಾಯಿತು."
+                className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-6 pt-2">

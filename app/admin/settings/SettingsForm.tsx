@@ -13,8 +13,7 @@ import {
   Instagram,
   Facebook,
   Youtube,
-  Sparkles,
-  BookOpen,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -54,15 +53,15 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8 pb-12">
       {/* 1. Basic Business Identity */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
+      <div className="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-cream-200">
-          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center shrink-0">
             <Building className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-serif text-xl font-bold text-brand-900">
+            <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
               Business Identity &amp; Contact Info
             </h2>
             <p className="text-xs text-brand-600">
@@ -185,14 +184,123 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       </div>
 
-      {/* 2. Social Media Links */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
+      {/* 2. Multilingual Content Section */}
+      <div className="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-cream-200">
-          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gold-600 text-brand-950 flex items-center justify-center shrink-0">
+            <Globe className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
+              Multilingual Headlines &amp; Brand Story (English &amp; ಕನ್ನಡ)
+            </h2>
+            <p className="text-xs text-brand-600">
+              Enter content for English and Kannada website visitors.
+            </p>
+          </div>
+        </div>
+
+        {/* English Section */}
+        <div className="space-y-4 p-4 sm:p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+          <span className="text-xs font-bold text-gold-700 uppercase tracking-wider block">
+            🇬🇧 English Content
+          </span>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 mb-1">
+              Hero Title (English)
+            </label>
+            <input
+              type="text"
+              name="hero_title_en"
+              defaultValue={initialSettings.hero_title_en || initialSettings.hero_title}
+              placeholder="Exquisite Mehendi Artistry & Premium Rental Jewellery"
+              className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 mb-1">
+              Hero Subtitle / Description (English)
+            </label>
+            <textarea
+              name="hero_description_en"
+              rows={2}
+              defaultValue={initialSettings.hero_description_en || initialSettings.hero_description}
+              placeholder="Crafting unforgettable bridal mehendi designs..."
+              className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 mb-1">
+              About Story Narrative (English)
+            </label>
+            <textarea
+              name="about_content_en"
+              rows={3}
+              defaultValue={initialSettings.about_content_en || initialSettings.about_content}
+              placeholder="MehendiAura is a premier bridal studio..."
+              className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+        </div>
+
+        {/* Kannada Section */}
+        <div className="space-y-4 p-4 sm:p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+            🇮🇳 Kannada Content (ಕನ್ನಡ)
+          </span>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 mb-1">
+              Hero Title (ಕನ್ನಡ)
+            </label>
+            <input
+              type="text"
+              name="hero_title_kn"
+              defaultValue={initialSettings.hero_title_kn || ""}
+              placeholder="ಅತ್ಯುತ್ತಮ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ಕಲೆ ಮತ್ತು ಪ್ರೀಮಿಯಂ ಬಾಡಿಗೆ ಆಭರಣಗಳು"
+              className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 mb-1">
+              Hero Subtitle / Description (ಕನ್ನಡ)
+            </label>
+            <textarea
+              name="hero_description_kn"
+              rows={2}
+              defaultValue={initialSettings.hero_description_kn || ""}
+              placeholder="ಮದುವೆ ಮತ್ತು ಶುಭ ಸಮಾರಂಭಗಳಿಗಾಗಿ ಸುಂದರವಾದ ವಧುವಿನ ಮೆಹೆಂದಿ ವಿನ್ಯಾಸಗಳು..."
+              className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 mb-1">
+              About Story Narrative (ಕನ್ನಡ)
+            </label>
+            <textarea
+              name="about_content_kn"
+              rows={3}
+              defaultValue={initialSettings.about_content_kn || ""}
+              placeholder="MehendiAura ಭಾರತೀಯ ಮದುವೆಗಳ ಸೌಂದರ್ಯವನ್ನು ಹೆಚ್ಚಿಸುವ ಪ್ರಮುಖ ಮೆಹೆಂದಿ ಕಲೆ..."
+              className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Social Media Links */}
+      <div className="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
+        <div className="flex items-center gap-3 pb-4 border-b border-cream-200">
+          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center shrink-0">
             <Instagram className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-serif text-xl font-bold text-brand-900">
+            <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
               Social Media Connections
             </h2>
             <p className="text-xs text-brand-600">
@@ -252,70 +360,9 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       </div>
 
-      {/* 3. Hero & About Story Content */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-cream-200">
-          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="font-serif text-xl font-bold text-brand-900">
-              Hero Section &amp; Brand Story
-            </h2>
-            <p className="text-xs text-brand-600">
-              Custom headline text and brand story for the landing hero &amp; about page.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Hero Title Headline
-            </label>
-            <input
-              type="text"
-              name="hero_title"
-              required
-              defaultValue={initialSettings.hero_title}
-              placeholder="Exquisite Mehendi Artistry & Premium Rental Jewellery"
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500 font-serif font-bold text-base"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Hero Subtitle / Description
-            </label>
-            <textarea
-              name="hero_description"
-              required
-              rows={3}
-              defaultValue={initialSettings.hero_description}
-              placeholder="Crafting unforgettable bridal mehendi designs..."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              About Artist &amp; Business Narrative
-            </label>
-            <textarea
-              name="about_content"
-              required
-              rows={5}
-              defaultValue={initialSettings.about_content}
-              placeholder="MehendiAura is a premier bridal studio..."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Form Submission Sticky Bar */}
-      <div className="sticky bottom-6 bg-brand-900 text-cream-100 p-4 rounded-2xl border border-gold-500/30 shadow-2xl flex items-center justify-between gap-4">
-        <p className="text-xs text-cream-300 hidden sm:block">
+      <div className="sticky bottom-4 sm:bottom-6 bg-brand-900 text-cream-100 p-4 rounded-2xl border border-gold-500/30 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 z-30">
+        <p className="text-xs text-cream-300 text-center sm:text-left">
           Changes will instantly update your live website header, contact info, and footer.
         </p>
         <Button
@@ -324,7 +371,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
           size="lg"
           isLoading={isLoading}
           leftIcon={<Save className="w-5 h-5" />}
-          className="ml-auto min-w-[200px]"
+          className="w-full sm:w-auto min-w-[200px]"
         >
           Save Settings
         </Button>

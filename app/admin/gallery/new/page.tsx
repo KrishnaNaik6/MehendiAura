@@ -62,26 +62,13 @@ export default function NewGalleryPage() {
               Add Photo to Showcase Gallery
             </h1>
             <p className="text-xs text-brand-600">
-              Upload a photo directly from your phone/computer or paste an image URL.
+              Upload a photo with English and Kannada titles.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Photo Title / Name
-              </label>
-              <input
-                type="text"
-                name="title"
-                required
-                placeholder="Full Arm Royal Bridal Pattern"
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-              />
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
                 Category
@@ -100,15 +87,6 @@ export default function NewGalleryPage() {
               </select>
             </div>
 
-            <div className="md:col-span-2">
-              <ImageUploadInput
-                folder="gallery"
-                value={imageUrl}
-                onChange={setImageUrl}
-                label="Select Photo From Device"
-              />
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
                 Display Order Priority
@@ -120,18 +98,79 @@ export default function NewGalleryPage() {
                 className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
+
+            <div className="md:col-span-2">
+              <ImageUploadInput
+                folder="gallery"
+                value={imageUrl}
+                onChange={setImageUrl}
+                label="Select Photo From Device"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Short Description / Caption
-            </label>
-            <textarea
-              name="description"
-              rows={3}
-              placeholder="Full arm bridal mehendi applied for bride Ananya in Jaipur wedding..."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
+          {/* Multilingual Titles */}
+          <div className="space-y-6 pt-4 border-t border-cream-200">
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-gold-700 uppercase tracking-wider block">
+                🇬🇧 English Content
+              </span>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Photo Title (English) *
+                </label>
+                <input
+                  type="text"
+                  name="title_en"
+                  required
+                  placeholder="Full Arm Royal Bridal Pattern"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Description / Caption (English)
+                </label>
+                <textarea
+                  name="description_en"
+                  rows={2}
+                  placeholder="Full arm bridal mehendi applied for bride Ananya..."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                🇮🇳 Kannada Content (ಕನ್ನಡ)
+              </span>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಫೋಟೋ ಶೀರ್ಷಿಕೆ (Kannada Title)
+                </label>
+                <input
+                  type="text"
+                  name="title_kn"
+                  placeholder="ರಾಯಲ್ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ವಿನ್ಯಾಸ"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ವಿವರಣೆ (Kannada Caption)
+                </label>
+                <textarea
+                  name="description_kn"
+                  rows={2}
+                  placeholder="ವಧುವಿಗೆ ಹಾಕಲಾದ ಶ್ರೇಷ್ಠ ವಧುವಿನ ಮೆಹೆಂದಿ ಕಲಾಕೃತಿ..."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-6 pt-2">

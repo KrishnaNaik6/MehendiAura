@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LOCALES, DEFAULT_LOCALE, Locale } from "@/lib/i18n/config";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -37,13 +38,14 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
-  // Protect /admin routes (except /admin/login)
+  // 1. Protect /admin routes (except /admin/login)
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     if (!user) {
       url.pathname = "/admin/login";
       url.searchParams.set("redirectTo", pathname);
       return NextResponse.redirect(url);
     }
+    return response;
   }
 
   // Redirect authenticated user from /admin/login to /admin dashboard
@@ -52,11 +54,36 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Skip static files, api, admin, sitemap, robots
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.includes(".") ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt"
+  ) {
+    return response;
+  }
+
+  // 2. Locale Redirection Check
+  const pathnameHasLocale = LOCALES.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (!pathnameHasLocale) {
+    const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value as Locale;
+    const locale = LOCALES.includes(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+
+    url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+    return NextResponse.redirect(url);
+  }
+
   return response;
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

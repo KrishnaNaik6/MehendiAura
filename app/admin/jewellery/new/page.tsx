@@ -58,26 +58,13 @@ export default function NewJewelleryPage() {
               Add New Rental Jewellery Set
             </h1>
             <p className="text-xs text-brand-600">
-              Create a new rental jewellery listing in your catalog.
+              Create a new rental jewellery listing with English and Kannada details.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Jewellery Set Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Kundu & Polki Royal Bridal Set"
-                className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-              />
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
                 Category
@@ -163,42 +150,119 @@ export default function NewJewelleryPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Included Items in Set (One item per line)
-            </label>
-            <textarea
-              name="included_items"
-              rows={4}
-              placeholder={`Royal Choker Necklace\nLong Layered Haram\nMatha Patti\nMatching Jhumka Earrings\nVaddanam Waist Belt`}
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
-          </div>
+          {/* Multilingual Details */}
+          <div className="space-y-6 pt-4 border-t border-cream-200">
+            {/* English Section */}
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-gold-700 uppercase tracking-wider block">
+                🇬🇧 English Content
+              </span>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Short Summary
-            </label>
-            <textarea
-              name="short_description"
-              required
-              rows={2}
-              placeholder="Regal Kundan necklace set with matching long haram, matha patti, jhumkas, and waist belt."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
-          </div>
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Jewellery Set Name (English) *
+                </label>
+                <input
+                  type="text"
+                  name="name_en"
+                  required
+                  placeholder="Kundu & Polki Royal Bridal Set"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Full Detailed Description
-            </label>
-            <textarea
-              name="description"
-              required
-              rows={4}
-              placeholder="Handcrafted premium Kundan bridal rental set plated in 22K gold finish..."
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-            />
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Included Items in Set (English — One per line)
+                </label>
+                <textarea
+                  name="included_items_en"
+                  rows={3}
+                  placeholder={`Royal Choker Necklace\nLong Layered Haram\nMatha Patti\nMatching Jhumka Earrings`}
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Short Summary (English) *
+                </label>
+                <textarea
+                  name="short_description_en"
+                  required
+                  rows={2}
+                  placeholder="Regal Kundan necklace set with matching long haram, matha patti, jhumkas, and waist belt."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  Full Detailed Description (English)
+                </label>
+                <textarea
+                  name="description_en"
+                  rows={3}
+                  placeholder="Handcrafted premium Kundan bridal rental set plated in 22K gold finish..."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
+
+            {/* Kannada Section */}
+            <div className="space-y-4 p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                🇮🇳 Kannada Content (ಕನ್ನಡ)
+              </span>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಆಭರಣ ಸೆಟ್‌ನ ಹೆಸರು (Kannada Name)
+                </label>
+                <input
+                  type="text"
+                  name="name_kn"
+                  placeholder="ಕುಂದನ್ ರಾಯಲ್ ಬ್ರೈಡಲ್ ಸೆಟ್"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಒಳಗೊಂಡಿರುವ ವಸ್ತುಗಳು (Kannada Included Items — One per line)
+                </label>
+                <textarea
+                  name="included_items_kn"
+                  rows={3}
+                  placeholder={`ರಾಯಲ್ ಚೋಕರ್ ಹಾರ\nಉದ್ದನೆಯ ಹಾರ\nಮತ್ತಾಪಟ್ಟಿ\nಜುಮುಕಿ ಕಿವಿ ಓಲೆಗಳು`}
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಸಂಕ್ಷಿಪ್ತ ವಿವರಣೆ (Kannada Short Summary)
+                </label>
+                <textarea
+                  name="short_description_kn"
+                  rows={2}
+                  placeholder="ಕುಂದನ್ ಹಾರ, ಉದ್ದನೆಯ ಹಾರ, ಮತ್ತಾಪಟ್ಟಿ ಮತ್ತು ಜುಮುಕಿ ಒಳಗೊಂಡಿರುವ ಪ್ರೀಮಿಯಂ ಬ್ರೈಡಲ್ ಸೆಟ್."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-brand-900 mb-1">
+                  ಸಂಪೂರ್ಣ ವಿವರಣೆ (Kannada Full Description)
+                </label>
+                <textarea
+                  name="description_kn"
+                  rows={3}
+                  placeholder="22K ಗೋಲ್ಡ್ ಫಿನಿಶ್‌ನೊಂದಿಗೆ ಕೈಯಿಂದ ತಯಾರಿಸಿದ ರಾಯಲ್ ಕುಂದನ್ ಬ್ರೈಡಲ್ ಆಭರಣ ಸೆಟ್..."
+                  className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-6 pt-2">
