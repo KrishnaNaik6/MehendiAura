@@ -10,7 +10,7 @@ export function getWhatsAppUrl(phoneNumber: string, message: string): string {
 }
 
 /**
- * Builds localized WhatsApp message for Mehendi Service inquiry
+ * Builds localized WhatsApp message for Service inquiry (Mehendi, Makeup, Saree Draping, etc.)
  */
 export function buildServiceWhatsAppMsg(
   serviceName: string,
@@ -18,9 +18,9 @@ export function buildServiceWhatsAppMsg(
   locale: Locale = "en"
 ): string {
   if (locale === "kn") {
-    return `ನಮಸ್ಕಾರ ${businessName}, ನನಗೆ '${serviceName}' ಮೆಹೆಂದಿ ಸೇವೆಯ ಬಗ್ಗೆ ಆಸಕ್ತಿ ಇದೆ. ದಯವಿಟ್ಟು ಲಭ್ಯತೆ ಮತ್ತು ಬೆಲೆಯ ವಿವರಗಳನ್ನು ತಿಳಿಸಿ.`;
+    return `ನಮಸ್ಕಾರ ${businessName}, ನನಗೆ '${serviceName}' ಸೇವೆಯ ಬಗ್ಗೆ ಆಸಕ್ತಿ ಇದೆ. ದಯವಿಟ್ಟು ಲಭ್ಯತೆ ಮತ್ತು ಬೆಲೆಯ ವಿವರಗಳನ್ನು ತಿಳಿಸಿ.`;
   }
-  return `Hi ${businessName}, I am interested in booking your '${serviceName}' mehendi service. Could you please share date availability, custom pricing, and booking details?`;
+  return `Hi ${businessName}, I am interested in booking your '${serviceName}' service. Could you please share date availability, pricing, and booking details?`;
 }
 
 /**
@@ -45,7 +45,7 @@ export function buildGeneralWhatsAppMsg(
   locale: Locale = "en"
 ): string {
   if (locale === "kn") {
-    return `ನಮಸ್ಕಾರ ${businessName}, ನಾನು ನಿಮ್ಮ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ಸೇವೆಗಳು ಮತ್ತು ಬಾಡಿಗೆ ಆಭರಣಗಳ ಬಗ್ಗೆ ವಿಚಾರಿಸಲು ಬಯಸುತ್ತೇನೆ. ದಯವಿಟ್ಟು ವಿವರಗಳನ್ನು ನೀಡಿ.`;
+    return `ನಮಸ್ಕಾರ ${businessName}, ನಾನು ನಿಮ್ಮ ಸೇವೆಗಳು (ಮೆಹೆಂದಿ, ಮೇಕಪ್) ಮತ್ತು ಬಾಡಿಗೆ ಆಭರಣಗಳ ಬಗ್ಗೆ ವಿಚಾರಿಸಲು ಬಯಸುತ್ತೇನೆ. ದಯವಿಟ್ಟು ವಿವರಗಳನ್ನು ನೀಡಿ.`;
   }
-  return `Hi ${businessName}, I would like to inquire about your bridal mehendi services and rental jewellery availability for an upcoming wedding celebration.`;
+  return `Hi ${businessName}, I would like to inquire about your bridal services (mehendi, makeup, draping) and rental jewellery availability for an upcoming wedding celebration.`;
 }

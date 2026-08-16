@@ -13,15 +13,41 @@ interface EditServiceFormProps {
   service: Service;
 }
 
+const PRESET_CATEGORIES = [
+  "Bridal",
+  "Engagement",
+  "Makeup Service",
+  "Saree Draping",
+  "Hair Styling",
+  "Pre-Wedding Grooming",
+  "Arabic",
+  "Traditional",
+  "Minimal",
+  "Party",
+];
+
 export function EditServiceForm({ service }: EditServiceFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const isInitiallyPreset = PRESET_CATEGORIES.includes(service.category);
+  const [selectedCategory, setSelectedCategory] = useState(
+    isInitiallyPreset ? service.category : "Custom"
+  );
+  const [customCategory, setCustomCategory] = useState(
+    isInitiallyPreset ? "" : service.category
+  );
+
+  const isCustomSelected = selectedCategory === "Custom";
+  const finalCategory = isCustomSelected ? customCategory : selectedCategory;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("category", finalCategory || "General Service");
+
     try {
       const res = await updateService(service.id, formData);
       if (res.error) {
@@ -67,24 +93,44 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
           />
         </div>
 
+        {/* Category Selector */}
         <div>
           <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-            Category
+            Category / Service Type *
           </label>
           <select
-            name="category"
-            required
-            defaultValue={service.category}
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
             className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
           >
             <option value="Bridal">Bridal Mehendi</option>
             <option value="Engagement">Engagement Mehendi</option>
-            <option value="Arabic">Arabic Mehendi</option>
+            <option value="Makeup Service">Makeup Service (Bridal &amp; Party)</option>
+            <option value="Saree Draping">Saree &amp; Lehenga Draping</option>
+            <option value="Hair Styling">Hair Styling &amp; Makeover</option>
+            <option value="Pre-Wedding Grooming">Pre-Wedding Grooming</option>
+            <option value="Arabic">Arabic Henna</option>
             <option value="Traditional">Traditional Mehendi</option>
             <option value="Minimal">Minimal Mehendi</option>
             <option value="Party">Guest &amp; Party Henna</option>
-            <option value="Custom">Custom Henna Designs</option>
+            <option value="Custom">✨ Add Custom Category Name...</option>
           </select>
+
+          {isCustomSelected && (
+            <div className="mt-3">
+              <label className="block text-xs font-semibold text-gold-700 uppercase tracking-wider mb-1">
+                Enter Custom Category Name
+              </label>
+              <input
+                type="text"
+                required
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="e.g. Nail Art, Airbrush Makeup"
+                className="w-full px-4 py-2.5 bg-white border border-gold-400 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+              />
+            </div>
+          )}
         </div>
 
         <div>

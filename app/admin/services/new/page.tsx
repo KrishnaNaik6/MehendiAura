@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Sparkle, Globe } from "lucide-react";
+import { ArrowLeft, Save, Sparkle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { ImageUploadInput } from "@/components/ui/ImageUploadInput";
@@ -12,13 +12,20 @@ import { createService } from "../actions";
 export default function NewServicePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Bridal");
+  const [customCategory, setCustomCategory] = useState("");
   const router = useRouter();
+
+  const isCustomSelected = selectedCategory === "Custom";
+  const finalCategory = isCustomSelected ? customCategory : selectedCategory;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("category", finalCategory || "General Service");
+
     if (imageUrl) {
       formData.set("image_url", imageUrl);
     }
@@ -48,41 +55,59 @@ export default function NewServicePage() {
         <span>Back to Services List</span>
       </Link>
 
-      <div className="bg-white p-8 rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gold-300/30 shadow-soft space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-cream-200">
-          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-brand-800 text-gold-300 flex items-center justify-center shrink-0">
             <Sparkle className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-bold text-brand-900">
-              Create New Mehendi Service
+            <h1 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+              Create New Service Package (Mehendi, Makeup, Draping, etc.)
             </h1>
             <p className="text-xs text-brand-600">
-              Add a new service offering with English and Kannada descriptions.
+              Add any service offering — Bridal Mehendi, Makeup, Saree Draping, Hair Styling, or custom packages.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Category Selector */}
             <div>
               <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-                Category
+                Service Category / Type *
               </label>
               <select
-                name="category"
-                required
-                defaultValue="Bridal"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               >
                 <option value="Bridal">Bridal Mehendi</option>
                 <option value="Engagement">Engagement Mehendi</option>
-                <option value="Arabic">Arabic Mehendi</option>
-                <option value="Traditional">Traditional Mehendi</option>
-                <option value="Minimal">Minimal Mehendi</option>
+                <option value="Makeup Service">Makeup Service (Bridal &amp; Party)</option>
+                <option value="Saree Draping">Saree &amp; Lehenga Draping</option>
+                <option value="Hair Styling">Hair Styling &amp; Makeover</option>
+                <option value="Pre-Wedding Grooming">Pre-Wedding Grooming</option>
+                <option value="Arabic">Arabic Henna</option>
                 <option value="Party">Guest &amp; Party Henna</option>
-                <option value="Custom">Custom Henna Designs</option>
+                <option value="Custom">✨ Add Custom Category Name...</option>
               </select>
+
+              {isCustomSelected && (
+                <div className="mt-3">
+                  <label className="block text-xs font-semibold text-gold-700 uppercase tracking-wider mb-1">
+                    Enter Custom Category Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    placeholder="e.g. Nail Art, Airbrush Makeup, Pre-Wedding Package"
+                    className="w-full px-4 py-2.5 bg-white border border-gold-400 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
@@ -92,7 +117,7 @@ export default function NewServicePage() {
               <input
                 type="text"
                 name="price"
-                placeholder="Contact for Price (or Starting from ₹5,000)"
+                placeholder="Starting from ₹5,000 (or Contact for Price)"
                 className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
@@ -104,7 +129,7 @@ export default function NewServicePage() {
               <input
                 type="text"
                 name="duration"
-                placeholder="4 - 6 Hours"
+                placeholder="2 - 3 Hours"
                 className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
@@ -126,7 +151,7 @@ export default function NewServicePage() {
                 folder="services"
                 value={imageUrl}
                 onChange={setImageUrl}
-                label="Service Photo (Select File or Paste URL)"
+                label="Service Cover Photo (Select File or Paste URL)"
               />
             </div>
           </div>
@@ -147,7 +172,7 @@ export default function NewServicePage() {
                   type="text"
                   name="name_en"
                   required
-                  placeholder="Royal Bridal Mehendi"
+                  placeholder="e.g. HD Bridal Makeup & Hair Styling"
                   className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               </div>
@@ -160,7 +185,7 @@ export default function NewServicePage() {
                   name="short_description_en"
                   required
                   rows={2}
-                  placeholder="Intricate full-arm and leg bridal henna art featuring custom dulha-dulhan portrait motifs."
+                  placeholder="e.g. Professional HD bridal makeup, hair styling, and accessory placement for your wedding day."
                   className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               </div>
@@ -172,7 +197,7 @@ export default function NewServicePage() {
                 <textarea
                   name="description_en"
                   rows={4}
-                  placeholder="Our signature Royal Bridal Mehendi package offers bespoke, highly detailed bridal henna patterns..."
+                  placeholder="Detailed breakdown of makeup products, skin prep, lash extensions, saree draping, and artist details..."
                   className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               </div>
@@ -186,12 +211,12 @@ export default function NewServicePage() {
 
               <div>
                 <label className="block text-xs font-semibold text-brand-900 mb-1">
-                  ಸೇವೆಯ ಹೆಸರು (Kannada)
+                  ಸೇವೆಯ ಹೆಸರು (Kannada Service Name)
                 </label>
                 <input
                   type="text"
                   name="name_kn"
-                  placeholder="ರಾಯಲ್ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ"
+                  placeholder="ಉದಾಹರಣೆಗೆ: ಎಚ್‌ಡಿ ಬ್ರೈಡಲ್ ಮೇಕಪ್"
                   className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               </div>
@@ -203,7 +228,7 @@ export default function NewServicePage() {
                 <textarea
                   name="short_description_kn"
                   rows={2}
-                  placeholder="ವರ-ವಧುವಿನ ಭಾವಚಿತ್ರಗಳನ್ನು ಒಳಗೊಂಡಿರುವ ಪೂರ್ಣ ಕೈ ಮತ್ತು ಕಾಲುಗಳ ಶ್ರೇಷ್ಠ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ."
+                  placeholder="ಮದುವೆ ಮತ್ತು ಸಂಭ್ರಮದ ದಿನಕ್ಕಾಗಿ ಶ್ರೇಷ್ಠ ಮೇಕಪ್ ಮತ್ತು ಕೇಶವಿನ್ಯಾಸ ಸೇವೆಗಳು."
                   className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               </div>
@@ -215,7 +240,7 @@ export default function NewServicePage() {
                 <textarea
                   name="description_kn"
                   rows={4}
-                  placeholder="ನಮ್ಮ ರಾಯಲ್ ಬ್ರೈಡಲ್ ಮೆಹೆಂದಿ ಸೇವೆಯು ನೈಸರ್ಗಿಕ ಮೆಹೆಂದಿ ಬಣ್ಣದೊಂದಿಗೆ..."
+                  placeholder="ನಮ್ಮ ಮೇಕಪ್ ಸೇವೆಯ ಕುರಿತು ವಿವರಗಳು..."
                   className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               </div>
