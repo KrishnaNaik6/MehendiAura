@@ -57,10 +57,18 @@ export async function createService(formData: FormData) {
     if (error) throw error;
 
     if (image_url && service) {
+      let storage_path = `services/${Date.now()}.jpg`;
+      if (image_url.includes("mehendiaura-images/")) {
+        const parts = image_url.split("mehendiaura-images/");
+        if (parts.length > 1) {
+          storage_path = parts[1];
+        }
+      }
+
       await supabase.from("service_images").insert({
         service_id: service.id,
         image_url,
-        storage_path: `services/${Date.now()}.jpg`,
+        storage_path,
         alt_text: name_en,
         display_order: 1,
       });
@@ -125,6 +133,32 @@ export async function updateService(id: string, formData: FormData) {
 export async function deleteService(id: string) {
   try {
     const supabase = await createClient();
+
+    // 1. Fetch associated service images to delete files from Supabase Storage bucket
+    const { data: images } = await supabase
+      .from("service_images")
+      .select("image_url, storage_path")
+      .eq("service_id", id);
+
+    if (images && images.length > 0) {
+      const pathsToRemove: string[] = [];
+      images.forEach((img) => {
+        let path = img.storage_path;
+        if ((!path || !path.includes("/")) && img.image_url?.includes("mehendiaura-images/")) {
+          const parts = img.image_url.split("mehendiaura-images/");
+          if (parts.length > 1) {
+            path = parts[1];
+          }
+        }
+        if (path) pathsToRemove.push(path);
+      });
+
+      if (pathsToRemove.length > 0) {
+        await supabase.storage.from("mehendiaura-images").remove(pathsToRemove);
+      }
+    }
+
+    // 2. Delete database row
     const { error } = await supabase.from("services").delete().eq("id", id);
     if (error) throw error;
 

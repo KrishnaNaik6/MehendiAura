@@ -68,10 +68,18 @@ export async function createJewellery(formData: FormData) {
     if (error) throw error;
 
     if (image_url && item) {
+      let storage_path = `jewellery/${Date.now()}.jpg`;
+      if (image_url.includes("mehendiaura-images/")) {
+        const parts = image_url.split("mehendiaura-images/");
+        if (parts.length > 1) {
+          storage_path = parts[1];
+        }
+      }
+
       await supabase.from("jewellery_images").insert({
         jewellery_id: item.id,
         image_url,
-        storage_path: `jewellery/${Date.now()}.jpg`,
+        storage_path,
         alt_text: name_en,
         display_order: 1,
       });
@@ -147,6 +155,32 @@ export async function updateJewellery(id: string, formData: FormData) {
 export async function deleteJewellery(id: string) {
   try {
     const supabase = await createClient();
+
+    // 1. Fetch associated jewellery images to delete files from Supabase Storage bucket
+    const { data: images } = await supabase
+      .from("jewellery_images")
+      .select("image_url, storage_path")
+      .eq("jewellery_id", id);
+
+    if (images && images.length > 0) {
+      const pathsToRemove: string[] = [];
+      images.forEach((img) => {
+        let path = img.storage_path;
+        if ((!path || !path.includes("/")) && img.image_url?.includes("mehendiaura-images/")) {
+          const parts = img.image_url.split("mehendiaura-images/");
+          if (parts.length > 1) {
+            path = parts[1];
+          }
+        }
+        if (path) pathsToRemove.push(path);
+      });
+
+      if (pathsToRemove.length > 0) {
+        await supabase.storage.from("mehendiaura-images").remove(pathsToRemove);
+      }
+    }
+
+    // 2. Delete database row
     const { error } = await supabase.from("jewellery").delete().eq("id", id);
     if (error) throw error;
 

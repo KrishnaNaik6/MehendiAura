@@ -22,6 +22,15 @@ export async function createGalleryItem(formData: FormData) {
       return { error: "Please provide English title and image URL." };
     }
 
+    // Extract storage path from image_url if stored in bucket
+    let storage_path = `gallery/${Date.now()}.jpg`;
+    if (image_url.includes("mehendiaura-images/")) {
+      const parts = image_url.split("mehendiaura-images/");
+      if (parts.length > 1) {
+        storage_path = parts[1];
+      }
+    }
+
     const { data: item, error } = await supabase
       .from("gallery")
       .insert({
@@ -33,7 +42,7 @@ export async function createGalleryItem(formData: FormData) {
         description_en: description_en || null,
         description_kn: description_kn || null,
         image_url,
-        storage_path: `gallery/${Date.now()}.jpg`,
+        storage_path,
         alt_text: alt_text_en || null,
         alt_text_en: alt_text_en || null,
         alt_text_kn: alt_text_kn || null,
@@ -96,6 +105,29 @@ export async function deleteGalleryItem(id: string) {
   try {
     const supabase = await createClient();
 
+    // 1. Fetch item to get its storage_path and image_url before deletion
+    const { data: item } = await supabase
+      .from("gallery")
+      .select("image_url, storage_path")
+      .eq("id", id)
+      .single();
+
+    if (item) {
+      let pathToRemove = item.storage_path;
+      if ((!pathToRemove || !pathToRemove.includes("/")) && item.image_url?.includes("mehendiaura-images/")) {
+        const parts = item.image_url.split("mehendiaura-images/");
+        if (parts.length > 1) {
+          pathToRemove = parts[1];
+        }
+      }
+
+      if (pathToRemove) {
+        // Clean up binary image file from Supabase Storage bucket
+        await supabase.storage.from("mehendiaura-images").remove([pathToRemove]);
+      }
+    }
+
+    // 2. Delete database row
     const { error } = await supabase.from("gallery").delete().eq("id", id);
     if (error) throw error;
 
