@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, CheckCircle2, XCircle, ExternalLink, Filter, Layers, X } from "lucide-react";
+import { Search, Trash2, CheckCircle2, XCircle, ExternalLink, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 import { GalleryItem } from "@/types/database";
 import { toggleGalleryActive, deleteGalleryItem } from "./actions";
@@ -32,13 +32,6 @@ export function GalleryTable({ initialGallery }: GalleryTableProps) {
   });
 
   const handleToggleActive = async (item: GalleryItem) => {
-    if ((item as any).isReadonly) {
-      toast.info("Manage Service / Jewellery Status", {
-        description: "Status for service and jewellery photos is inherited from their main listing page.",
-      });
-      return;
-    }
-
     try {
       const res = await toggleGalleryActive(item.id, item.active);
       if (res.error) {
@@ -56,14 +49,7 @@ export function GalleryTable({ initialGallery }: GalleryTableProps) {
   };
 
   const handleDelete = async (item: GalleryItem) => {
-    if ((item as any).isReadonly) {
-      toast.info("Delete via Listing Manager", {
-        description: "To delete service or jewellery photos, delete or edit the respective service or jewellery listing.",
-      });
-      return;
-    }
-
-    if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
+    if (!confirm(`Are you sure you want to delete "${item.title}" from storage and database?`)) return;
 
     try {
       const res = await deleteGalleryItem(item.id);
@@ -219,12 +205,8 @@ export function GalleryTable({ initialGallery }: GalleryTableProps) {
                       </a>
                       <button
                         onClick={() => handleDelete(item)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          (item as any).isReadonly
-                            ? "text-gray-400 cursor-not-allowed opacity-50"
-                            : "text-red-600 hover:text-red-800 hover:bg-red-500/10"
-                        }`}
-                        title={(item as any).isReadonly ? "Managed via Service/Jewellery CMS" : "Delete Photo"}
+                        className="p-2 rounded-lg text-red-600 hover:text-red-800 hover:bg-red-500/10 transition-colors"
+                        title="Delete Photo from Storage & Database"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

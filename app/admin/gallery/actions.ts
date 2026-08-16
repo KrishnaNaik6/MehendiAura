@@ -123,7 +123,59 @@ export async function deleteGalleryItem(id: string) {
   try {
     const supabase = await createClient();
 
-    // Fetch item to get its storage_path and image_url before deletion
+    // 1. Handle deletion of service attachment photos
+    if (id.startsWith("service-img-")) {
+      const realId = id.replace("service-img-", "");
+      const { data: img } = await supabase
+        .from("service_images")
+        .select("image_url, storage_path")
+        .eq("id", realId)
+        .single();
+
+      if (img) {
+        let path = img.storage_path;
+        if ((!path || !path.includes("/")) && img.image_url?.includes("mehendiaura-images/")) {
+          path = img.image_url.split("mehendiaura-images/")[1];
+        }
+        if (path) {
+          await supabase.storage.from("mehendiaura-images").remove([path]);
+        }
+      }
+
+      await supabase.from("service_images").delete().eq("id", realId);
+      revalidatePath("/services", "layout");
+      revalidatePath("/gallery", "layout");
+      revalidatePath("/admin/gallery", "page");
+      return { success: true };
+    }
+
+    // 2. Handle deletion of jewellery attachment photos
+    if (id.startsWith("jewellery-img-")) {
+      const realId = id.replace("jewellery-img-", "");
+      const { data: img } = await supabase
+        .from("jewellery_images")
+        .select("image_url, storage_path")
+        .eq("id", realId)
+        .single();
+
+      if (img) {
+        let path = img.storage_path;
+        if ((!path || !path.includes("/")) && img.image_url?.includes("mehendiaura-images/")) {
+          path = img.image_url.split("mehendiaura-images/")[1];
+        }
+        if (path) {
+          await supabase.storage.from("mehendiaura-images").remove([path]);
+        }
+      }
+
+      await supabase.from("jewellery_images").delete().eq("id", realId);
+      revalidatePath("/jewellery", "layout");
+      revalidatePath("/gallery", "layout");
+      revalidatePath("/admin/gallery", "page");
+      return { success: true };
+    }
+
+    // 3. Handle standard gallery item deletion
     const { data: item } = await supabase
       .from("gallery")
       .select("image_url, storage_path")
@@ -151,7 +203,7 @@ export async function deleteGalleryItem(id: string) {
     revalidatePath("/admin/gallery", "page");
     return { success: true };
   } catch (error: any) {
-    return { error: error.message || "Failed to delete gallery item." };
+    return { error: error.message || "Failed to delete item." };
   }
 }
 
@@ -159,12 +211,25 @@ export async function toggleGalleryActive(id: string, currentActive: boolean) {
   try {
     const supabase = await createClient();
 
-    const { error } = await supabase
-      .from("gallery")
-      .update({ active: !currentActive })
-      .eq("id", id);
-
-    if (error) throw error;
+    if (id.startsWith("service-img-")) {
+      const realId = id.replace("service-img-", "");
+      const { data: img } = await supabase.from("service_images").select("service_id").eq("id", realId).single();
+      if (img?.service_id) {
+        await supabase.from("services").update({ active: !currentActive }).eq("id", img.service_id);
+      }
+    } else if (id.startsWith("jewellery-img-")) {
+      const realId = id.replace("jewellery-img-", "");
+      const { data: img } = await supabase.from("jewellery_images").select("jewellery_id").eq("id", realId).single();
+      if (img?.jewellery_id) {
+        await supabase.from("jewellery").update({ active: !currentActive }).eq("id", img.jewellery_id);
+      }
+    } else {
+      const { error } = await supabase
+        .from("gallery")
+        .update({ active: !currentActive })
+        .eq("id", id);
+      if (error) throw error;
+    }
 
     revalidatePath("/gallery", "layout");
     revalidatePath("/admin/gallery", "page");
