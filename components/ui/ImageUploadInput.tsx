@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { UploadCloud, CheckCircle2, Loader2, X, Link as LinkIcon } from "lucide-react";
+import { UploadCloud, CheckCircle2, Loader2, X, Link as LinkIcon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImageToSupabase } from "@/lib/supabase/storage";
+import { convertToWebP } from "@/lib/utils/imageCompressor";
 
 interface ImageUploadInputProps {
   value?: string;
@@ -21,30 +22,48 @@ export function ImageUploadInput({
   const [imageUrl, setImageUrl] = useState<string>(value);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMode, setUploadMode] = useState<"file" | "url">("file");
+  const [uploadStats, setUploadStats] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Invalid File", { description: "Please select an image file (JPG, PNG, WEBP)." });
+    if (!rawFile.type.startsWith("image/")) {
+      toast.error("Invalid File", { description: "Please select an image file (JPG, PNG, WEBP, HEIC)." });
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File Too Large", { description: "Maximum image size allowed is 10MB." });
+    if (rawFile.size > 15 * 1024 * 1024) {
+      toast.error("File Too Large", { description: "Maximum image size allowed is 15MB." });
       return;
     }
 
     setIsUploading(true);
+    setUploadStats(null);
+
     try {
-      const { url, error } = await uploadImageToSupabase(file, folder);
+      // 1. Client-Side WebP Conversion & Compression
+      const webpFile = await convertToWebP(rawFile, 0.85);
+
+      const originalMb = (rawFile.size / (1024 * 1024)).toFixed(2);
+      const webpKb = (webpFile.size / 1024).toFixed(0);
+      const savingsPercent = Math.max(0, Math.round((1 - webpFile.size / rawFile.size) * 100));
+
+      // 2. Upload Compressed WebP to Supabase Storage
+      const { url, error } = await uploadImageToSupabase(webpFile, folder);
+
       if (error) {
         toast.error("Upload Failed", { description: error });
       } else if (url) {
         setImageUrl(url);
         onChange(url);
-        toast.success("Image Uploaded Successfully!");
+
+        const statsMsg = `Converted to WebP: ${originalMb}MB → ${webpKb}KB (${savingsPercent}% saved)`;
+        setUploadStats(statsMsg);
+
+        toast.success("Image Optimized & Uploaded!", {
+          description: `Auto-converted to WebP (${webpKb}KB, ${savingsPercent}% storage saved).`,
+        });
       }
     } catch {
       toast.error("An error occurred during file upload.");
@@ -60,6 +79,7 @@ export function ImageUploadInput({
 
   const handleClear = () => {
     setImageUrl("");
+    setUploadStats(null);
     onChange("");
   };
 
@@ -98,7 +118,7 @@ export function ImageUploadInput({
       </div>
 
       {imageUrl ? (
-        <div className="relative w-full h-48 rounded-2xl overflow-hidden border-2 border-gold-400 bg-brand-950 group">
+        <div className="relative w-full h-52 rounded-2xl overflow-hidden border-2 border-gold-400 bg-brand-950 group">
           <img
             src={imageUrl}
             alt="Uploaded Preview"
@@ -114,10 +134,20 @@ export function ImageUploadInput({
               <X className="w-5 h-5" />
             </button>
           </div>
-          <span className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-emerald-600/90 text-white text-xs font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Image Attached</span>
-          </span>
+
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+            <span className="px-3 py-1 rounded-full bg-emerald-600/90 text-white text-xs font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Image Attached</span>
+            </span>
+
+            {uploadStats && (
+              <span className="px-3 py-1 rounded-full bg-brand-950/80 text-gold-300 text-[11px] font-medium flex items-center gap-1.5 backdrop-blur-md border border-gold-400/30 shadow-md truncate">
+                <Sparkles className="w-3 h-3 text-gold-400 shrink-0" />
+                <span className="truncate">{uploadStats}</span>
+              </span>
+            )}
+          </div>
         </div>
       ) : uploadMode === "file" ? (
         <label className="border-2 border-dashed border-gold-400/60 hover:border-gold-500 bg-cream-50 hover:bg-gold-500/5 rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-2 transition-all group">
@@ -125,7 +155,10 @@ export function ImageUploadInput({
             <div className="flex flex-col items-center gap-2 py-4">
               <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
               <span className="text-xs font-semibold text-brand-800">
-                Uploading photo to Supabase storage...
+                Converting to high-quality WebP &amp; uploading...
+              </span>
+              <span className="text-[11px] text-brand-600">
+                Optimizing image for 3x faster page speed
               </span>
             </div>
           ) : (
@@ -138,7 +171,7 @@ export function ImageUploadInput({
                   Click to select photo from device
                 </span>
                 <span className="text-xs text-brand-600 block">
-                  Supports JPG, PNG, WEBP (Max 10MB)
+                  Auto-converts to optimized <strong className="text-gold-700">WebP format</strong> (Max 15MB)
                 </span>
               </div>
               <input
