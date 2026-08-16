@@ -33,8 +33,10 @@ export async function createBatchGalleryItems(formData: FormData) {
       return { error: "Please select at least one photo file." };
     }
 
+    const catSlug = category.toLowerCase().replace(/[^a-z0-9]/g, "-");
+
     const itemsToInsert = imageUrls.map((url, idx) => {
-      let storage_path = `gallery/${Date.now()}-${idx}.webp`;
+      let storage_path = `gallery/${catSlug}/${Date.now()}-${idx}.webp`;
       if (url.includes("mehendiaura-images/")) {
         const parts = url.split("mehendiaura-images/");
         if (parts.length > 1) {
