@@ -76,6 +76,14 @@ export interface Database {
         }
         Update: Partial<Omit<FAQ, 'id'>>
       }
+      visitor_logs: {
+        Row: VisitorLog
+        Insert: Omit<VisitorLog, 'id' | 'created_at'> & {
+          id?: string
+          created_at?: string
+        }
+        Update: Partial<Omit<VisitorLog, 'id'>>
+      }
     }
   }
 }
@@ -232,5 +240,16 @@ export interface FAQ {
   category: string | null
   active: boolean
   display_order: number
+  created_at: string
+}
+
+export interface VisitorLog {
+  id: string
+  session_id: string
+  page_path: string
+  action: 'page_view' | 'whatsapp_click' | 'call_click' | 'service_view' | 'jewellery_view' | 'gallery_view'
+  details: string | null
+  language: string | null
+  device: string | null
   created_at: string
 }

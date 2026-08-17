@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { fetchStorageStats } from "@/lib/supabase/helper";
+import { fetchAnalyticsSummary } from "@/app/actions/analytics";
+import { AdminAnalyticsWidget } from "@/components/admin/AdminAnalyticsWidget";
 
 export default async function AdminDashboardOverview() {
   const supabase = await createClient();
@@ -25,6 +27,7 @@ export default async function AdminDashboardOverview() {
   ]);
 
   const storageStats = await fetchStorageStats();
+  const analyticsData = await fetchAnalyticsSummary();
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
@@ -40,6 +43,9 @@ export default async function AdminDashboardOverview() {
           Manage your business information, mehendi service catalog, rental jewellery inventory, showcase gallery, customer reviews, and FAQs.
         </p>
       </div>
+
+      {/* Live Visitor & Activity Analytics Widget */}
+      <AdminAnalyticsWidget initialData={analyticsData} />
 
       {/* Admin Only Storage & Database Usage Widget */}
       <div className="bg-white p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">

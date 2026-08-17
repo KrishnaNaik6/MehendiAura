@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomBar } from "@/components/layout/MobileBottomBar";
+import { VisitorTracker } from "@/components/analytics/VisitorTracker";
 import { BusinessSettings } from "@/types/database";
 
 interface PublicLayoutWrapperProps {
@@ -25,6 +26,7 @@ export function PublicLayoutWrapper({
 
   return (
     <>
+      <VisitorTracker />
       <Header settings={settings} />
       <main className="flex-1 pb-20 lg:pb-0">{children}</main>
       <Footer settings={settings} />
