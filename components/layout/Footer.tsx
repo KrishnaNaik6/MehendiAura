@@ -18,7 +18,7 @@ export function Footer({ settings }: FooterProps) {
 
   const phone = settings?.phone || process.env.NEXT_PUBLIC_DEFAULT_PHONE || "+919876543210";
   const whatsappNumber = settings?.whatsapp || process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP || "919876543210";
-  const businessName = settings?.business_name || "MehendiAura";
+  const businessName = settings?.business_name || "MHendi by Mamatha";
   const address = settings?.address || "Main Studio & Rental Store, City Center";
   const hours = settings?.business_hours || "Mon - Sun: 9:00 AM - 9:00 PM";
 
@@ -31,11 +31,11 @@ export function Footer({ settings }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-brand-800">
           {/* Brand Info Column */}
           <div className="space-y-4">
-            <Link href={`/${locale}`} className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
+            <Link href={`/${locale}`} className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4 text-brand-950" />
               </div>
-              <span className="font-serif text-2xl tracking-wide text-gold-300 font-bold">
+              <span className="font-serif text-xl sm:text-2xl tracking-wide text-gold-300 font-bold truncate">
                 {businessName}
               </span>
             </Link>

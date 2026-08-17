@@ -11,7 +11,6 @@ import {
   HardDrive,
   Database as DatabaseIcon,
   ShieldCheck,
-  Zap,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { fetchStorageStats } from "@/lib/supabase/helper";
@@ -35,7 +34,7 @@ export default async function AdminDashboardOverview() {
           Control Panel Overview
         </span>
         <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white mt-1">
-          Welcome to MehendiAura CMS
+          Welcome to MHendi by Mamatha CMS
         </h1>
         <p className="text-xs sm:text-sm text-cream-200 mt-2 max-w-2xl">
           Manage your business information, mehendi service catalog, rental jewellery inventory, showcase gallery, customer reviews, and FAQs.

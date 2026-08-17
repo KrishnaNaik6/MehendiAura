@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: JewelleryDetailPageProps) {
     .single();
 
   if (!item) {
-    return { title: "Rental Jewellery | MehendiAura" };
+    return { title: "Rental Jewellery | MHendi by Mamatha" };
   }
 
   const name = getLocalizedField(item, "name", locale);

@@ -1,6 +1,6 @@
 export const kn = {
   common: {
-    brandName: "MehendiAura",
+    brandName: "MHendi by Mamatha",
     tagline: "ಅತ್ಯುತ್ತಮ ಮೆಹೆಂದಿ ಕಲೆ ಮತ್ತು ಸೌಂದರ್ಯದ ಬಾಡಿಗೆ ಆಭರಣಗಳು",
     callNow: "ಈಗ ಕರೆ ಮಾಡಿ",
     callStudio: "ಸ್ಟುಡಿಯೋಗೆ ಕರೆ ಮಾಡಿ",
@@ -112,7 +112,7 @@ export const kn = {
   },
   aboutPage: {
     badge: "ನಮ್ಮ ಪರಂಪರೆ ಮತ್ತು ಕಥೆ",
-    title: "MehendiAura ಕುರಿತು",
+    title: "MHendi by Mamatha ಕುರಿತು",
     subtitle: "ನೈಸರ್ಗಿಕ ಮೆಹೆಂದಿ ಕಲೆ ಮತ್ತು ರಾಯಲ್ ಬಾಡಿಗೆ ಆಭರಣಗಳ ಮೂಲಕ ಭಾರತೀಯ ವಿವಾಹದ ಸಂಪ್ರದಾಯಗಳನ್ನು ಎತ್ತಿಹಿಡಿಯಲು ಬದ್ಧವಾಗಿದೆ.",
     specializationsBadge: "ನಮ್ಮ ವಿಶೇಷತೆಗಳು",
     specializationsTitle: "ನಮ್ಮ ಮುಖ್ಯ ಸೇವೆಗಳು",
@@ -128,7 +128,7 @@ export const kn = {
   },
   contactPage: {
     badge: "ನೇರ ಸಂಪರ್ಕ ಮತ್ತು ಸ್ಥಳ",
-    title: "MehendiAura ತಂಡವನ್ನು ಸಂಪರ್ಕಿಸಿ",
+    title: "MHendi by Mamatha ತಂಡವನ್ನು ಸಂಪರ್ಕಿಸಿ",
     subtitle: "ಯಾವುದೇ ಸಂಕೀರ್ಣ ಫಾರ್ಮ್‌ಗಳ ಅಗತ್ಯವಿಲ್ಲ. ತ್ವರಿತ ಲಭ್ಯತೆ ಮತ್ತು ಬೆಲೆಗಳಿಗಾಗಿ ನೇರವಾಗಿ WhatsApp ಅಥವಾ ಫೋನ್ ಕರೆ ಮೂಲಕ ಸಂಪರ್ಕಿಸಿ.",
     directCtas: "ನೇರ ಸಂಪರ್ಕ ಮಾರ್ಗಗಳು",
     whatsappDesc: "ದಿನಾಂಕ ಮತ್ತು ಬೆಲೆಯ ವಿವರಗಳಿಗೆ ತ್ವರಿತ ಪ್ರತಿಕ್ರಿಯೆ",

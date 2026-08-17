@@ -16,7 +16,7 @@ export function MobileBottomBar({ settings }: MobileBottomBarProps) {
 
   const phone = settings?.phone || process.env.NEXT_PUBLIC_DEFAULT_PHONE || "+919876543210";
   const whatsappNumber = settings?.whatsapp || process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP || "919876543210";
-  const businessName = settings?.business_name || "MehendiAura";
+  const businessName = settings?.business_name || "MHendi by Mamatha";
 
   const whatsappUrl = getWhatsAppUrl(whatsappNumber, buildGeneralWhatsAppMsg(businessName, locale));
   const callUrl = getCallUrl(phone);

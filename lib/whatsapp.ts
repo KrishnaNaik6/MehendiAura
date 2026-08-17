@@ -14,7 +14,7 @@ export function getWhatsAppUrl(phoneNumber: string, message: string): string {
  */
 export function buildServiceWhatsAppMsg(
   serviceName: string,
-  businessName: string = "MehendiAura",
+  businessName: string = "MHendi by Mamatha",
   locale: Locale = "en"
 ): string {
   if (locale === "kn") {
@@ -28,7 +28,7 @@ export function buildServiceWhatsAppMsg(
  */
 export function buildJewelleryWhatsAppMsg(
   jewelleryName: string,
-  businessName: string = "MehendiAura",
+  businessName: string = "MHendi by Mamatha",
   locale: Locale = "en"
 ): string {
   if (locale === "kn") {
@@ -41,11 +41,11 @@ export function buildJewelleryWhatsAppMsg(
  * Builds general localized WhatsApp message
  */
 export function buildGeneralWhatsAppMsg(
-  businessName: string = "MehendiAura",
+  businessName: string = "MHendi by Mamatha",
   locale: Locale = "en"
 ): string {
   if (locale === "kn") {
-    return `ನಮಸ್ಕಾರ ${businessName}, ನಾನು ನಿಮ್ಮ ಸೇವೆಗಳು (ಮೆಹೆಂದಿ, ಮೇಕಪ್) ಮತ್ತು ಬಾಡಿಗೆ ಆಭರಣಗಳ ಬಗ್ಗೆ ವಿಚಾರಿಸಲು ಬಯಸುತ್ತೇನೆ. ದಯವಿಟ್ಟು ವಿವರಗಳನ್ನು ನೀಡಿ.`;
+    return `ನಮಸ್ಕಾರ ${businessName}, ನಾನು ನಿಮ್ಮ ಸೇವೆಗಳು (ಮೆಹೆಂದಿ) ಮತ್ತು ಬಾಡಿಗೆ ಆಭರಣಗಳ ಬಗ್ಗೆ ವಿಚಾರಿಸಲು ಬಯಸುತ್ತೇನೆ. ದಯವಿಟ್ಟು ವಿವರಗಳನ್ನು ನೀಡಿ.`;
   }
   return `Hi ${businessName}, I would like to inquire about your bridal services (mehendi, makeup, draping) and rental jewellery availability for an upcoming wedding celebration.`;
 }

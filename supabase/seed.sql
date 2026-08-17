@@ -1,5 +1,5 @@
 -- ====================================================================
--- MehendiAura Seed Data Script
+-- MHendi by Mamatha Seed Data Script
 -- ====================================================================
 
 -- 1. BUSINESS SETTINGS SEED
@@ -19,18 +19,18 @@ INSERT INTO public.business_settings (
     about_content
 ) VALUES (
     '00000000-0000-0000-0000-000000000001',
-    'MehendiAura',
+    'MHendi by Mamatha',
     '+919876543210',
     '919876543210',
-    'info@mehendiaura.com',
+    'info@mhendibymamatha.com',
     'Studio #12, Wedding Boulevard, MG Road, City Center',
     'https://maps.google.com',
     'Mon - Sun: 9:00 AM - 9:00 PM',
-    'https://instagram.com/mehendiaura',
-    'https://facebook.com/mehendiaura',
+    'https://instagram.com/mhendibymamatha',
+    'https://facebook.com/mhendibymamatha',
     'Exquisite Mehendi Artistry & Premium Rental Jewellery',
     'Crafting unforgettable bridal mehendi designs & curating regal rental jewellery sets for weddings and grand celebrations.',
-    'MehendiAura is a premier bridal mehendi artistry and rental jewellery studio dedicated to timeless Indian wedding traditions.'
+    'MHendi by Mamatha is a premier bridal mehendi artistry and rental jewellery studio dedicated to timeless Indian wedding traditions.'
 ) ON CONFLICT (id) DO NOTHING;
 
 -- 2. SERVICES SEED

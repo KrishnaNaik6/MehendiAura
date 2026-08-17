@@ -9,7 +9,7 @@ export default function Loading() {
       </div>
       <div className="text-center space-y-1">
         <span className="font-serif font-bold text-xl text-brand-900 block">
-          Loading MehendiAura...
+          Loading MHendi by Mamatha...
         </span>
         <span className="text-xs text-brand-600 uppercase tracking-widest block font-semibold">
           Bridal Artistry &amp; Jewellery Catalog

@@ -6,8 +6,8 @@ export function getLocalBusinessSchema(settings: BusinessSettings) {
   return {
     "@context": "https://schema.org",
     "@type": "BeautySalon",
-    name: settings.business_name || "MehendiAura",
-    description: settings.hero_description || "Professional Bridal Mehendi Services & Rental Jewellery Startup",
+    name: settings.business_name || "MHendi by Mamatha",
+    description: settings.hero_description || "Professional Bridal Mehendi Services & Rental Jewellery Studio",
     url: baseUrl,
     telephone: settings.phone,
     address: {
@@ -35,7 +35,7 @@ export function getServiceSchema(service: Service, settings: BusinessSettings) {
     description: service.short_description || service.description,
     provider: {
       "@type": "LocalBusiness",
-      name: settings.business_name,
+      name: settings.business_name || "MHendi by Mamatha",
       telephone: settings.phone,
     },
     areaServed: {

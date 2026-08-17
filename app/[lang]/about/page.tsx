@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: AboutPageProps) {
   const dictionary = getDictionary(locale);
 
   return {
-    title: `${dictionary.aboutPage.title} | MehendiAura`,
+    title: `${dictionary.aboutPage.title} | MHendi by Mamatha`,
     description: dictionary.aboutPage.subtitle,
   };
 }

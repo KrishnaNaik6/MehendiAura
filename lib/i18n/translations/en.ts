@@ -1,6 +1,6 @@
 export const en = {
   common: {
-    brandName: "MehendiAura",
+    brandName: "MHendi by Mamatha",
     tagline: "Exquisite Mehendi Artistry & Rental Jewellery",
     callNow: "Call Now",
     callStudio: "Call Studio",
@@ -112,7 +112,7 @@ export const en = {
   },
   aboutPage: {
     badge: "Our Heritage & Story",
-    title: "About MehendiAura",
+    title: "About MHendi by Mamatha",
     subtitle: "Dedicated to preserving timeless Indian bridal traditions through handcrafted organic mehendi art and regal rental jewellery.",
     specializationsBadge: "Our Specializations",
     specializationsTitle: "Signature Offerings",
@@ -128,7 +128,7 @@ export const en = {
   },
   contactPage: {
     badge: "Direct Contact & Location",
-    title: "Get in Touch with MehendiAura",
+    title: "Get in Touch with MHendi by Mamatha",
     subtitle: "No complex forms or waiting. Contact us directly via WhatsApp or phone call for immediate availability and custom quotes.",
     directCtas: "Direct Conversion CTAs",
     whatsappDesc: "Fastest response for dates & custom quotes",

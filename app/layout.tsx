@@ -12,12 +12,13 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mehendiaura.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "MehendiAura | Professional Mehendi Artist & Rental Jewellery",
-    template: "%s | MehendiAura",
+    default: "MHendi by Mamatha | Professional Mehendi Artist & Rental Jewellery",
+    template: "%s | MHendi by Mamatha",
   },
   description:
     "Exquisite Bridal & Event Mehendi Services and Premium Rental Jewellery for Weddings, Engagements & Special Occasions.",
   keywords: [
+    "MHendi by Mamatha",
     "Mehendi Artist",
     "Bridal Mehendi",
     "Rental Jewellery",
@@ -33,19 +34,19 @@ export const metadata: Metadata = {
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
-  authors: [{ name: "MehendiAura" }],
+  authors: [{ name: "MHendi by Mamatha" }],
   openGraph: {
-    title: "MehendiAura | Professional Mehendi Artist & Rental Jewellery",
+    title: "MHendi by Mamatha | Professional Mehendi Artist & Rental Jewellery",
     description:
       "Exquisite Bridal & Event Mehendi Services and Premium Rental Jewellery for Special Occasions.",
     type: "website",
     locale: "en_IN",
-    siteName: "MehendiAura",
+    siteName: "MHendi by Mamatha",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "MehendiAura | Professional Mehendi Artist & Rental Jewellery",
+    title: "MHendi by Mamatha | Professional Mehendi Artist & Rental Jewellery",
     description: "Exquisite Bridal & Event Mehendi Services and Premium Rental Jewellery.",
   },
   robots: {

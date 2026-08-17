@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
             Admin Portal Login
           </h1>
           <p className="text-xs sm:text-sm text-cream-300">
-            Sign in to manage Mehendi services, jewellery rental catalog, and business settings.
+            Sign in to manage MHendi by Mamatha services, jewellery rental catalog, and business settings.
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@mehendiaura.com"
+                placeholder="admin@mhendibymamatha.com"
                 className="w-full pl-10 pr-4 py-3 bg-brand-950/80 border border-gold-500/30 rounded-xl text-sm text-cream-100 placeholder-cream-400/60 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition-all"
               />
             </div>
@@ -137,7 +137,7 @@ export default function AdminLoginPage() {
 
       {/* Footer copyright */}
       <div className="text-center text-xs text-cream-400/60 py-2">
-        © {new Date().getFullYear()} MehendiAura. Protected Administrator System.
+        © {new Date().getFullYear()} MHendi by Mamatha. Protected Administrator System.
       </div>
     </div>
   );

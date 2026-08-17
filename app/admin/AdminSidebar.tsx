@@ -51,14 +51,14 @@ export function AdminSidebar({ customCategories }: AdminSidebarProps) {
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shrink-0">
             <Sparkles className="w-4 h-4 text-brand-950" />
           </div>
-          <span className="font-serif text-lg text-gold-300 font-bold">
-            MehendiAura CMS
+          <span className="font-serif text-lg text-gold-300 font-bold truncate">
+            MHendi by Mamatha CMS
           </span>
         </Link>
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="min-w-[44px] min-h-[44px] p-2 rounded-xl text-gold-300 hover:text-white hover:bg-brand-900 transition-colors flex items-center justify-center"
+          className="min-w-[44px] min-h-[44px] p-2 rounded-xl text-gold-300 hover:text-white hover:bg-brand-900 transition-colors flex items-center justify-center shrink-0"
           aria-label="Toggle Admin Navigation"
         >
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -74,15 +74,15 @@ export function AdminSidebar({ customCategories }: AdminSidebarProps) {
         <div>
           {/* Admin Header Logo (Desktop) */}
           <div className="hidden md:flex p-6 border-b border-brand-800 items-center justify-between">
-            <Link href="/admin" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
+            <Link href="/admin" className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4 text-brand-950" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-lg tracking-wide text-gold-300 font-bold leading-none">
-                  MehendiAura
+              <div className="flex flex-col min-w-0">
+                <span className="font-serif text-base tracking-wide text-gold-300 font-bold leading-none truncate">
+                  MHendi by Mamatha
                 </span>
-                <span className="text-[10px] text-cream-300 uppercase tracking-widest mt-0.5">
+                <span className="text-[10px] text-cream-300 uppercase tracking-widest mt-0.5 truncate">
                   CMS Admin Portal
                 </span>
               </div>

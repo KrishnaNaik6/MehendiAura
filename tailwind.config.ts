@@ -48,16 +48,51 @@ const config: Config = {
           500: "#7a5c43",
           800: "#4a3525", // Deep Earthy Brown
           900: "#322216",
-        }
+        },
       },
       fontFamily: {
         serif: ["var(--font-playfair)", "Georgia", "serif"],
         sans: ["var(--font-outfit)", "Inter", "sans-serif"],
       },
       boxShadow: {
-        'soft': '0 4px 20px -2px rgba(27, 59, 43, 0.08)',
-        'gold-glow': '0 4px 20px -2px rgba(197, 160, 89, 0.25)',
-      }
+        soft: "0 4px 20px -2px rgba(27, 59, 43, 0.08)",
+        "gold-glow": "0 4px 25px -2px rgba(197, 160, 89, 0.35)",
+        "emerald-glow": "0 4px 25px -2px rgba(27, 59, 43, 0.35)",
+      },
+      keyframes: {
+        fadeInUp: {
+          "0%": { opacity: "0", transform: "translateY(24px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        fadeInDown: {
+          "0%": { opacity: "0", transform: "translateY(-20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-7px)" },
+        },
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        pulseGlow: {
+          "0%, 100%": { boxShadow: "0 0 15px rgba(197, 160, 89, 0.3)" },
+          "50%": { boxShadow: "0 0 30px rgba(197, 160, 89, 0.7)" },
+        },
+        scaleUp: {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+      },
+      animation: {
+        "fade-in-up": "fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "fade-in-down": "fadeInDown 0.5s ease-out forwards",
+        float: "float 4s ease-in-out infinite",
+        shimmer: "shimmer 2.5s infinite",
+        "pulse-glow": "pulseGlow 3s infinite",
+        "scale-up": "scaleUp 0.4s ease-out forwards",
+      },
     },
   },
   plugins: [],

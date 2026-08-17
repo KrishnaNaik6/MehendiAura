@@ -29,14 +29,14 @@ export async function generateMetadata({ params }: ServiceDetailPageProps) {
     .single();
 
   if (!service) {
-    return { title: "Mehendi Service | MehendiAura" };
+    return { title: "Mehendi Service | MHendi by Mamatha" };
   }
 
   const name = getLocalizedField(service, "name", locale);
   const desc = getLocalizedField(service, "short_description", locale);
 
   return {
-    title: `${name} | MehendiAura`,
+    title: `${name} | MHendi by Mamatha`,
     description: desc,
   };
 }

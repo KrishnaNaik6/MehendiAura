@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ContactPageProps) {
   const dictionary = getDictionary(locale);
 
   return {
-    title: `${dictionary.contactPage.title} | MehendiAura`,
+    title: `${dictionary.contactPage.title} | MHendi by Mamatha`,
     description: dictionary.contactPage.subtitle,
   };
 }

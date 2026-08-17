@@ -39,7 +39,7 @@ body {
 
 /* Custom Utilities */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #D4AF37 0%, #C5A059 50%, #8C6431 100%);
+  background: linear-gradient(135deg, #FFD700 0%, #C5A059 50%, #8C6431 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -52,4 +52,45 @@ body {
   background: rgba(253, 251, 247, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+/* Luxury Interactive Animations */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px -5px rgba(197, 160, 89, 0.3);
+}
+
+.shimmer-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 70%
+  );
+  transform: rotate(30deg);
+  animation: shimmer 3.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) rotate(30deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(30deg);
+  }
 }

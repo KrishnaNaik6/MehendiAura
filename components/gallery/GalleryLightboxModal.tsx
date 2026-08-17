@@ -18,7 +18,7 @@ interface GalleryLightboxModalProps {
 export function GalleryLightboxModal({
   items,
   whatsappNumber = "919876543210",
-  businessName = "MehendiAura",
+  businessName = "MHendi by Mamatha",
   locale = "en",
 }: GalleryLightboxModalProps) {
   const dictionary = getDictionary(locale);

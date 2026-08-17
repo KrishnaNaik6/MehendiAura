@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: JewelleryPageProps) {
   const dictionary = getDictionary(locale);
 
   return {
-    title: `${dictionary.jewelleryPage.title} | MehendiAura`,
+    title: `${dictionary.jewelleryPage.title} | MHendi by Mamatha`,
     description: dictionary.jewelleryPage.subtitle,
   };
 }

@@ -80,7 +80,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               name="business_name"
               required
               defaultValue={initialSettings.business_name}
-              placeholder="MehendiAura"
+              placeholder="MHendi by Mamatha"
               className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
@@ -129,7 +129,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                 type="email"
                 name="email"
                 defaultValue={initialSettings.email || ""}
-                placeholder="info@mehendiaura.com"
+                placeholder="info@mhendibymamatha.com"
                 className="w-full pl-10 pr-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
@@ -258,7 +258,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               name="about_content_en"
               rows={3}
               defaultValue={initialSettings.about_content_en || initialSettings.about_content}
-              placeholder="MehendiAura is a premier bridal studio..."
+              placeholder="MHendi by Mamatha is a premier bridal studio..."
               className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
@@ -304,7 +304,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               name="about_content_kn"
               rows={3}
               defaultValue={initialSettings.about_content_kn || ""}
-              placeholder="MehendiAura ಭಾರತೀಯ ಮದುವೆಗಳ ಸೌಂದರ್ಯವನ್ನು ಹೆಚ್ಚಿಸುವ ಪ್ರಮುಖ ಮೆಹೆಂದಿ ಕಲೆ..."
+              placeholder="MHendi by Mamatha ಭಾರತೀಯ ಮದುವೆಗಳ ಸೌಂದರ್ಯವನ್ನು ಹೆಚ್ಚಿಸುವ ಪ್ರಮುಖ ಮೆಹೆಂದಿ ಕಲೆ..."
               className="w-full px-4 py-2.5 bg-white border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
@@ -338,7 +338,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                 type="url"
                 name="instagram_url"
                 defaultValue={initialSettings.instagram_url || ""}
-                placeholder="https://instagram.com/mehendiaura"
+                placeholder="https://instagram.com/mhendibymamatha"
                 className="w-full pl-10 pr-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
@@ -354,7 +354,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                 type="url"
                 name="facebook_url"
                 defaultValue={initialSettings.facebook_url || ""}
-                placeholder="https://facebook.com/mehendiaura"
+                placeholder="https://facebook.com/mhendibymamatha"
                 className="w-full pl-10 pr-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
@@ -370,7 +370,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                 type="url"
                 name="youtube_url"
                 defaultValue={initialSettings.youtube_url || ""}
-                placeholder="https://youtube.com/@mehendiaura"
+                placeholder="https://youtube.com/@mhendibymamatha"
                 className="w-full pl-10 pr-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
               />
             </div>
