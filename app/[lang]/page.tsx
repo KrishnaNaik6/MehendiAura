@@ -87,34 +87,34 @@ export default async function HomePage({ params }: HomePageProps) {
   const aboutContent = getLocalizedField(settings, "about_content", locale);
 
   return (
-    <div className="space-y-14 sm:space-y-28 py-4 sm:py-6 overflow-hidden">
+    <div className="space-y-12 sm:space-y-28 py-3 sm:py-6 overflow-hidden">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-950 text-cream-100 py-12 sm:py-24 px-4 sm:px-8 rounded-2xl sm:rounded-3xl mx-2 sm:mx-8 border border-gold-500/30 shadow-2xl gold-ambient-glow">
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-950 text-cream-100 py-10 sm:py-24 px-3.5 sm:px-8 rounded-2xl sm:rounded-3xl mx-1 sm:mx-8 border border-gold-500/30 shadow-2xl gold-ambient-glow">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:16px_16px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <Container size="md" className="relative z-10 text-center px-2 sm:px-6">
+        <Container size="md" className="relative z-10 text-center px-1 sm:px-6">
           <AnimatedSection direction="down" delay={100}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs sm:text-sm font-semibold tracking-wide uppercase mb-4 sm:mb-6 shadow-md backdrop-blur-md animate-float">
-              <Sparkles className="w-4 h-4 text-gold-400 animate-spin-slow shrink-0" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs sm:text-sm font-semibold tracking-wide uppercase mb-4 sm:mb-6 shadow-md backdrop-blur-md animate-float">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 animate-spin-slow shrink-0" />
               <span className="truncate">{dictionary.hero.badge}</span>
             </div>
           </AnimatedSection>
 
           <AnimatedSection direction="up" delay={200}>
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-4 sm:mb-6 leading-tight gold-text-glow">
+            <h1 className="font-serif text-2xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-3.5 sm:mb-6 leading-tight gold-text-glow">
               {heroTitle}
             </h1>
           </AnimatedSection>
 
           <AnimatedSection direction="up" delay={350}>
-            <p className="font-sans text-sm sm:text-xl text-cream-200 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal">
+            <p className="font-sans text-xs sm:text-xl text-cream-200 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed font-normal">
               {heroDescription}
             </p>
           </AnimatedSection>
 
           <AnimatedSection direction="up" delay={500}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto mb-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 max-w-md mx-auto mb-8 sm:mb-10">
               <WhatsAppButton
                 fullWidth
                 size="lg"
@@ -128,22 +128,22 @@ export default async function HomePage({ params }: HomePageProps) {
 
           {/* Hero Trust Badges Bar */}
           <AnimatedSection direction="up" delay={650}>
-            <div className="pt-8 border-t border-gold-500/20 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-semibold text-gold-300">
-              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
-                <Users className="w-4 h-4 text-gold-400 shrink-0" />
-                <span>500+ Happy Brides</span>
+            <div className="pt-6 border-t border-gold-500/20 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gold-300">
+              <div className="flex items-center justify-center gap-1.5 bg-brand-900/60 p-2 sm:p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 shrink-0" />
+                <span className="truncate">500+ Happy Brides</span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>100% Organic Henna</span>
+              <div className="flex items-center justify-center gap-1.5 bg-brand-900/60 p-2 sm:p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
+                <span className="truncate">100% Organic Henna</span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
-                <Gem className="w-4 h-4 text-gold-400 shrink-0" />
-                <span>Sanitized Jewellery</span>
+              <div className="flex items-center justify-center gap-1.5 bg-brand-900/60 p-2 sm:p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <Gem className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 shrink-0" />
+                <span className="truncate">Sanitized Jewellery</span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
-                <Award className="w-4 h-4 text-gold-400 shrink-0" />
-                <span>5★ Rated Artistry</span>
+              <div className="flex items-center justify-center gap-1.5 bg-brand-900/60 p-2 sm:p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 shrink-0" />
+                <span className="truncate">5★ Rated Artistry</span>
               </div>
             </div>
           </AnimatedSection>
@@ -154,13 +154,13 @@ export default async function HomePage({ params }: HomePageProps) {
       <section>
         <Container size="lg">
           <AnimatedSection direction="up" delay={150}>
-            <div className="bg-white p-5 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-300/40 shadow-soft grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center luxury-card-border">
+            <div className="bg-white p-4 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-300/40 shadow-soft grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center luxury-card-border">
               <div className="space-y-3 sm:space-y-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 text-xs font-semibold uppercase tracking-wider">
                   <Sparkle className="w-3.5 h-3.5 shrink-0 text-gold-600" />
                   <span>{dictionary.home.heritageBadge}</span>
                 </div>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900 leading-tight">
+                <h2 className="font-serif text-xl sm:text-3xl font-bold text-brand-900 leading-tight">
                   {dictionary.home.heritageTitle}
                 </h2>
                 <p className="text-xs sm:text-base text-brand-700 leading-relaxed">
@@ -179,31 +179,31 @@ export default async function HomePage({ params }: HomePageProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
-                <div className="p-4 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
-                  <div className="font-serif font-bold text-2xl sm:text-3xl text-gold-700">100%</div>
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                <div className="p-3 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
+                  <div className="font-serif font-bold text-xl sm:text-3xl text-gold-700">100%</div>
                   <div className="text-[10px] sm:text-xs font-semibold text-brand-900 uppercase tracking-wider">
                     {locale === "kn" ? "ನೈಸರ್ಗಿಕ ಮೆಹೆಂದಿ" : "Organic Henna Stain"}
                   </div>
                 </div>
-                <div className="p-4 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
-                  <div className="font-serif font-bold text-2xl sm:text-3xl text-emerald-700 truncate">
+                <div className="p-3 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
+                  <div className="font-serif font-bold text-xl sm:text-3xl text-emerald-700 truncate">
                     {locale === "kn" ? "ಶುಚಿಗೊಳಿಸಿದ" : "Sanitized"}
                   </div>
                   <div className="text-[10px] sm:text-xs font-semibold text-brand-900 uppercase tracking-wider">
                     {dictionary.common.rentalPrice}
                   </div>
                 </div>
-                <div className="p-4 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
-                  <div className="font-serif font-bold text-2xl sm:text-3xl text-gold-700 truncate">
+                <div className="p-3 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
+                  <div className="font-serif font-bold text-xl sm:text-3xl text-gold-700 truncate">
                     {locale === "kn" ? "ಮನೆಬಾಗಿಲ" : "Doorstep"}
                   </div>
                   <div className="text-[10px] sm:text-xs font-semibold text-brand-900 uppercase tracking-wider">
                     {locale === "kn" ? "ವಧುವಿನ ಸೇವೆ" : "Bridal Service"}
                   </div>
                 </div>
-                <div className="p-4 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
-                  <div className="font-serif font-bold text-2xl sm:text-3xl text-brand-900">
+                <div className="p-3 sm:p-6 rounded-2xl bg-cream-50 border border-gold-300/30 text-center space-y-1 hover-lift transition-all">
+                  <div className="font-serif font-bold text-xl sm:text-3xl text-brand-900">
                     {locale === "kn" ? "ನೇರ" : "Direct"}
                   </div>
                   <div className="text-[10px] sm:text-xs font-semibold text-brand-900 uppercase tracking-wider truncate">

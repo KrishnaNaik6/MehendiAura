@@ -21,7 +21,7 @@ export function Header({ settings }: HeaderProps) {
   const pathname = usePathname();
   const { locale, dictionary } = useLanguage();
 
-  const businessName = settings?.business_name || "MehendiAura";
+  const businessName = settings?.business_name || "MHendi by Mamatha";
   const whatsappNumber = settings?.whatsapp || process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP || "919876543210";
   const whatsappMsg = buildGeneralWhatsAppMsg(businessName, locale);
 
@@ -63,12 +63,12 @@ export function Header({ settings }: HeaderProps) {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           isScrolled || isMobileMenuOpen
-            ? "bg-brand-900/95 backdrop-blur-md shadow-lg border-b border-gold-500/20 py-2.5 sm:py-3"
-            : "bg-brand-900 text-cream-100 py-3 sm:py-4 border-b border-brand-800"
+            ? "bg-brand-900/95 backdrop-blur-md shadow-lg border-b border-gold-500/20 py-2 sm:py-3"
+            : "bg-brand-900 text-cream-100 py-2.5 sm:py-4 border-b border-brand-800"
         }`}
       >
         <Container size="lg">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-4">
             {/* Business Logo / Title */}
             <Link
               href={`/${locale}`}
@@ -78,7 +78,7 @@ export function Header({ settings }: HeaderProps) {
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-brand-950" />
               </div>
               <div className="flex flex-col min-w-0 truncate">
-                <span className="font-serif text-xl sm:text-2xl tracking-wide text-gold-300 font-bold leading-none truncate">
+                <span className="font-serif text-lg sm:text-2xl tracking-wide text-gold-300 font-bold leading-none truncate">
                   {businessName}
                 </span>
                 <span className="text-[9px] sm:text-[10px] text-cream-300 tracking-widest uppercase font-sans mt-0.5 truncate">
@@ -119,13 +119,11 @@ export function Header({ settings }: HeaderProps) {
             </div>
 
             {/* Mobile Actions: Language Switcher & Hamburger Button */}
-            <div className="flex items-center gap-1.5 sm:gap-2 lg:hidden shrink-0">
-              <div className="hidden sm:inline-flex">
-                <LanguageSwitcher variant="header" />
-              </div>
+            <div className="flex items-center gap-1 sm:gap-2 lg:hidden shrink-0">
+              <LanguageSwitcher variant="header" />
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl text-gold-300 hover:text-white hover:bg-brand-800 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all flex items-center justify-center"
+                className="min-w-[40px] min-h-[40px] p-2 rounded-xl text-gold-300 hover:text-white hover:bg-brand-800 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all flex items-center justify-center"
                 aria-label="Toggle Navigation Menu"
                 aria-expanded={isMobileMenuOpen}
               >
@@ -151,8 +149,8 @@ export function Header({ settings }: HeaderProps) {
           />
 
           {/* Navigation Drawer */}
-          <div className="lg:hidden fixed inset-x-0 top-[57px] sm:top-[65px] z-50 bg-brand-950/98 backdrop-blur-2xl border-b border-gold-500/30 shadow-2xl transition-all animate-in fade-in slide-in-from-top-4 duration-200">
-            <div className="px-4 py-5 space-y-2.5 max-h-[calc(100vh-70px)] overflow-y-auto">
+          <div className="lg:hidden fixed inset-x-0 top-[52px] sm:top-[65px] z-50 bg-brand-950/98 backdrop-blur-2xl border-b border-gold-500/30 shadow-2xl transition-all animate-in fade-in slide-in-from-top-4 duration-200">
+            <div className="px-4 py-5 space-y-2.5 max-h-[calc(100vh-60px)] overflow-y-auto">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
