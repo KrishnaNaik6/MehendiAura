@@ -8,6 +8,10 @@ import {
   Star,
   Quote,
   Sparkle,
+  ShieldCheck,
+  Award,
+  Users,
+  CheckCircle2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Service, Jewellery, Testimonial, FAQ } from "@/types/database";
@@ -85,19 +89,20 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <div className="space-y-14 sm:space-y-28 py-4 sm:py-6 overflow-hidden">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-900 via-brand-800 to-brand-950 text-cream-100 py-12 sm:py-24 px-4 sm:px-8 rounded-2xl sm:rounded-3xl mx-2 sm:mx-8 border border-gold-500/30 shadow-2xl">
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-950 text-cream-100 py-12 sm:py-24 px-4 sm:px-8 rounded-2xl sm:rounded-3xl mx-2 sm:mx-8 border border-gold-500/30 shadow-2xl gold-ambient-glow">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:16px_16px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <Container size="md" className="relative z-10 text-center px-2 sm:px-6">
           <AnimatedSection direction="down" delay={100}>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs sm:text-sm font-semibold tracking-wide uppercase mb-4 sm:mb-6 shadow-sm animate-float">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs sm:text-sm font-semibold tracking-wide uppercase mb-4 sm:mb-6 shadow-md backdrop-blur-md animate-float">
               <Sparkles className="w-4 h-4 text-gold-400 animate-spin-slow shrink-0" />
               <span className="truncate">{dictionary.hero.badge}</span>
             </div>
           </AnimatedSection>
 
           <AnimatedSection direction="up" delay={200}>
-            <h1 className="font-serif text-2xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-4 sm:mb-6 leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-4 sm:mb-6 leading-tight gold-text-glow">
               {heroTitle}
             </h1>
           </AnimatedSection>
@@ -109,7 +114,7 @@ export default async function HomePage({ params }: HomePageProps) {
           </AnimatedSection>
 
           <AnimatedSection direction="up" delay={500}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto mb-10">
               <WhatsAppButton
                 fullWidth
                 size="lg"
@@ -120,6 +125,28 @@ export default async function HomePage({ params }: HomePageProps) {
               <CallButton fullWidth size="lg" phoneNumber={settings.phone} label={dictionary.common.callNow} />
             </div>
           </AnimatedSection>
+
+          {/* Hero Trust Badges Bar */}
+          <AnimatedSection direction="up" delay={650}>
+            <div className="pt-8 border-t border-gold-500/20 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-semibold text-gold-300">
+              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <Users className="w-4 h-4 text-gold-400 shrink-0" />
+                <span>500+ Happy Brides</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>100% Organic Henna</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <Gem className="w-4 h-4 text-gold-400 shrink-0" />
+                <span>Sanitized Jewellery</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-brand-900/60 p-2.5 rounded-xl border border-gold-500/20 backdrop-blur-sm">
+                <Award className="w-4 h-4 text-gold-400 shrink-0" />
+                <span>5★ Rated Artistry</span>
+              </div>
+            </div>
+          </AnimatedSection>
         </Container>
       </section>
 
@@ -127,10 +154,10 @@ export default async function HomePage({ params }: HomePageProps) {
       <section>
         <Container size="lg">
           <AnimatedSection direction="up" delay={150}>
-            <div className="bg-white p-5 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-300/30 shadow-soft grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+            <div className="bg-white p-5 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-300/40 shadow-soft grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center luxury-card-border">
               <div className="space-y-3 sm:space-y-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 text-xs font-semibold uppercase tracking-wider">
-                  <Sparkle className="w-3.5 h-3.5 shrink-0" />
+                  <Sparkle className="w-3.5 h-3.5 shrink-0 text-gold-600" />
                   <span>{dictionary.home.heritageBadge}</span>
                 </div>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900 leading-tight">
@@ -139,6 +166,17 @@ export default async function HomePage({ params }: HomePageProps) {
                 <p className="text-xs sm:text-base text-brand-700 leading-relaxed">
                   {aboutContent}
                 </p>
+
+                <div className="pt-2 space-y-2 text-xs font-semibold text-brand-900">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Customized Bridal Henna Themes &amp; Portrait Mehendi</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Premium Kundan, Temple &amp; Polki Rental Jewellery Sets</span>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
@@ -201,9 +239,9 @@ export default async function HomePage({ params }: HomePageProps) {
 
                 return (
                   <AnimatedSection key={service.id} direction="up" delay={idx * 150}>
-                    <Card hoverEffect glass className="flex flex-col justify-between h-full group">
+                    <Card hoverEffect glass className="flex flex-col justify-between h-full group border-gold-300/40">
                       <div>
-                        <div className="h-44 sm:h-48 bg-gradient-to-tr from-brand-900 to-brand-800 flex items-center justify-center text-gold-300 p-4 sm:p-6 relative overflow-hidden">
+                        <div className="h-44 sm:h-48 bg-gradient-to-tr from-brand-950 via-brand-900 to-brand-800 flex items-center justify-center text-gold-300 p-4 sm:p-6 relative overflow-hidden">
                           {mainImg ? (
                             <img
                               src={mainImg}
@@ -213,7 +251,7 @@ export default async function HomePage({ params }: HomePageProps) {
                           ) : (
                             <Heart className="w-12 h-12 stroke-1 opacity-80" />
                           )}
-                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-gold-500 text-brand-950 font-semibold text-[10px] sm:text-xs px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-gold-500 text-brand-950 font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
                             {service.category}
                           </span>
                         </div>
@@ -252,7 +290,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
             <div className="mt-8 sm:mt-10 text-center">
               <Link href={`/${locale}/services`}>
-                <span className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-800 text-gold-300 hover:bg-brand-900 font-semibold text-xs sm:text-sm shadow-md transition-all hover-lift">
+                <span className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-brand-900 text-gold-300 hover:bg-brand-950 font-bold text-xs sm:text-sm shadow-md transition-all hover-lift shimmer-button">
                   <span>{dictionary.home.viewAllServices}</span>
                   <ArrowRight className="w-4 h-4" />
                 </span>
@@ -285,9 +323,9 @@ export default async function HomePage({ params }: HomePageProps) {
 
                 return (
                   <AnimatedSection key={item.id} direction="up" delay={idx * 150}>
-                    <Card hoverEffect className="flex flex-col justify-between h-full group">
+                    <Card hoverEffect glass className="flex flex-col justify-between h-full group border-gold-300/40">
                       <div>
-                        <div className="h-44 sm:h-48 bg-gradient-to-tr from-earth-900 to-earth-800 flex items-center justify-center text-gold-300 p-4 sm:p-6 relative overflow-hidden">
+                        <div className="h-44 sm:h-48 bg-gradient-to-tr from-earth-950 via-earth-900 to-earth-800 flex items-center justify-center text-gold-300 p-4 sm:p-6 relative overflow-hidden">
                           {mainImg ? (
                             <img
                               src={mainImg}
@@ -297,7 +335,7 @@ export default async function HomePage({ params }: HomePageProps) {
                           ) : (
                             <Gem className="w-12 h-12 stroke-1 opacity-80" />
                           )}
-                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-emerald-700 text-white font-semibold text-[10px] sm:text-xs px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-emerald-700 text-white font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
                             {item.availability_status === "available"
                               ? dictionary.common.available
                               : item.availability_status === "booked"
@@ -340,7 +378,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
             <div className="mt-8 sm:mt-10 text-center">
               <Link href={`/${locale}/jewellery`}>
-                <span className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-800 text-gold-300 hover:bg-brand-900 font-semibold text-xs sm:text-sm shadow-md transition-all hover-lift">
+                <span className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-brand-900 text-gold-300 hover:bg-brand-950 font-bold text-xs sm:text-sm shadow-md transition-all hover-lift shimmer-button">
                   <span>{dictionary.home.viewAllJewellery}</span>
                   <ArrowRight className="w-4 h-4" />
                 </span>
@@ -351,7 +389,7 @@ export default async function HomePage({ params }: HomePageProps) {
       )}
 
       {/* 5. PROCESS TIMELINE */}
-      <section className="bg-cream-200/50 py-12 sm:py-16">
+      <section className="bg-cream-200/50 py-12 sm:py-16 border-y border-gold-300/20">
         <Container size="lg">
           <AnimatedSection direction="up">
             <SectionHeading
@@ -381,18 +419,18 @@ export default async function HomePage({ params }: HomePageProps) {
                 const text = getLocalizedField(testi, "testimonial", locale);
                 return (
                   <AnimatedSection key={testi.id} direction="up" delay={idx * 150}>
-                    <Card hoverEffect className="p-5 sm:p-6 bg-white border-gold-300/30 flex flex-col justify-between h-full">
+                    <Card hoverEffect className="p-5 sm:p-6 bg-white border-gold-300/40 flex flex-col justify-between h-full luxury-card-border">
                       <div className="space-y-3 sm:space-y-4">
-                        <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-gold-500/40" />
+                        <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-gold-500/50" />
                         <p className="text-xs sm:text-sm text-brand-800 leading-relaxed italic">
                           "{text}"
                         </p>
                       </div>
                       <div className="pt-4 border-t border-cream-200 flex items-center justify-between mt-4 text-xs font-semibold text-brand-900">
                         <div>
-                          <div>{testi.customer_name}</div>
+                          <div className="font-bold text-brand-900">{testi.customer_name}</div>
                           {testi.event_type && (
-                            <div className="text-[10px] text-gold-700 uppercase tracking-wider font-normal">
+                            <div className="text-[10px] text-gold-700 uppercase tracking-wider font-semibold">
                               {testi.event_type} Client
                             </div>
                           )}
@@ -432,13 +470,13 @@ export default async function HomePage({ params }: HomePageProps) {
       <section>
         <Container size="lg">
           <AnimatedSection direction="up">
-            <div className="bg-gradient-to-r from-brand-950 via-brand-900 to-brand-950 text-cream-100 p-6 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-500/40 text-center shadow-2xl space-y-4 sm:space-y-6 relative overflow-hidden">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/20 border border-gold-400/30 text-gold-300 text-xs font-semibold uppercase tracking-wider animate-float">
-                <Sparkles className="w-3.5 h-3.5 text-gold-400 shrink-0" />
+            <div className="bg-gradient-to-r from-brand-950 via-brand-900 to-brand-950 text-cream-100 p-6 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-500/40 text-center shadow-2xl space-y-4 sm:space-y-6 relative overflow-hidden gold-ambient-glow">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs font-semibold uppercase tracking-wider animate-float shadow-sm backdrop-blur-md">
+                <Sparkles className="w-3.5 h-3.5 text-gold-400 shrink-0 animate-spin-slow" />
                 <span>{dictionary.home.ctaBadge}</span>
               </div>
 
-              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-white max-w-xl mx-auto leading-tight">
+              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-white max-w-xl mx-auto leading-tight gold-text-glow">
                 {dictionary.home.ctaTitle}
               </h2>
 

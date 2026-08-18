@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, Phone, MessageSquare, MapPin, Clock, Lock, Instagram, Facebook, Youtube } from "lucide-react";
+import { Sparkles, Phone, MessageSquare, MapPin, Clock, Lock, Instagram } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useLanguage } from "@/lib/i18n/context";
 import { getWhatsAppUrl, buildGeneralWhatsAppMsg } from "@/lib/whatsapp";
@@ -26,16 +26,19 @@ export function Footer({ settings }: FooterProps) {
   const callUrl = getCallUrl(phone);
 
   return (
-    <footer className="bg-brand-950 text-cream-200 pt-16 pb-24 lg:pb-12 border-t border-gold-500/20">
+    <footer className="bg-brand-950 text-cream-200 pt-16 pb-24 lg:pb-12 border-t border-gold-500/30 relative">
+      {/* Decorative Gold Top Gradient Line */}
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-gold-400 to-transparent" />
+
       <Container size="lg">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-brand-800">
           {/* Brand Info Column */}
           <div className="space-y-4">
             <Link href={`/${locale}`} className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shrink-0 shadow-md">
                 <Sparkles className="w-4 h-4 text-brand-950" />
               </div>
-              <span className="font-serif text-xl sm:text-2xl tracking-wide text-gold-300 font-bold truncate">
+              <span className="font-serif text-xl sm:text-2xl tracking-wide text-gold-300 font-bold truncate gold-text-glow">
                 {businessName}
               </span>
             </Link>
@@ -45,7 +48,7 @@ export function Footer({ settings }: FooterProps) {
             <div className="pt-2 flex items-center gap-3">
               <a
                 href={callUrl}
-                className="w-9 h-9 rounded-full bg-brand-800 border border-gold-500/30 flex items-center justify-center text-gold-300 hover:bg-gold-500 hover:text-brand-950 transition-colors"
+                className="w-9 h-9 rounded-full bg-brand-800 border border-gold-500/30 flex items-center justify-center text-gold-300 hover:bg-gold-500 hover:text-brand-950 transition-colors shadow-xs"
                 aria-label="Call Business"
               >
                 <Phone className="w-4 h-4" />
@@ -54,7 +57,7 @@ export function Footer({ settings }: FooterProps) {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white hover:bg-emerald-500 transition-colors"
+                className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white hover:bg-emerald-500 transition-colors shadow-xs"
                 aria-label="WhatsApp Business"
               >
                 <MessageSquare className="w-4 h-4" />
@@ -64,7 +67,7 @@ export function Footer({ settings }: FooterProps) {
                   href={settings.instagram_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-brand-800 border border-gold-500/30 flex items-center justify-center text-pink-400 hover:bg-pink-600 hover:text-white transition-colors"
+                  className="w-9 h-9 rounded-full bg-brand-800 border border-gold-500/30 flex items-center justify-center text-pink-400 hover:bg-pink-600 hover:text-white transition-colors shadow-xs"
                   aria-label="Instagram Profile"
                 >
                   <Instagram className="w-4 h-4" />
@@ -152,8 +155,20 @@ export function Footer({ settings }: FooterProps) {
         </div>
 
         {/* Footer Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-cream-400">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-cream-400 text-center md:text-left">
           <p>© {new Date().getFullYear()} {businessName}. All rights reserved.</p>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gold-500/10 border border-gold-500/25 text-cream-300 shadow-xs">
+            <span>Designed &amp; Developed by</span>
+            <a
+              href="https://krishna-naik.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold-300 hover:text-gold-200 font-bold underline underline-offset-2 transition-colors"
+              aria-label="Krishna's Personal Portfolio Website"
+            >
+              Krishna
+            </a>
+          </div>
           <div className="flex items-center gap-6">
             <Link
               href="/admin/login"

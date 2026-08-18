@@ -39,7 +39,7 @@ body {
 
 /* Custom Utilities */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #FFD700 0%, #C5A059 50%, #8C6431 100%);
+  background: linear-gradient(135deg, #FFE8A3 0%, #C5A059 50%, #E6C687 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -51,7 +51,20 @@ body {
 .glass-card {
   background: rgba(253, 251, 247, 0.85);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(197, 160, 89, 0.2);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+}
+
+.gold-text-glow {
+  text-shadow: 0 0 25px rgba(197, 160, 89, 0.45);
+}
+
+.gold-ambient-glow {
+  box-shadow: 0 0 60px -10px rgba(197, 160, 89, 0.35);
+}
+
+.luxury-card-border {
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 251, 247, 0.9) 100%);
 }
 
 /* Luxury Interactive Animations */
@@ -60,8 +73,8 @@ body {
 }
 
 .hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px -5px rgba(197, 160, 89, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 35px -5px rgba(197, 160, 89, 0.35);
 }
 
 .shimmer-button {
