@@ -24,6 +24,7 @@ import { buildServiceWhatsAppMsg, buildJewelleryWhatsAppMsg, buildGeneralWhatsAp
 import { fetchBusinessSettings } from "@/lib/supabase/helper";
 import { ProcessTimeline } from "@/components/home/ProcessTimeline";
 import { FaqAccordion } from "@/components/home/FaqAccordion";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
@@ -82,51 +83,86 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const faqs: FAQ[] = (faqsData as any[]) || [];
 
-  // 5. Fetch Gallery Items for Homepage Auto-Sliding Showcase
-  const { data: galleryData } = await supabase
+  // 5. Fetch Featured Showcase Items for Homepage Auto-Sliding Showcase
+  const { data: showcaseData } = await supabase
     .from("gallery")
     .select("*")
+    .eq("category", "Featured Showcase")
     .eq("active", true)
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(20);
 
-  const galleryItems: GalleryItem[] = (galleryData as any[]) || [];
+  const directShowcase: GalleryItem[] = (showcaseData as any[]) || [];
 
-  // Construct showcase items from gallery or service/jewellery fallbacks
-  let showcaseItems: GalleryItem[] = galleryItems;
+  let showcaseItems: GalleryItem[] = directShowcase.filter(
+    (g) => g.image_url && !g.alt_text?.startsWith("[hidden]")
+  );
 
   if (showcaseItems.length === 0) {
-    // Fallback showcase items from service/jewellery images
+    // If no explicit showcase items yet, fallback to active gallery
+    const { data: fallbackGallery } = await supabase
+      .from("gallery")
+      .select("*")
+      .neq("category", "Featured Showcase")
+      .eq("active", true)
+      .order("display_order", { ascending: true })
+      .limit(10);
+
+    const validFallback = ((fallbackGallery as any[]) || []).filter(
+      (g) => g.image_url && !g.alt_text?.startsWith("[hidden]")
+    );
+
+    if (validFallback.length > 0) {
+      showcaseItems = validFallback;
+    }
+  }
+
+  if (showcaseItems.length === 0) {
+    // Fallback showcase items from visible service/jewellery images
     const fallbackServiceImgs: GalleryItem[] = services
-      .filter((s) => s.service_images && s.service_images.length > 0)
-      .map((s) => ({
-        id: `showcase-svc-${s.id}`,
-        title: s.name,
-        description: s.short_description || null,
-        category: s.category,
-        image_url: s.service_images![0].image_url,
-        storage_path: s.service_images![0].storage_path || "",
-        alt_text: s.name,
-        active: true,
-        display_order: 1,
-        created_at: new Date().toISOString(),
-      }));
+      .map((s) => {
+        const visibleImgs = (s.service_images || [])
+          .filter((img) => !img.alt_text?.startsWith("[hidden]"))
+          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+        if (visibleImgs.length === 0) return null;
+        return {
+          id: `showcase-svc-${s.id}`,
+          title: s.name,
+          description: s.short_description || null,
+          category: s.category,
+          image_url: visibleImgs[0].image_url,
+          storage_path: visibleImgs[0].storage_path || "",
+          alt_text: s.name,
+          active: true,
+          display_order: 1,
+          created_at: new Date().toISOString(),
+        };
+      })
+      .filter(Boolean) as GalleryItem[];
 
     const fallbackJewelleryImgs: GalleryItem[] = jewelleryItems
-      .filter((j) => j.jewellery_images && j.jewellery_images.length > 0)
-      .map((j) => ({
-        id: `showcase-jewel-${j.id}`,
-        title: j.name,
-        description: j.short_description || null,
-        category: "Rental Jewellery",
-        image_url: j.jewellery_images![0].image_url,
-        storage_path: j.jewellery_images![0].storage_path || "",
-        alt_text: j.name,
-        active: true,
-        display_order: 1,
-        created_at: new Date().toISOString(),
-      }));
+      .map((j) => {
+        const visibleImgs = (j.jewellery_images || [])
+          .filter((img) => !img.alt_text?.startsWith("[hidden]"))
+          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+        if (visibleImgs.length === 0) return null;
+        return {
+          id: `showcase-jewel-${j.id}`,
+          title: j.name,
+          description: j.short_description || null,
+          category: "Rental Jewellery",
+          image_url: visibleImgs[0].image_url,
+          storage_path: visibleImgs[0].storage_path || "",
+          alt_text: j.name,
+          active: true,
+          display_order: 1,
+          created_at: new Date().toISOString(),
+        };
+      })
+      .filter(Boolean) as GalleryItem[];
 
     showcaseItems = [...fallbackServiceImgs, ...fallbackJewelleryImgs];
   }
@@ -298,26 +334,37 @@ export default async function HomePage({ params }: HomePageProps) {
               {services.map((service, idx) => {
                 const name = getLocalizedField(service, "name", locale);
                 const shortDesc = getLocalizedField(service, "short_description", locale);
-                const mainImg = service.service_images && service.service_images.length > 0
-                  ? service.service_images[0].image_url
-                  : null;
+                const visibleImgs = (service.service_images || [])
+                  .filter((img) => !img.alt_text?.startsWith("[hidden]"))
+                  .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+                const mainImg = visibleImgs.length > 0 ? visibleImgs[0].image_url : null;
                 const whatsappMsg = buildServiceWhatsAppMsg(name, settings.business_name, locale);
 
                 return (
                   <AnimatedSection key={service.id} direction="up" delay={idx * 150}>
                     <Card hoverEffect glass className="flex flex-col justify-between h-full group border-gold-300/40">
                       <div>
-                        <div className="h-44 sm:h-48 bg-gradient-to-tr from-brand-950 via-brand-900 to-brand-800 flex items-center justify-center text-gold-300 p-4 sm:p-6 relative overflow-hidden">
+                        {/* Complete Full Image Container without aggressive cropping */}
+                        <div className="h-52 sm:h-56 bg-brand-950 flex items-center justify-center text-gold-300 relative overflow-hidden group/img">
                           {mainImg ? (
-                            <img
-                              src={mainImg}
-                              alt={name}
-                              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                            />
+                            <>
+                              <img
+                                src={mainImg}
+                                alt=""
+                                aria-hidden="true"
+                                className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110"
+                              />
+                              <img
+                                src={mainImg}
+                                alt={name}
+                                className="relative z-10 w-full h-full object-contain p-2 group-hover/img:scale-105 transition-transform duration-500"
+                              />
+                            </>
                           ) : (
                             <Heart className="w-12 h-12 stroke-1 opacity-80" />
                           )}
-                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-gold-500 text-brand-950 font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 bg-gold-500 text-brand-950 font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
                             {service.category}
                           </span>
                         </div>
@@ -382,26 +429,37 @@ export default async function HomePage({ params }: HomePageProps) {
               {jewelleryItems.map((item, idx) => {
                 const name = getLocalizedField(item, "name", locale);
                 const shortDesc = getLocalizedField(item, "short_description", locale);
-                const mainImg = item.jewellery_images && item.jewellery_images.length > 0
-                  ? item.jewellery_images[0].image_url
-                  : null;
+                const visibleImgs = (item.jewellery_images || [])
+                  .filter((img) => !img.alt_text?.startsWith("[hidden]"))
+                  .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+                const mainImg = visibleImgs.length > 0 ? visibleImgs[0].image_url : null;
                 const whatsappMsg = buildJewelleryWhatsAppMsg(name, settings.business_name, locale);
 
                 return (
                   <AnimatedSection key={item.id} direction="up" delay={idx * 150}>
                     <Card hoverEffect glass className="flex flex-col justify-between h-full group border-gold-300/40">
                       <div>
-                        <div className="h-44 sm:h-48 bg-gradient-to-tr from-earth-950 via-earth-900 to-earth-800 flex items-center justify-center text-gold-300 p-4 sm:p-6 relative overflow-hidden">
+                        {/* Complete Full Image Container without aggressive cropping */}
+                        <div className="h-52 sm:h-56 bg-earth-950 flex items-center justify-center text-gold-300 relative overflow-hidden group/img">
                           {mainImg ? (
-                            <img
-                              src={mainImg}
-                              alt={name}
-                              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                            />
+                            <>
+                              <img
+                                src={mainImg}
+                                alt=""
+                                aria-hidden="true"
+                                className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110"
+                              />
+                              <img
+                                src={mainImg}
+                                alt={name}
+                                className="relative z-10 w-full h-full object-contain p-2 group-hover/img:scale-105 transition-transform duration-500"
+                              />
+                            </>
                           ) : (
                             <Gem className="w-12 h-12 stroke-1 opacity-80" />
                           )}
-                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-emerald-700 text-white font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                          <span className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 bg-emerald-700 text-white font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
                             {item.availability_status === "available"
                               ? dictionary.common.available
                               : item.availability_status === "booked"
@@ -454,8 +512,8 @@ export default async function HomePage({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* 6. PROCESS TIMELINE */}
-      <section className="bg-cream-200/50 py-12 sm:py-16 border-y border-gold-300/20">
+      {/* 6. HOW IT WORKS / PROCESS TIMELINE */}
+      <section>
         <Container size="lg">
           <AnimatedSection direction="up">
             <SectionHeading
@@ -463,103 +521,72 @@ export default async function HomePage({ params }: HomePageProps) {
               title={dictionary.home.processTitle}
               subtitle={dictionary.home.processSubtitle}
             />
+          </AnimatedSection>
+
+          <AnimatedSection direction="up" delay={200}>
             <ProcessTimeline locale={locale} />
           </AnimatedSection>
         </Container>
       </section>
 
-      {/* 7. TESTIMONIALS SECTION */}
+      {/* 7. CLIENT TESTIMONIALS */}
       {testimonials.length > 0 && (
-        <section>
-          <Container size="lg">
-            <AnimatedSection direction="up">
-              <SectionHeading
-                badge={dictionary.home.testimonialsBadge}
-                title={dictionary.home.testimonialsTitle}
-                subtitle={dictionary.home.testimonialsSubtitle}
-              />
-            </AnimatedSection>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
-              {testimonials.map((testi, idx) => {
-                const text = getLocalizedField(testi, "testimonial", locale);
-                return (
-                  <AnimatedSection key={testi.id} direction="up" delay={idx * 150}>
-                    <Card hoverEffect className="p-5 sm:p-6 bg-white border-gold-300/40 flex flex-col justify-between h-full luxury-card-border">
-                      <div className="space-y-3 sm:space-y-4">
-                        <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-gold-500/50" />
-                        <p className="text-xs sm:text-sm text-brand-800 leading-relaxed italic">
-                          "{text}"
-                        </p>
-                      </div>
-                      <div className="pt-4 border-t border-cream-200 flex items-center justify-between mt-4 text-xs font-semibold text-brand-900">
-                        <div>
-                          <div className="font-bold text-brand-900">{testi.customer_name}</div>
-                          {testi.event_type && (
-                            <div className="text-[10px] text-gold-700 uppercase tracking-wider font-semibold">
-                              {testi.event_type} Client
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-0.5 text-gold-500">
-                          {Array.from({ length: testi.rating || 5 }).map((_, i) => (
-                            <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-gold-500" />
-                          ))}
-                        </div>
-                      </div>
-                    </Card>
-                  </AnimatedSection>
-                );
-              })}
-            </div>
-          </Container>
-        </section>
+        <TestimonialsSection
+          testimonials={testimonials}
+          locale={locale}
+          dictionary={{
+            badge: dictionary.home.testimonialsBadge,
+            title: dictionary.home.testimonialsTitle,
+            subtitle: dictionary.home.testimonialsSubtitle,
+          }}
+        />
       )}
 
       {/* 8. FREQUENTLY ASKED QUESTIONS */}
       {faqs.length > 0 && (
-        <section className="bg-cream-50 py-12 sm:py-16 border-y border-gold-300/20">
-          <Container size="lg">
+        <section>
+          <Container size="md">
             <AnimatedSection direction="up">
               <SectionHeading
                 badge={dictionary.home.faqsBadge}
                 title={dictionary.home.faqsTitle}
                 subtitle={dictionary.home.faqsSubtitle}
               />
+            </AnimatedSection>
+
+            <AnimatedSection direction="up" delay={200}>
               <FaqAccordion faqs={faqs} locale={locale} />
             </AnimatedSection>
           </Container>
         </section>
       )}
 
-      {/* 9. CONTACT CTA BANNER */}
-      <section>
-        <Container size="lg">
+      {/* 9. FINAL CTA SECTION */}
+      <section className="bg-gradient-to-tr from-brand-900 via-brand-950 to-brand-900 text-cream-100 py-10 sm:py-16 px-4 sm:px-8 rounded-2xl sm:rounded-3xl mx-1 sm:mx-8 border border-gold-500/30 text-center shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:16px_16px]" />
+        <Container size="md" className="relative z-10 space-y-4 sm:space-y-6">
           <AnimatedSection direction="up">
-            <div className="bg-gradient-to-r from-brand-950 via-brand-900 to-brand-950 text-cream-100 p-6 sm:p-12 rounded-2xl sm:rounded-3xl border border-gold-500/40 text-center shadow-2xl space-y-4 sm:space-y-6 relative overflow-hidden gold-ambient-glow">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs font-semibold uppercase tracking-wider animate-float shadow-sm backdrop-blur-md">
-                <Sparkles className="w-3.5 h-3.5 text-gold-400 shrink-0 animate-spin-slow" />
-                <span>{dictionary.home.ctaBadge}</span>
-              </div>
+            <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-bold text-white gold-text-glow">
+              {dictionary.home.ctaTitle}
+            </h2>
+          </AnimatedSection>
 
-              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-white max-w-xl mx-auto leading-tight gold-text-glow">
-                {dictionary.home.ctaTitle}
-              </h2>
+          <AnimatedSection direction="up" delay={150}>
+            <p className="text-xs sm:text-base text-cream-200 max-w-xl mx-auto leading-relaxed">
+              {dictionary.home.ctaSubtitle}
+            </p>
+          </AnimatedSection>
 
-              <p className="text-xs sm:text-base text-cream-200 max-w-lg mx-auto leading-relaxed">
-                {dictionary.home.ctaSubtitle}
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto pt-2">
-                <WhatsAppButton
-                  fullWidth
-                  size="lg"
-                  phoneNumber={settings.whatsapp}
-                  message={generalWhatsappMsg}
-                  label={dictionary.common.enquireWhatsapp}
-                />
-                <CallButton fullWidth size="lg" phoneNumber={settings.phone} label={dictionary.common.callNow} />
-              </div>
+          <AnimatedSection direction="up" delay={300}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto pt-2">
+              <WhatsAppButton
+                fullWidth
+                size="lg"
+                phoneNumber={settings.whatsapp}
+                message={generalWhatsappMsg}
+                label={dictionary.common.enquireWhatsapp}
+              />
+              <CallButton fullWidth size="lg" phoneNumber={settings.phone} label={dictionary.common.callNow} />
             </div>
           </AnimatedSection>
         </Container>

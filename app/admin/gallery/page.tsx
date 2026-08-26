@@ -9,10 +9,11 @@ import { GalleryTable } from "./GalleryTable";
 export default async function AdminGalleryPage() {
   const supabase = await createClient();
 
-  // 1. Fetch direct showcase gallery records
+  // 1. Fetch direct portfolio gallery records (excluding Homepage Featured Showcase)
   const { data: galleryData } = await supabase
     .from("gallery")
     .select("*")
+    .neq("category", "Featured Showcase")
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: false });
 

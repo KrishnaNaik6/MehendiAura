@@ -31,8 +31,10 @@ export function HomeImageShowcase({
 
   const autoSlideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Filter valid showcase items
-  const validItems = items.filter((i) => i.image_url);
+  // Filter valid showcase items and exclude any hidden images
+  const validItems = items.filter(
+    (i) => i.image_url && !i.alt_text?.startsWith("[hidden]")
+  );
 
   // Auto-Slide Effect (4.5s interval)
   useEffect(() => {
@@ -106,7 +108,7 @@ export function HomeImageShowcase({
         </Link>
       </div>
 
-      {/* Main Image Stage */}
+      {/* Main Image Stage - Complete Image Presentation (No Aggressive Cropping) */}
       <div
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
@@ -116,14 +118,25 @@ export function HomeImageShowcase({
         onClick={() => setIsLightboxOpen(true)}
         className="relative h-64 sm:h-80 md:h-[420px] rounded-2xl sm:rounded-3xl overflow-hidden bg-brand-950 border border-gold-500/30 shadow-2xl cursor-pointer group select-none touch-pan-y"
       >
+        {/* Ambient Blur Backdrop */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <img
+            src={activeItem.image_url}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover blur-xl opacity-40 scale-110"
+          />
+        </div>
+
+        {/* Foreground Complete Full Image */}
         <img
           src={activeItem.image_url}
           alt={activeItem.title || "Showcase Photo"}
-          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+          className="relative z-10 w-full h-full object-contain p-2 sm:p-4 transition-all duration-700 group-hover:scale-102 drop-shadow-2xl"
         />
 
-        {/* Ambient Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/20 to-transparent p-4 sm:p-6 flex flex-col justify-end text-white">
+        {/* Ambient Gradient Overlay with Captions */}
+        <div className="absolute inset-0 z-20 bg-gradient-to-t from-brand-950/90 via-transparent to-transparent p-4 sm:p-6 flex flex-col justify-end text-white pointer-events-none">
           <div className="flex items-end justify-between gap-4">
             <div>
               {activeItem.category && (
@@ -136,19 +149,21 @@ export function HomeImageShowcase({
               </h3>
             </div>
 
-            <Link
-              href={`/${locale}/gallery`}
-              onClick={(e) => e.stopPropagation()}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gold-500 text-brand-950 font-bold text-xs shadow-lg hover:bg-gold-400 transition-all shrink-0 flex items-center gap-1.5"
-            >
-              <Images className="w-3.5 h-3.5" />
-              <span>View Images</span>
-            </Link>
+            <div className="pointer-events-auto">
+              <Link
+                href={`/${locale}/gallery`}
+                onClick={(e) => e.stopPropagation()}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gold-500 text-brand-950 font-bold text-xs shadow-lg hover:bg-gold-400 transition-all shrink-0 flex items-center gap-1.5"
+              >
+                <Images className="w-3.5 h-3.5" />
+                <span>View Images</span>
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Photo Counter Badge (e.g. 1 / 8) */}
-        <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-brand-950/80 border border-gold-500/30 text-cream-100 text-xs font-bold shadow-md backdrop-blur-md">
+        <div className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-brand-950/85 border border-gold-500/30 text-cream-100 text-xs font-bold shadow-md backdrop-blur-md">
           {activeIdx + 1} / {validItems.length}
         </div>
 
@@ -161,7 +176,7 @@ export function HomeImageShowcase({
                 e.stopPropagation();
                 handlePrev();
               }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
               aria-label="Previous Image"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -172,7 +187,7 @@ export function HomeImageShowcase({
                 e.stopPropagation();
                 handleNext();
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
               aria-label="Next Image"
             >
               <ChevronRight className="w-5 h-5" />

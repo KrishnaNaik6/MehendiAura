@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, CheckCircle2, XCircle, ExternalLink, Filter, X } from "lucide-react";
+import { Search, Trash2, CheckCircle2, XCircle, ExternalLink, Filter, X, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { GalleryItem } from "@/types/database";
-import { toggleGalleryActive, deleteGalleryItem } from "./actions";
+import { toggleGalleryActive, toggleAllGalleryActive, deleteGalleryItem } from "./actions";
 
 interface GalleryTableProps {
   initialGallery: GalleryItem[];
@@ -45,6 +45,37 @@ export function GalleryTable({ initialGallery }: GalleryTableProps) {
       }
     } catch {
       toast.error("Failed to toggle status");
+    }
+  };
+
+  // Toggle All Gallery Photos (Activate All / Deactivate All)
+  const [isTogglingAll, setIsTogglingAll] = useState(false);
+  const handleToggleAll = async (active: boolean) => {
+    if (galleryList.length === 0) return;
+    setIsTogglingAll(true);
+
+    const targetIds = new Set(filtered.map((g) => g.id));
+    const updated = galleryList.map((g) =>
+      targetIds.has(g.id) ? { ...g, active } : g
+    );
+    setGalleryList(updated);
+
+    try {
+      const res = await toggleAllGalleryActive(active, categoryFilter);
+      if (res.success) {
+        toast.success(
+          active
+            ? `All ${categoryFilter !== "All" ? `"${categoryFilter}"` : ""} photos activated in gallery!`
+            : `All ${categoryFilter !== "All" ? `"${categoryFilter}"` : ""} photos deactivated in gallery.`
+        );
+        router.refresh();
+      } else {
+        toast.error("Failed to update photos status.");
+      }
+    } catch {
+      toast.error("An error occurred.");
+    } finally {
+      setIsTogglingAll(false);
     }
   };
 
@@ -118,8 +149,34 @@ export function GalleryTable({ initialGallery }: GalleryTableProps) {
             />
           </div>
 
-          <div className="text-xs text-brand-700 font-semibold">
-            Showing <span className="text-gold-700 font-bold">{filtered.length}</span> of {galleryList.length} total photos
+          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleToggleAll(true)}
+                disabled={isTogglingAll || filtered.length === 0}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300/60 text-xs font-bold transition-all disabled:opacity-50"
+                title={`Activate all ${categoryFilter !== "All" ? `"${categoryFilter}"` : ""} photos`}
+              >
+                <CheckSquare className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Activate All</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleToggleAll(false)}
+                disabled={isTogglingAll || filtered.length === 0}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cream-100 text-brand-800 hover:bg-cream-200 border border-gold-300/40 text-xs font-bold transition-all disabled:opacity-50"
+                title={`Deactivate all ${categoryFilter !== "All" ? `"${categoryFilter}"` : ""} photos`}
+              >
+                <Square className="w-3.5 h-3.5 text-brand-500" />
+                <span>Deactivate All</span>
+              </button>
+            </div>
+
+            <div className="text-xs text-brand-700 font-semibold pl-2">
+              Showing <span className="text-gold-700 font-bold">{filtered.length}</span> of {galleryList.length} total photos
+            </div>
           </div>
         </div>
       </div>

@@ -413,6 +413,87 @@ export async function updateServiceImageAltText(imageId: string, altText: string
   }
 }
 
+export async function toggleServiceImageVisibility(
+  imageId: string,
+  currentAltText: string | null,
+  serviceId: string
+) {
+  try {
+    const isCurrentlyHidden = currentAltText?.startsWith("[hidden]");
+    const cleanText = (currentAltText || "").replace("[hidden]", "").trim() || "Service Photo";
+    const newAlt = isCurrentlyHidden ? cleanText : `[hidden] ${cleanText}`;
+
+    return await updateServiceImageAltText(imageId, newAlt, serviceId);
+  } catch (error: any) {
+    return { error: error.message || "Failed to toggle image visibility." };
+  }
+}
+
+export async function setServiceImageAsPrimary(
+  imageId: string,
+  serviceId: string
+) {
+  try {
+    const supabase = await createClient();
+
+    const { data: images } = await supabase
+      .from("service_images")
+      .select("id, display_order, alt_text")
+      .eq("service_id", serviceId)
+      .order("display_order", { ascending: true });
+
+    if (!images || images.length === 0) return { success: true };
+
+    // Ensure image is not hidden when set as primary
+    const targetImg = images.find((i) => i.id === imageId);
+    if (targetImg && targetImg.alt_text?.startsWith("[hidden]")) {
+      await updateServiceImageAltText(
+        imageId,
+        targetImg.alt_text.replace("[hidden]", "").trim() || "Service Photo",
+        serviceId
+      );
+    }
+
+    const remaining = images.filter((img) => img.id !== imageId);
+    const newOrderIds = [imageId, ...remaining.map((img) => img.id)];
+
+    return await reorderServiceImages(serviceId, newOrderIds);
+  } catch (error: any) {
+    return { error: error.message || "Failed to set image as primary." };
+  }
+}
+
+export async function toggleAllServiceImagesVisibility(
+  serviceId: string,
+  visible: boolean
+) {
+  try {
+    const supabase = await createClient();
+
+    const { data: images } = await supabase
+      .from("service_images")
+      .select("id, alt_text")
+      .eq("service_id", serviceId);
+
+    if (!images || images.length === 0) return { success: true };
+
+    for (const img of images) {
+      const clean = (img.alt_text || "").replace("[hidden]", "").trim() || "Service Photo";
+      const newAlt = visible ? clean : `[hidden] ${clean}`;
+      await supabase
+        .from("service_images")
+        .update({ alt_text: newAlt })
+        .eq("id", img.id);
+    }
+
+    revalidatePath("/services", "layout");
+    revalidatePath(`/admin/services/${serviceId}/edit`, "page");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message || "Failed to update all service images." };
+  }
+}
+
 export async function fetchMediaLibraryImages() {
   try {
     const supabase = await createClient();
@@ -458,50 +539,15 @@ export async function fetchMediaLibraryImages() {
         library.push({
           url: j.image_url,
           storage_path: j.storage_path,
-          title: j.alt_text || j.jewellery?.name || "Jewellery Set",
+          title: j.alt_text || j.jewellery?.name || "Jewellery Photo",
           category: j.jewellery?.category || "Rental Jewellery",
           source: "jewellery",
         });
       }
     });
 
-    // Also fetch storage bucket items
-    try {
-      const folders = ["services", "jewellery", "gallery", "branding", ""];
-      for (const folder of folders) {
-        const { data: files } = await supabase.storage
-          .from("mehendiaura-images")
-          .list(folder, { limit: 100 });
-
-        if (files) {
-          files.forEach((file) => {
-            if (file.name && file.name !== ".emptyFolderPlaceholder") {
-              const fullPath = folder ? `${folder}/${file.name}` : file.name;
-              const { data: publicUrlData } = supabase.storage
-                .from("mehendiaura-images")
-                .getPublicUrl(fullPath);
-
-              const url = publicUrlData.publicUrl;
-              if (url && !seenUrls.has(url)) {
-                seenUrls.add(url);
-                library.push({
-                  url,
-                  storage_path: fullPath,
-                  title: file.name,
-                  category: folder || "General Storage",
-                  source: "storage",
-                });
-              }
-            }
-          });
-        }
-      }
-    } catch {
-      // Storage listing fallback handled cleanly
-    }
-
-    return { success: true, data: library };
+    return { success: true, data: library, library };
   } catch (error: any) {
-    return { error: error.message || "Failed to fetch media library.", data: [] };
+    return { success: false, data: [], library: [], error: error.message };
   }
 }

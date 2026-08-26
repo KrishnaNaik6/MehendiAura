@@ -73,6 +73,17 @@ export function MediaSelectorModal({
     );
   };
 
+  const handleSelectAll = () => {
+    const selectableUrls = filteredItems
+      .filter((item) => !alreadyAttachedUrls.includes(item.url))
+      .map((item) => item.url);
+    setSelectedUrls(selectableUrls);
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedUrls([]);
+  };
+
   const handleConfirm = () => {
     const selectedMedia = mediaItems.filter((item) => selectedUrls.includes(item.url));
     onSelectImages(selectedMedia);
@@ -118,10 +129,30 @@ export function MediaSelectorModal({
               className="w-full pl-9 pr-4 py-2 bg-cream-50 border border-gold-300/40 rounded-xl text-xs text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
-          <div className="text-xs font-bold text-gold-700 flex items-center gap-2">
-            <span>{selectedUrls.length} Image(s) Selected</span>
-            <span className="text-brand-400">|</span>
-            <span className="text-brand-600">{filteredItems.length} Total Available</span>
+
+          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300/60 text-[11px] font-bold transition-all"
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                onClick={handleDeselectAll}
+                className="px-2.5 py-1 rounded-lg bg-cream-100 text-brand-800 hover:bg-cream-200 border border-gold-300/40 text-[11px] font-bold transition-all"
+              >
+                Deselect All
+              </button>
+            </div>
+
+            <div className="text-xs font-bold text-gold-700 flex items-center gap-2">
+              <span>{selectedUrls.length} Selected</span>
+              <span className="text-brand-400">|</span>
+              <span className="text-brand-600">{filteredItems.length} Total</span>
+            </div>
           </div>
         </div>
 

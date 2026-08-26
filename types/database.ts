@@ -181,6 +181,8 @@ export interface Jewellery {
   name_kn?: string | null;
   short_description_en?: string | null;
   short_description_kn?: string | null;
+  included_items_en?: string[] | null;
+  included_items_kn?: string[] | null;
   description_en?: string | null;
   description_kn?: string | null;
 

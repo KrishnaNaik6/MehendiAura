@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { Gem, ShieldCheck } from "lucide-react";
+import type { Metadata } from "next";
+import { Gem, Sparkles, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Jewellery } from "@/types/database";
 import { Container } from "@/components/ui/Container";
@@ -18,13 +19,13 @@ interface JewelleryPageProps {
   params: Promise<{ lang: string }>;
 }
 
-export async function generateMetadata({ params }: JewelleryPageProps) {
+export async function generateMetadata({ params }: JewelleryPageProps): Promise<Metadata> {
   const { lang } = await params;
   const locale: Locale = (lang === "kn" ? "kn" : "en") as Locale;
   const dictionary = getDictionary(locale);
 
   return {
-    title: `${dictionary.jewelleryPage.title} | MHendi by Mamatha`,
+    title: `${dictionary.jewelleryPage.title} | MHendi by Mamatha Sagara`,
     description: dictionary.jewelleryPage.subtitle,
   };
 }
@@ -41,12 +42,13 @@ export default async function JewelleryPage({ params }: JewelleryPageProps) {
     .from("jewellery")
     .select("*, jewellery_images(*)")
     .eq("active", true)
+    .order("featured", { ascending: false })
     .order("display_order", { ascending: true });
 
   const jewelleryList: Jewellery[] = (jewelleryData as any[]) || [];
 
   return (
-    <div className="py-12 sm:py-16 space-y-12">
+    <div className="py-12 space-y-12">
       <Container size="lg">
         <SectionHeading
           badge={dictionary.jewelleryPage.badge}
@@ -66,25 +68,36 @@ export default async function JewelleryPage({ params }: JewelleryPageProps) {
           {jewelleryList.map((item) => {
             const name = getLocalizedField(item, "name", locale);
             const shortDesc = getLocalizedField(item, "short_description", locale);
-            const mainImg = item.jewellery_images && item.jewellery_images.length > 0
-              ? item.jewellery_images[0].image_url
-              : null;
+            const visibleImgs = (item.jewellery_images || [])
+              .filter((img) => !img.alt_text?.startsWith("[hidden]"))
+              .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+            const mainImg = visibleImgs.length > 0 ? visibleImgs[0].image_url : null;
             const whatsappMsg = buildJewelleryWhatsAppMsg(name, settings.business_name, locale);
 
             return (
-              <Card key={item.id} hoverEffect className="flex flex-col justify-between">
+              <Card key={item.id} hoverEffect className="flex flex-col justify-between group border-gold-300/40">
                 <div>
-                  <div className="h-48 bg-gradient-to-tr from-earth-950 via-earth-900 to-brand-950 flex items-center justify-center text-gold-300 p-6 relative overflow-hidden">
+                  {/* Full image display with ambient blur backdrop */}
+                  <div className="h-52 sm:h-56 bg-earth-950 flex items-center justify-center text-gold-300 relative overflow-hidden group/img">
                     {mainImg ? (
-                      <img
-                        src={mainImg}
-                        alt={name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      <>
+                        <img
+                          src={mainImg}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110"
+                        />
+                        <img
+                          src={mainImg}
+                          alt={name}
+                          className="relative z-10 w-full h-full object-contain p-2 group-hover/img:scale-105 transition-transform duration-500"
+                        />
+                      </>
                     ) : (
                       <Gem className="w-12 h-12 stroke-1 opacity-80" />
                     )}
-                    <span className="absolute top-4 right-4 bg-emerald-700 text-white font-semibold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    <span className="absolute top-4 right-4 z-20 bg-emerald-700 text-white font-semibold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                       {item.availability_status === "available"
                         ? dictionary.common.available
                         : item.availability_status === "booked"

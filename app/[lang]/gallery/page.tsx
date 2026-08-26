@@ -31,10 +31,11 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
   const supabase = await createClient();
   const settings = await fetchBusinessSettings();
 
-  // 1. Fetch direct showcase gallery records
+  // 1. Fetch direct portfolio gallery records (excluding Homepage Featured Showcase)
   const { data: galleryData } = await supabase
     .from("gallery")
     .select("*")
+    .neq("category", "Featured Showcase")
     .eq("active", true)
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: false });

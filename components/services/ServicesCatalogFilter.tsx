@@ -77,26 +77,36 @@ export function ServicesCatalogFilter({
           {filteredServices.map((service) => {
             const name = getLocalizedField(service, "name", locale);
             const shortDesc = getLocalizedField(service, "short_description", locale);
-            const mainImg =
-              service.service_images && service.service_images.length > 0
-                ? service.service_images[0].image_url
-                : null;
+            const visibleImgs = (service.service_images || [])
+              .filter((img) => !img.alt_text?.startsWith("[hidden]"))
+              .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+            const mainImg = visibleImgs.length > 0 ? visibleImgs[0].image_url : null;
             const whatsappMsg = buildServiceWhatsAppMsg(name, settings.business_name, locale);
 
             return (
-              <Card key={service.id} hoverEffect glass className="flex flex-col justify-between">
+              <Card key={service.id} hoverEffect glass className="flex flex-col justify-between group border-gold-300/40">
                 <div>
-                  <div className="h-48 bg-gradient-to-tr from-brand-900 via-brand-800 to-brand-950 flex items-center justify-center text-gold-300 p-6 relative overflow-hidden">
+                  {/* Full image display with ambient blur backdrop */}
+                  <div className="h-52 sm:h-56 bg-brand-950 flex items-center justify-center text-gold-300 relative overflow-hidden group/img">
                     {mainImg ? (
-                      <img
-                        src={mainImg}
-                        alt={name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      <>
+                        <img
+                          src={mainImg}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110"
+                        />
+                        <img
+                          src={mainImg}
+                          alt={name}
+                          className="relative z-10 w-full h-full object-contain p-2 group-hover/img:scale-105 transition-transform duration-500"
+                        />
+                      </>
                     ) : (
                       <Heart className="w-12 h-12 stroke-1 opacity-80" />
                     )}
-                    <span className="absolute top-4 right-4 bg-gold-500 text-brand-950 font-semibold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    <span className="absolute top-4 right-4 z-20 bg-gold-500 text-brand-950 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                       {service.category}
                     </span>
                   </div>
@@ -120,7 +130,7 @@ export function ServicesCatalogFilter({
                       )}
                       <div className="text-sm font-semibold text-brand-900 pt-1">
                         {dictionary.common.startingFrom}:{" "}
-                        <span className="text-gold-700">
+                        <span className="text-gold-700 font-bold">
                           {service.price || dictionary.common.contactForPrice}
                         </span>
                       </div>

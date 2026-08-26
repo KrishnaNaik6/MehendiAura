@@ -16,6 +16,10 @@ import {
   AlertTriangle,
   Sparkle,
   X,
+  Eye,
+  EyeOff,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -26,6 +30,9 @@ import {
   deleteServiceImage,
   reorderServiceImages,
   updateServiceImageAltText,
+  toggleServiceImageVisibility,
+  toggleAllServiceImagesVisibility,
+  setServiceImageAsPrimary,
 } from "../../actions";
 import { MediaSelectorModal, MediaItem } from "@/components/ui/MediaSelectorModal";
 import { uploadImageToSupabase } from "@/lib/supabase/storage";
@@ -106,6 +113,88 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
     }
   };
 
+  // Toggle Visibility for Public Display
+  const handleToggleVisibility = async (img: ServiceImage) => {
+    const isCurrentlyHidden = img.alt_text?.startsWith("[hidden]");
+    const cleanAlt = (img.alt_text || "").replace("[hidden]", "").trim() || "Service Photo";
+    const updatedAlt = isCurrentlyHidden ? cleanAlt : `[hidden] ${cleanAlt}`;
+
+    setImages((prev) =>
+      prev.map((i) => (i.id === img.id ? { ...i, alt_text: updatedAlt } : i))
+    );
+
+    try {
+      const res = await toggleServiceImageVisibility(img.id, img.alt_text, service.id);
+      if (res.success) {
+        toast.success(
+          isCurrentlyHidden
+            ? "Image enabled for public showcase!"
+            : "Image hidden from public showcase."
+        );
+      } else {
+        toast.error("Failed to update visibility.");
+      }
+    } catch {
+      toast.error("An error occurred while updating visibility.");
+    }
+  };
+
+  // Toggle All Images Visibility (Select All / Deselect All)
+  const [isTogglingAll, setIsTogglingAll] = useState(false);
+  const handleToggleAllVisibility = async (visible: boolean) => {
+    if (images.length === 0) return;
+    setIsTogglingAll(true);
+
+    const updated = images.map((img) => {
+      const clean = (img.alt_text || "").replace("[hidden]", "").trim() || "Service Photo";
+      return {
+        ...img,
+        alt_text: visible ? clean : `[hidden] ${clean}`,
+      };
+    });
+    setImages(updated);
+
+    try {
+      const res = await toggleAllServiceImagesVisibility(service.id, visible);
+      if (res.success) {
+        toast.success(
+          visible
+            ? "All photos enabled for public showcase!"
+            : "All photos deselected / hidden from public showcase."
+        );
+      } else {
+        toast.error("Failed to update all photos.");
+      }
+    } catch {
+      toast.error("An error occurred.");
+    } finally {
+      setIsTogglingAll(false);
+    }
+  };
+
+  // Set as Primary Image
+  const handleSetPrimary = async (img: ServiceImage) => {
+    const remaining = images.filter((i) => i.id !== img.id);
+    const newOrder = [img, ...remaining].map((i, idx) => ({
+      ...i,
+      display_order: idx + 1,
+      alt_text: (i.alt_text || "").replace("[hidden]", "").trim() || "Service Photo",
+    }));
+
+    setImages(newOrder);
+
+    try {
+      const res = await setServiceImageAsPrimary(img.id, service.id);
+      if (res.success) {
+        toast.success("Primary cover image updated!");
+      } else {
+        toast.error("Failed to set primary image.");
+      }
+    } catch {
+      toast.error("An error occurred while updating primary image.");
+    }
+  };
+
   // Delete Image Handler
   const handleConfirmDeleteImage = async () => {
     if (!imageToDelete) return;
@@ -137,7 +226,6 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
     newImages[index] = newImages[targetIndex];
     newImages[targetIndex] = temp;
 
-    // Update display_order property locally
     const reordered = newImages.map((img, idx) => ({
       ...img,
       display_order: idx + 1,
@@ -145,7 +233,6 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
 
     setImages(reordered);
 
-    // Call server action to persist order
     try {
       const res = await reorderServiceImages(
         service.id,
@@ -186,14 +273,12 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
     setUploadProgress(`Optimizing ${pendingFiles.length} photo(s) to WebP...`);
 
     try {
-      // 1. Convert to WebP in parallel
       const webpFiles = await Promise.all(
         pendingFiles.map((f) => convertToWebP(f, 0.85))
       );
 
       setUploadProgress(`Uploading ${webpFiles.length} WebP photo(s)...`);
 
-      // 2. Upload to storage in parallel
       const uploadResults = await Promise.all(
         webpFiles.map((file) => uploadImageToSupabase(file, "services"))
       );
@@ -257,13 +342,9 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
     }
   };
 
-  const attachedUrls = images.map((img) => img.image_url);
-
   return (
     <div className="space-y-10">
-      {/* ------------------------------------------------------------- */}
       {/* SECTION 1: SERVICE IMAGES MANAGEMENT */}
-      {/* ------------------------------------------------------------- */}
       <div className="p-6 rounded-3xl bg-cream-50/70 border border-gold-300/40 space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-cream-200">
           <div className="flex items-center gap-3">
@@ -275,7 +356,7 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
                 Service Photos &amp; Media Attachments
               </h2>
               <p className="text-xs text-brand-600">
-                View, reorder, delete, or add new and existing photos for this service. Image #1 is marked as <span className="font-bold text-gold-700">PRIMARY</span>.
+                Select which images are displayed publicly, set primary cover, reorder, or upload new photos.
               </p>
             </div>
           </div>
@@ -304,15 +385,49 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-brand-900">
+                Attached Images ({images.length} Total)
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleToggleAllVisibility(true)}
+                  disabled={isTogglingAll}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300/60 text-xs font-bold transition-all disabled:opacity-50"
+                  title="Enable all images for public showcase"
+                >
+                  <CheckSquare className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Select All</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleToggleAllVisibility(false)}
+                  disabled={isTogglingAll}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cream-100 text-brand-800 hover:bg-cream-200 border border-gold-300/40 text-xs font-bold transition-all disabled:opacity-50"
+                  title="Hide all images from public showcase"
+                >
+                  <Square className="w-3.5 h-3.5 text-brand-500" />
+                  <span>Deselect All</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {images.map((img, idx) => {
               const isPrimary = idx === 0;
+              const isHidden = img.alt_text?.startsWith("[hidden]");
 
               return (
                 <div
                   key={img.id}
                   className={`relative rounded-2xl overflow-hidden border-2 bg-white flex flex-col justify-between shadow-xs transition-all ${
-                    isPrimary ? "border-gold-500 ring-2 ring-gold-400/40" : "border-gold-300/40"
+                    isPrimary
+                      ? "border-gold-500 ring-2 ring-gold-400/40"
+                      : isHidden
+                      ? "border-cream-300 opacity-60 hover:opacity-100"
+                      : "border-gold-300/40"
                   }`}
                 >
                   {/* Thumbnail Container */}
@@ -320,19 +435,8 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
                     <img
                       src={img.image_url}
                       alt={img.alt_text || `Service Photo ${idx + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-brand-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setImageToDelete(img)}
-                        className="p-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors shadow-md flex items-center gap-1 text-xs font-semibold"
-                        title="Delete Image"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span>Delete</span>
-                      </button>
-                    </div>
 
                     {/* Top Badges */}
                     <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
@@ -340,13 +444,52 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
                         #{idx + 1}
                       </span>
 
-                      {isPrimary && (
+                      {isPrimary ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gold-500 text-brand-950 font-bold text-[10px] uppercase tracking-wider shadow-md">
                           <Star className="w-3 h-3 fill-brand-950" />
-                          PRIMARY
+                          PRIMARY COVER
                         </span>
-                      )}
+                      ) : isHidden ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cream-300 text-brand-800 font-bold text-[10px] uppercase tracking-wider shadow-md">
+                          <EyeOff className="w-3 h-3" />
+                          HIDDEN
+                        </span>
+                      ) : null}
                     </div>
+                  </div>
+
+                  {/* Public Display Toggle & Make Primary Bar */}
+                  <div className="px-3 py-2 bg-cream-50 border-t border-cream-200 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleVisibility(img)}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-brand-900 hover:text-gold-700"
+                      title={isHidden ? "Click to display publicly" : "Click to hide from public"}
+                    >
+                      {isHidden ? (
+                        <>
+                          <Square className="w-4 h-4 text-brand-400" />
+                          <span className="text-brand-500 line-through">Public Display</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckSquare className="w-4 h-4 text-emerald-600" />
+                          <span className="text-emerald-800 font-bold">Public Display</span>
+                        </>
+                      )}
+                    </button>
+
+                    {!isPrimary && (
+                      <button
+                        type="button"
+                        onClick={() => handleSetPrimary(img)}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gold-500/20 text-gold-800 hover:bg-gold-500/30 text-[11px] font-bold transition-colors border border-gold-400/40"
+                        title="Set as Primary Cover Image"
+                      >
+                        <Star className="w-3 h-3" />
+                        <span>Make Cover</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Card Controls & Reordering */}
@@ -384,6 +527,7 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
                 </div>
               );
             })}
+            </div>
           </div>
         )}
 
@@ -452,86 +596,81 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
             </div>
             <input
               type="file"
-              accept="image/*"
               multiple
-              onChange={handleFileSelect}
+              accept="image/*"
               className="hidden"
-              disabled={isUploadingNew}
+              onChange={handleFileSelect}
             />
           </label>
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* SECTION 2: MAIN SERVICE INFORMATION FORM */}
-      {/* ------------------------------------------------------------- */}
-      <form onSubmit={handleSubmit} className="space-y-6 pt-4 border-t border-cream-200">
-        <h3 className="font-serif text-lg font-bold text-brand-900 pb-2 border-b border-cream-200">
-          Service Details &amp; Pricing
-        </h3>
+      {/* SECTION 2: SERVICE DETAILS FORM */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="flex items-center justify-between pb-3 border-b border-cream-200">
+          <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
+            Service Details &amp; Translations
+          </h2>
+          <span className="text-xs text-brand-600">English (EN) &amp; Kannada (KN)</span>
+        </div>
 
+        {/* English & Kannada Names */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Service Name
+              Service Name (English)
             </label>
             <input
               type="text"
-              name="name"
+              name="name_en"
               required
-              defaultValue={service.name}
+              defaultValue={service.name_en || service.name}
               className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              URL Slug
+              Service Name (Kannada)
             </label>
             <input
               type="text"
-              name="slug"
-              required
-              defaultValue={service.slug}
+              name="name_kn"
+              defaultValue={service.name_kn || ""}
+              placeholder="e.g. ವಧುವಿನ ಮೆಹೆಂದಿ"
               className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
+        </div>
 
-          {/* Category Selector */}
+        {/* Category, Pricing, Duration */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Category / Service Type *
+              Service Category
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500 font-semibold"
+              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             >
-              <option value="Bridal">Bridal Mehendi</option>
-              <option value="Engagement">Engagement Mehendi</option>
-              <option value="Makeup Service">Makeup Service (Bridal &amp; Party)</option>
-              <option value="Saree Draping">Saree &amp; Lehenga Draping</option>
-              <option value="Hair Styling">Hair Styling &amp; Makeover</option>
-              <option value="Pre-Wedding Grooming">Pre-Wedding Grooming</option>
-              <option value="Arabic">Arabic Henna</option>
-              <option value="Traditional">Traditional Mehendi</option>
-              <option value="Minimal">Minimal Mehendi</option>
-              <option value="Party">Guest &amp; Party Henna</option>
-              <option value="Custom">✨ Add Custom Category Name...</option>
+              {PRESET_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+              <option value="Custom">+ Add Custom Category...</option>
             </select>
 
             {isCustomSelected && (
               <div className="mt-3">
-                <label className="block text-xs font-semibold text-gold-700 uppercase tracking-wider mb-1">
-                  Enter Custom Category Name
-                </label>
                 <input
                   type="text"
-                  required
+                  placeholder="Type new category name..."
                   value={customCategory}
                   onChange={(e) => setCustomCategory(e.target.value)}
-                  placeholder="e.g. Nail Art, Airbrush Makeup"
-                  className="w-full px-4 py-2.5 bg-white border border-gold-400 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  className="w-full px-4 py-2.5 bg-white border border-gold-500 rounded-xl text-sm text-brand-900 font-semibold focus:outline-none focus:ring-2 focus:ring-gold-500 animate-in fade-in"
+                  required={isCustomSelected}
                 />
               </div>
             )}
@@ -539,79 +678,103 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
 
           <div>
             <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Price (Or "Contact for Price")
+              Price (e.g. ₹5,000 / Starting From)
             </label>
             <input
               type="text"
               name="price"
               defaultValue={service.price || ""}
-              placeholder="Contact for Price"
               className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Estimated Duration
+              Estimated Duration (e.g. 2 - 4 Hours)
             </label>
             <input
               type="text"
               name="duration"
               defaultValue={service.duration || ""}
-              placeholder="4 - 6 Hours"
+              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+        </div>
+
+        {/* Short Descriptions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
+              Short Description (English)
+            </label>
+            <textarea
+              name="short_description_en"
+              required
+              rows={2}
+              defaultValue={service.short_description_en || service.short_description}
               className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-              Display Order Priority
+              Short Description (Kannada)
             </label>
-            <input
-              type="number"
-              name="display_order"
-              defaultValue={service.display_order}
+            <textarea
+              name="short_description_kn"
+              rows={2}
+              defaultValue={service.short_description_kn || ""}
+              placeholder="ಸಂಕ್ಷಿಪ್ತ ವಿವರಣೆ..."
               className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-            Short Description (Card Summary)
-          </label>
-          <textarea
-            name="short_description"
-            required
-            rows={2}
-            defaultValue={service.short_description}
-            className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-          />
+        {/* Full Descriptions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
+              Detailed Description (English)
+            </label>
+            <textarea
+              name="description_en"
+              required
+              rows={4}
+              defaultValue={service.description_en || service.description || ""}
+              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
+              Detailed Description (Kannada)
+            </label>
+            <textarea
+              name="description_kn"
+              rows={4}
+              defaultValue={service.description_kn || ""}
+              placeholder="ಸಂಪೂರ್ಣ ವಿವರಣೆ..."
+              className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider mb-2">
-            Full Detailed Description
-          </label>
-          <textarea
-            name="description"
-            required
-            rows={5}
-            defaultValue={service.description || ""}
-            className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-          />
-        </div>
+        {/* Fallback Legacy Fields */}
+        <input type="hidden" name="name" value={service.name} />
+        <input type="hidden" name="short_description" value={service.short_description} />
+        <input type="hidden" name="description" value={service.description || ""} />
 
-        <div className="flex items-center gap-6 pt-2">
+        {/* Status Toggles */}
+        <div className="flex flex-wrap items-center gap-6 pt-2">
           <label className="flex items-center gap-2 text-sm font-semibold text-brand-900 cursor-pointer">
             <input
               type="checkbox"
               name="featured"
               value="true"
               defaultChecked={service.featured}
-              className="w-4 h-4 text-gold-500 rounded"
+              className="w-4 h-4 text-gold-600 rounded focus:ring-gold-500 accent-gold-600"
             />
-            <span>Feature on Home Page</span>
+            <span>Featured Package (Shown on Homepage)</span>
           </label>
 
           <label className="flex items-center gap-2 text-sm font-semibold text-brand-900 cursor-pointer">
@@ -620,80 +783,86 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
               name="active"
               value="true"
               defaultChecked={service.active}
-              className="w-4 h-4 text-emerald-600 rounded"
+              className="w-4 h-4 text-gold-600 rounded focus:ring-gold-500 accent-gold-600"
             />
-            <span>Active Status</span>
+            <span>Active Listing (Visible to Public)</span>
           </label>
         </div>
 
-        <div className="pt-4 border-t border-cream-200 flex items-center justify-end gap-3">
+        {/* Save Details Button */}
+        <div className="flex justify-end gap-3 pt-6 border-t border-cream-200">
           <Link href="/admin/services">
-            <Button variant="secondary" type="button">
+            <Button type="button" variant="outline">
               Cancel
             </Button>
           </Link>
-          <Button variant="gold" type="submit" isLoading={isLoading} leftIcon={<Save className="w-4 h-4" />}>
-            Save Changes
+          <Button type="submit" variant="gold" isLoading={isLoading} leftIcon={<Save className="w-4 h-4" />}>
+            Save All Service Changes
           </Button>
         </div>
       </form>
 
-      {/* ------------------------------------------------------------- */}
-      {/* MODAL 1: MEDIA SELECTOR MODAL (CHOOSE EXISTING) */}
-      {/* ------------------------------------------------------------- */}
-      <MediaSelectorModal
-        isOpen={isMediaSelectorOpen}
-        onClose={() => setIsMediaSelectorOpen(false)}
-        onSelectImages={handleSelectMediaItems}
-        alreadyAttachedUrls={attachedUrls}
-        title="Select Existing Images for Service"
-      />
-
-      {/* ------------------------------------------------------------- */}
-      {/* MODAL 2: DELETE CONFIRMATION DIALOG */}
-      {/* ------------------------------------------------------------- */}
+      {/* Confirmation Modal to Delete Single Image */}
       {imageToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-gold-300/40 p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5">
-            <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
-              <AlertTriangle className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 bg-brand-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white rounded-3xl p-6 border border-gold-300/40 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-red-600 pb-3 border-b border-cream-200">
+              <div className="p-2.5 rounded-xl bg-red-100 shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-brand-900">
+                  Remove Photo from Service?
+                </h3>
+                <p className="text-xs text-brand-600">
+                  This photo will be detached from this service listing.
+                </p>
+              </div>
             </div>
 
-            <div className="text-center space-y-2">
-              <h3 className="font-serif text-xl font-bold text-brand-900">
-                Remove this image?
-              </h3>
-              <p className="text-xs text-brand-600 leading-relaxed">
-                This image will be removed from this service. If it is not used anywhere else, the physical file will also be deleted from storage.
-              </p>
+            <div className="h-36 rounded-2xl overflow-hidden bg-brand-950 flex items-center justify-center">
+              <img src={imageToDelete.image_url} alt="To Delete" className="max-h-full max-w-full object-contain" />
             </div>
 
-            <div className="relative h-32 rounded-xl overflow-hidden border border-cream-300 bg-brand-950 mx-auto max-w-xs">
-              <img src={imageToDelete.image_url} alt="To Delete" className="w-full h-full object-cover" />
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-cream-200">
-              <Button
-                variant="secondary"
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-cream-200">
+              <button
                 type="button"
                 onClick={() => setImageToDelete(null)}
                 disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-cream-100 text-brand-800 font-semibold text-xs hover:bg-cream-200 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button
-                variant="primary"
+              </button>
+              <button
                 type="button"
-                className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleConfirmDeleteImage}
-                isLoading={isDeleting}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs shadow-md transition-colors"
               >
-                Remove Image
-              </Button>
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Removing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Confirm Remove</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Media Selector Modal */}
+      <MediaSelectorModal
+        isOpen={isMediaSelectorOpen}
+        onClose={() => setIsMediaSelectorOpen(false)}
+        onSelectImages={handleSelectMediaItems}
+        alreadyAttachedUrls={images.map((img) => img.image_url)}
+      />
     </div>
   );
 }

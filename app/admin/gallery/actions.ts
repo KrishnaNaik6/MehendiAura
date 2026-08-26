@@ -238,3 +238,30 @@ export async function toggleGalleryActive(id: string, currentActive: boolean) {
     return { error: error.message || "Failed to toggle active status." };
   }
 }
+
+export async function toggleAllGalleryActive(
+  active: boolean,
+  categoryFilter?: string
+) {
+  try {
+    const supabase = await createClient();
+
+    let query = supabase
+      .from("gallery")
+      .update({ active })
+      .neq("category", "Featured Showcase");
+
+    if (categoryFilter && categoryFilter !== "All") {
+      query = query.eq("category", categoryFilter);
+    }
+
+    const { error } = await query;
+    if (error) throw error;
+
+    revalidatePath("/gallery", "layout");
+    revalidatePath("/admin/gallery", "page");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message || "Failed to update gallery photos status." };
+  }
+}

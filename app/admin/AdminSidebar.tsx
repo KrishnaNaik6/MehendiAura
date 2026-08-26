@@ -33,6 +33,7 @@ export function AdminSidebar({ customCategories }: AdminSidebarProps) {
 
   const primaryNav = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { label: "Featured Showcase", href: "/admin/showcase", icon: Sparkles, badge: "Homepage" },
     { label: "Analytics & Traffic", href: "/admin/analytics", icon: Activity },
     { label: "Mehendi Services", href: "/admin/services", icon: Sparkle, isBaseServices: true },
     { label: "Rental Jewellery", href: "/admin/jewellery", icon: Gem },
@@ -106,14 +107,21 @@ export function AdminSidebar({ customCategories }: AdminSidebarProps) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all min-h-[44px] ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all min-h-[44px] ${
                     isActive
                       ? "bg-gold-500/20 text-gold-300 border border-gold-400/30 font-semibold"
                       : "text-cream-200 hover:bg-brand-900 hover:text-gold-300"
                   }`}
                 >
-                  <Icon className="w-4 h-4 text-gold-400 shrink-0" />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-4 h-4 text-gold-400 shrink-0" />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className="px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/30 text-[10px] font-bold">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

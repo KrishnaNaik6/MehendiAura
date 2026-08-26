@@ -12,7 +12,10 @@ interface ServiceImageGalleryProps {
 }
 
 export function ServiceImageGallery({ images = [], serviceName, locale = "en" }: ServiceImageGalleryProps) {
-  const sortedImages = [...images].sort(
+  // Filter out any images marked as [hidden] by the admin
+  const visibleImages = images.filter((img) => !img.alt_text?.startsWith("[hidden]"));
+
+  const sortedImages = [...visibleImages].sort(
     (a, b) => (a.display_order || 0) - (b.display_order || 0)
   );
 
@@ -72,22 +75,33 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
 
   return (
     <div className="space-y-4">
-      {/* Main Image Stage with Touch Swipe */}
+      {/* Main Image Stage with Full Image Preservation */}
       <div
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onClick={() => setIsLightboxOpen(true)}
-        className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-brand-950 via-brand-900 to-brand-800 border border-gold-500/30 overflow-hidden shadow-2xl relative cursor-pointer group select-none touch-pan-y"
+        className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-brand-950 border border-gold-500/30 overflow-hidden shadow-2xl relative cursor-pointer group select-none touch-pan-y"
       >
+        {/* Ambient Blur Layer */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <img
+            src={activeImage.image_url}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover blur-xl opacity-40 scale-110"
+          />
+        </div>
+
+        {/* Complete Uncropped Foreground Image */}
         <img
           src={activeImage.image_url}
-          alt={activeImage.alt_text || serviceName}
-          className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+          alt={activeImage.alt_text?.replace("[hidden]", "").trim() || serviceName}
+          className="relative z-10 w-full h-full object-contain p-2 transition-all duration-500 group-hover:scale-102 drop-shadow-xl"
         />
 
         {/* Hover / Touch Expand Hint */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between text-white pointer-events-none">
+        <div className="absolute inset-0 z-20 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between text-white pointer-events-none">
           <span className="text-xs font-semibold flex items-center gap-1.5 text-gold-300">
             <Sparkles className="w-4 h-4" />
             <span>Tap to View Fullscreen</span>
@@ -99,12 +113,12 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
 
         {/* Photo Counter Badge */}
         {sortedImages.length > 1 && (
-          <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-brand-950/85 text-cream-100 text-xs font-semibold backdrop-blur-md shadow-md border border-gold-500/20">
+          <span className="absolute bottom-3 right-3 z-20 px-3 py-1 rounded-full bg-brand-950/85 text-cream-100 text-xs font-semibold backdrop-blur-md shadow-md border border-gold-500/20">
             Photo {activeIdx + 1} of {sortedImages.length}
           </span>
         )}
 
-        {/* Previous / Next Arrow Buttons for Desktop/Tablet */}
+        {/* Previous / Next Arrow Buttons */}
         {sortedImages.length > 1 && (
           <>
             <button
@@ -113,7 +127,7 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
                 e.stopPropagation();
                 handlePrev();
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
               aria-label="Previous Photo"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -124,7 +138,7 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
                 e.stopPropagation();
                 handleNext();
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
               aria-label="Next Photo"
             >
               <ChevronRight className="w-5 h-5" />
@@ -155,7 +169,7 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
                 type="button"
                 key={img.id || idx}
                 onClick={() => setActiveIdx(idx)}
-                className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border-2 shrink-0 transition-all bg-brand-950 ${
                   activeIdx === idx
                     ? "border-gold-500 ring-2 ring-gold-400/50 scale-105 shadow-md"
                     : "border-gold-300/30 opacity-70 hover:opacity-100"
@@ -164,7 +178,7 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
                 <img
                   src={img.image_url}
                   alt={`Thumbnail ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain p-1"
                 />
               </button>
             ))}
@@ -207,7 +221,7 @@ export function ServiceImageGallery({ images = [], serviceName, locale = "en" }:
             <div className="w-full bg-black flex items-center justify-center p-2 rounded-2xl overflow-hidden max-h-[75vh]">
               <img
                 src={activeImage.image_url}
-                alt={activeImage.alt_text || serviceName}
+                alt={activeImage.alt_text?.replace("[hidden]", "").trim() || serviceName}
                 className="max-h-[70vh] w-auto object-contain rounded-xl"
               />
             </div>
