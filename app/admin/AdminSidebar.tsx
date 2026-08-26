@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   Sparkles,
   LayoutDashboard,
+  Activity,
   Sparkle,
   Gem,
   Image as ImageIcon,
@@ -32,6 +33,7 @@ export function AdminSidebar({ customCategories }: AdminSidebarProps) {
 
   const primaryNav = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { label: "Analytics & Traffic", href: "/admin/analytics", icon: Activity },
     { label: "Mehendi Services", href: "/admin/services", icon: Sparkle, isBaseServices: true },
     { label: "Rental Jewellery", href: "/admin/jewellery", icon: Gem },
   ];

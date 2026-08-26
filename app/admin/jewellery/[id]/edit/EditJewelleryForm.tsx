@@ -176,7 +176,7 @@ export function EditJewelleryForm({ item }: EditJewelleryFormProps) {
           name="description"
           required
           rows={4}
-          defaultValue={item.description}
+          defaultValue={item.description || ""}
           className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
         />
       </div>

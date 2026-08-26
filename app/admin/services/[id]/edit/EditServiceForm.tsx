@@ -597,7 +597,7 @@ export function EditServiceForm({ service }: EditServiceFormProps) {
             name="description"
             required
             rows={5}
-            defaultValue={service.description}
+            defaultValue={service.description || ""}
             className="w-full px-4 py-3 bg-cream-50 border border-gold-300/40 rounded-xl text-sm text-brand-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
           />
         </div>
