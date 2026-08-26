@@ -4,11 +4,11 @@ import { createClient as createServerSupabase } from "@/lib/supabase/server";
 
 export const DEFAULT_BUSINESS_SETTINGS: BusinessSettings = {
   id: "default-settings",
-  business_name: process.env.NEXT_PUBLIC_BUSINESS_NAME || "MHendi by Mamatha",
+  business_name: process.env.NEXT_PUBLIC_BUSINESS_NAME || "Mehendi by Mamatha",
   phone: process.env.NEXT_PUBLIC_DEFAULT_PHONE || "+919876543210",
   whatsapp: process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP || "919876543210",
   email: "contact@mhendibymamatha.com",
-  address: "Main Studio & Rental Store, Sagara, Karnataka 577401",
+  address: "Main Studio & Rental Store, Sagara, Shivamogga District, Karnataka 577401",
   google_maps_url: "https://maps.google.com/?q=Sagara+Karnataka",
   business_hours: "Mon - Sun: 9:00 AM - 9:00 PM",
   instagram_url: "https://instagram.com/mhendibymamatha",
@@ -16,9 +16,9 @@ export const DEFAULT_BUSINESS_SETTINGS: BusinessSettings = {
   youtube_url: null,
   logo_url: null,
   hero_image_url: null,
-  hero_title: "Exquisite Sagara Mehendi Artistry & Premium Rental Jewellary",
-  hero_description: "MHendi by Mamatha (Mamatha Sagara / Mamatha Sagar) - Crafting unforgettable bridal mehendi designs & curating regal rental jewellery sets in Sagara.",
-  about_content: "MHendi by Mamatha (Mamatha Sagara) is a premier bridal mehendi artistry and rental jewellery studio in Sagara, Karnataka.",
+  hero_title: "Exquisite Sagara & Shivamogga Mehendi Artistry & Premium Rental Jewellery",
+  hero_description: "Mehendi by Mamatha (Mamatha Sagara / Mamatha Sagar) - Crafting unforgettable bridal mehendi designs & curating regal rental jewellery sets in Sagara and Shivamogga.",
+  about_content: "Mehendi by Mamatha (Mamatha Sagara) is a premier bridal mehendi artistry and rental jewellery studio serving Sagara, Shivamogga, and surrounding regions in Karnataka.",
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };

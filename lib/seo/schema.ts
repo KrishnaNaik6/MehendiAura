@@ -6,19 +6,30 @@ export function getLocalBusinessSchema(settings: BusinessSettings) {
   return {
     "@context": "https://schema.org",
     "@type": "BeautySalon",
-    name: settings.business_name || "MHendi by Mamatha",
+    name: settings.business_name || "Mehendi by Mamatha",
     alternateName: [
+      "mehendi by mamatha",
+      "MHendi by Mamatha",
       "Mamatha Sagara",
       "Mamatha Sagar",
       "Sagara Mehendi",
+      "mahendi in sagara",
+      "mehendi in sagara",
+      "jewellary rental in sagara",
+      "jewellery rental in sagara",
+      "mehendi in shivamogga",
+      "mahendi in shivamogga",
+      "jewellery rental in shivamogga",
+      "jewellary rental in shivamogga",
+      "mehendi in shimoga",
+      "jewellery rental in shimoga",
       "Mamatha Sagara Mehendi",
       "Sagara Rental Jewellary",
-      "MHendi Sagara",
-      "Mamatha Sagar Rental Jewellary",
+      "Shivamogga Mehendi Artist",
     ],
     description:
       settings.hero_description ||
-      "Professional Bridal Mehendi Services & Premium Rental Jewellary Studio by Mamatha Sagara in Sagara.",
+      "Professional Bridal Mehendi Services & Premium Rental Jewellery Studio by Mamatha Sagara serving Sagara and Shivamogga.",
     url: baseUrl,
     telephone: settings.phone,
     founder: {
@@ -27,14 +38,32 @@ export function getLocalBusinessSchema(settings: BusinessSettings) {
     },
     address: {
       "@type": "PostalAddress",
-      streetAddress: settings.address || "Main Studio & Rental Store, Sagara",
+      streetAddress: settings.address || "Main Studio & Rental Store, Sagara, Shivamogga District",
       addressLocality: "Sagara",
       addressRegion: "Karnataka",
       postalCode: "577401",
       addressCountry: "IN",
     },
+    areaServed: [
+      {
+        "@type": "City",
+        name: "Sagara",
+      },
+      {
+        "@type": "City",
+        name: "Shivamogga",
+      },
+      {
+        "@type": "City",
+        name: "Shimoga",
+      },
+      {
+        "@type": "AdministrativeArea",
+        name: "Karnataka",
+      },
+    ],
     keywords:
-      "sagara mehendi, mamatha sagara, mamatha sagar, rental jewellary, rental jewellery, mehendi, jewellary, sagara, sagara mehendi artist, MHendi by Mamatha",
+      "mehendi by mamatha, mahendi in sagara, mehendi, jewellary rental in sagara, jewellery, mehendi in shivamogga, jewellery rental in shivamogga, sagara mehendi, mamatha sagara, mamatha sagar, rental jewellary, rental jewellery, sagara, shivamogga, shimoga",
     openingHours: "Mo-Su 09:00-21:00",
     priceRange: "₹₹",
     sameAs: [
@@ -51,11 +80,11 @@ export function getServiceSchema(service: Service, settings: BusinessSettings) {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: `${service.name} in Sagara`,
+    name: `${service.name} in Sagara & Shivamogga`,
     description: service.short_description || service.description,
     provider: {
       "@type": "LocalBusiness",
-      name: settings.business_name || "MHendi by Mamatha (Mamatha Sagara)",
+      name: settings.business_name || "Mehendi by Mamatha (Mamatha Sagara)",
       telephone: settings.phone,
       address: {
         "@type": "PostalAddress",
@@ -68,6 +97,10 @@ export function getServiceSchema(service: Service, settings: BusinessSettings) {
       {
         "@type": "City",
         name: "Sagara",
+      },
+      {
+        "@type": "City",
+        name: "Shivamogga",
       },
       {
         "@type": "Country",
@@ -90,12 +123,12 @@ export function getJewellerySchema(item: Jewellery, settings: BusinessSettings) 
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${item.name} - Rental Jewellary Sagara`,
+    name: `${item.name} - Rental Jewellery Sagara & Shivamogga`,
     description: item.short_description || item.description,
     category: item.category,
     brand: {
       "@type": "Brand",
-      name: "MHendi by Mamatha Sagara",
+      name: "Mehendi by Mamatha Sagara",
     },
     offers: {
       "@type": "AggregateOffer",
