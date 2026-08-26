@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Heart, X, ChevronLeft, ChevronRight, Maximize2, Sparkles, Images } from "lucide-react";
 import { ServiceImage } from "@/types/database";
 
 interface ServiceImageGalleryProps {
   images?: ServiceImage[];
   serviceName: string;
+  locale?: string;
 }
 
-export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGalleryProps) {
+export function ServiceImageGallery({ images = [], serviceName, locale = "en" }: ServiceImageGalleryProps) {
   const sortedImages = [...images].sort(
     (a, b) => (a.display_order || 0) - (b.display_order || 0)
   );
@@ -138,14 +140,13 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
             <span className="text-xs font-bold text-brand-900 uppercase tracking-wider">
               Photo Showcase ({sortedImages.length} Photos)
             </span>
-            <button
-              type="button"
-              onClick={() => setIsLightboxOpen(true)}
+            <Link
+              href={`/${locale}/gallery`}
               className="inline-flex items-center gap-1 text-xs font-bold text-gold-700 hover:text-gold-800 transition-colors"
             >
               <Images className="w-3.5 h-3.5" />
               <span>View More Images</span>
-            </button>
+            </Link>
           </div>
 
           <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
@@ -174,7 +175,6 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
       {/* Fullscreen Lightbox Modal */}
       {isLightboxOpen && (
         <div className="fixed inset-0 z-50 bg-brand-950/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-8 animate-in fade-in duration-200">
-          {/* Close Button */}
           <button
             onClick={() => setIsLightboxOpen(false)}
             className="absolute top-3 right-3 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/90 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
@@ -183,29 +183,26 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
             <X className="w-6 h-6" />
           </button>
 
-          {/* Previous Button */}
           {sortedImages.length > 1 && (
-            <button
-              onClick={handlePrev}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
-              aria-label="Previous Photo"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
+                aria-label="Previous Photo"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              <button
+                onClick={handleNext}
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
+                aria-label="Next Photo"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
           )}
 
-          {/* Next Button */}
-          {sortedImages.length > 1 && (
-            <button
-              onClick={handleNext}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
-              aria-label="Next Photo"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          )}
-
-          {/* Modal Container */}
           <div className="max-w-4xl w-full bg-brand-900 border border-gold-500/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 max-h-[92vh] my-auto">
             <div className="w-full bg-black flex items-center justify-center p-2 rounded-2xl overflow-hidden max-h-[75vh]">
               <img
@@ -218,9 +215,18 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
               <h3 className="font-serif text-lg font-bold text-white">
                 {serviceName}
               </h3>
-              <span className="text-xs text-gold-400 font-semibold block">
-                Photo {activeIdx + 1} of {sortedImages.length}
-              </span>
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-xs text-gold-400 font-semibold block">
+                  Photo {activeIdx + 1} of {sortedImages.length}
+                </span>
+                <Link
+                  href={`/${locale}/gallery`}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-gold-300 hover:text-gold-400"
+                >
+                  <Images className="w-3.5 h-3.5" />
+                  <span>View Full Gallery</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

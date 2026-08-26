@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { Sparkles, Maximize2, ChevronLeft, ChevronRight, Images, X, MessageSquare } from "lucide-react";
 import { GalleryItem } from "@/types/database";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
@@ -96,14 +97,13 @@ export function HomeImageShowcase({
           <Sparkles className="w-3.5 h-3.5 text-gold-600 animate-spin-slow shrink-0" />
           <span>Featured Showcase</span>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsLightboxOpen(true)}
+        <Link
+          href={`/${locale}/gallery`}
           className="inline-flex items-center gap-1 text-xs font-bold text-gold-700 hover:text-gold-800 transition-colors"
         >
           <Images className="w-3.5 h-3.5" />
           <span>View Images</span>
-        </button>
+        </Link>
       </div>
 
       {/* Main Image Stage */}
@@ -136,17 +136,14 @@ export function HomeImageShowcase({
               </h3>
             </div>
 
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsLightboxOpen(true);
-              }}
+            <Link
+              href={`/${locale}/gallery`}
+              onClick={(e) => e.stopPropagation()}
               className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gold-500 text-brand-950 font-bold text-xs shadow-lg hover:bg-gold-400 transition-all shrink-0 flex items-center gap-1.5"
             >
-              <Maximize2 className="w-3.5 h-3.5" />
+              <Images className="w-3.5 h-3.5" />
               <span>View Images</span>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -247,9 +244,13 @@ export function HomeImageShowcase({
                 {activeItem.title || "Artistry Showcase"}
               </h3>
               <div className="flex items-center justify-center gap-3">
-                <span className="text-xs text-gold-400 font-semibold">
-                  Photo {activeIdx + 1} of {validItems.length}
-                </span>
+                <Link
+                  href={`/${locale}/gallery`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gold-500 text-brand-950 font-bold text-xs hover:bg-gold-400 transition-colors"
+                >
+                  <Images className="w-3.5 h-3.5" />
+                  <span>Go to Full Gallery Page</span>
+                </Link>
                 <a
                   href={getWhatsAppUrl(
                     whatsappNumber,
@@ -257,7 +258,7 @@ export function HomeImageShowcase({
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                   <span>Enquire Design</span>

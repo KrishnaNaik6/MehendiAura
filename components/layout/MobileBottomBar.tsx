@@ -76,9 +76,9 @@ export function MobileBottomBar({ settings }: MobileBottomBarProps) {
   };
 
   return (
-    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0F241A] border-t-2 border-gold-500/50 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 w-full z-50 bg-[#0F241A] border-t border-gold-500/40 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] pt-1.5 pb-2 pb-[env(safe-area-inset-bottom,0px)]">
       {/* Android 5-Item Primary Bottom Navigation Bar */}
-      <nav className="grid grid-cols-5 items-center justify-between max-w-md mx-auto px-1 py-1.5">
+      <nav className="grid grid-cols-5 items-center justify-between w-full max-w-md mx-auto px-1.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = checkIsActive(item.key);
@@ -88,15 +88,15 @@ export function MobileBottomBar({ settings }: MobileBottomBarProps) {
               key={item.key}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
-              className={`flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl transition-all min-h-[48px] min-w-[44px] active:scale-95 ${
+              className={`w-full flex flex-col items-center justify-center gap-0.5 py-1 px-0.5 rounded-xl transition-all min-h-[46px] active:scale-95 ${
                 isActive
-                  ? "bg-gradient-to-br from-gold-400 via-gold-500 to-gold-600 text-brand-950 font-bold shadow-lg scale-105 border border-gold-300"
+                  ? "bg-gradient-to-br from-gold-400 via-gold-500 to-gold-600 text-brand-950 font-bold shadow-md scale-102 border border-gold-300"
                   : "text-cream-200 hover:text-gold-300 hover:bg-brand-900/60 font-medium"
               }`}
             >
               <Icon
-                className={`w-5 h-5 transition-transform ${
-                  isActive ? "text-brand-950 stroke-[2.5] scale-110" : "text-cream-200 stroke-[1.8]"
+                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${
+                  isActive ? "text-brand-950 stroke-[2.5]" : "text-cream-200 stroke-[1.8]"
                 }`}
               />
               <span
