@@ -78,7 +78,7 @@ export function MobileBottomBar({ settings }: MobileBottomBarProps) {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 w-full z-50 bg-[#0F241A] border-t border-gold-500/40 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] pt-1.5 pb-2 pb-[env(safe-area-inset-bottom,0px)]">
       {/* Android 5-Item Primary Bottom Navigation Bar */}
-      <nav className="grid grid-cols-5 items-center justify-between w-full max-w-md mx-auto px-1.5">
+      <nav className="grid grid-cols-5 items-center justify-between w-full max-w-md mx-auto px-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = checkIsActive(item.key);
@@ -88,19 +88,19 @@ export function MobileBottomBar({ settings }: MobileBottomBarProps) {
               key={item.key}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
-              className={`w-full flex flex-col items-center justify-center gap-0.5 py-1 px-0.5 rounded-xl transition-all min-h-[46px] active:scale-95 ${
+              className={`w-full flex flex-col items-center justify-center gap-0.5 py-1 px-0.5 rounded-xl transition-all min-h-[46px] active:scale-95 overflow-hidden ${
                 isActive
                   ? "bg-gradient-to-br from-gold-400 via-gold-500 to-gold-600 text-brand-950 font-bold shadow-md scale-102 border border-gold-300"
                   : "text-cream-200 hover:text-gold-300 hover:bg-brand-900/60 font-medium"
               }`}
             >
               <Icon
-                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 transition-transform ${
                   isActive ? "text-brand-950 stroke-[2.5]" : "text-cream-200 stroke-[1.8]"
                 }`}
               />
               <span
-                className={`text-[10px] tracking-tight truncate leading-none ${
+                className={`text-[9px] sm:text-[10px] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-full text-center leading-none ${
                   isActive ? "text-brand-950 font-bold" : "text-cream-200 font-medium"
                 }`}
               >
