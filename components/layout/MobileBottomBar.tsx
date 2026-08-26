@@ -12,69 +12,98 @@ interface MobileBottomBarProps {
 }
 
 export function MobileBottomBar({ settings }: MobileBottomBarProps) {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
   const { locale, dictionary } = useLanguage();
+
+  const pathname = (rawPathname || "/").toLowerCase().replace(/\/$/, "");
 
   const navItems = [
     {
+      key: "home",
       label: dictionary.nav.home,
       href: `/${locale}`,
       icon: Home,
-      exact: true,
     },
     {
+      key: "services",
       label: dictionary.nav.services,
       href: `/${locale}/services`,
       icon: Sparkles,
-      exact: false,
     },
     {
+      key: "jewellery",
       label: dictionary.nav.jewellery,
       href: `/${locale}/jewellery`,
       icon: Gem,
-      exact: false,
     },
     {
+      key: "gallery",
       label: dictionary.nav.gallery,
       href: `/${locale}/gallery`,
       icon: Images,
-      exact: false,
     },
     {
+      key: "contact",
       label: dictionary.nav.contact,
       href: `/${locale}/contact`,
       icon: PhoneCall,
-      exact: false,
     },
   ];
 
+  const checkIsActive = (key: string) => {
+    if (key === "home") {
+      return (
+        pathname === "" ||
+        pathname === "/" ||
+        pathname === "/en" ||
+        pathname === "/kn" ||
+        pathname === `/${locale}`
+      );
+    }
+    if (key === "services") {
+      return pathname.includes("/services");
+    }
+    if (key === "jewellery") {
+      return pathname.includes("/jewellery");
+    }
+    if (key === "gallery") {
+      return pathname.includes("/gallery");
+    }
+    if (key === "contact") {
+      return pathname.includes("/contact");
+    }
+    return false;
+  };
+
   return (
-    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-brand-950/98 backdrop-blur-xl border-t border-gold-500/30 shadow-2xl pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0F241A] border-t-2 border-gold-500/50 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] pb-[env(safe-area-inset-bottom,0px)]">
       {/* Android 5-Item Primary Bottom Navigation Bar */}
       <nav className="grid grid-cols-5 items-center justify-between max-w-md mx-auto px-1 py-1.5">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.exact
-            ? pathname === item.href || pathname === `/${locale}`
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = checkIsActive(item.key);
 
           return (
             <Link
-              key={item.href}
+              key={item.key}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
-              className={`flex flex-col items-center justify-center gap-1 py-1 px-1 rounded-xl transition-all min-h-[46px] min-w-[44px] active:scale-95 ${
+              className={`flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl transition-all min-h-[48px] min-w-[44px] active:scale-95 ${
                 isActive
-                  ? "text-gold-300 font-bold bg-gold-500/20 border border-gold-400/40 shadow-xs"
-                  : "text-cream-300 hover:text-gold-300 hover:bg-brand-900/50 font-normal"
+                  ? "bg-gradient-to-br from-gold-400 via-gold-500 to-gold-600 text-brand-950 font-bold shadow-lg scale-105 border border-gold-300"
+                  : "text-cream-200 hover:text-gold-300 hover:bg-brand-900/60 font-medium"
               }`}
             >
               <Icon
                 className={`w-5 h-5 transition-transform ${
-                  isActive ? "scale-110 text-gold-400 stroke-[2.5]" : "text-cream-300 stroke-[1.75]"
+                  isActive ? "text-brand-950 stroke-[2.5] scale-110" : "text-cream-200 stroke-[1.8]"
                 }`}
               />
-              <span className="text-[10px] tracking-tight truncate leading-none">
+              <span
+                className={`text-[10px] tracking-tight truncate leading-none ${
+                  isActive ? "text-brand-950 font-bold" : "text-cream-200 font-medium"
+                }`}
+              >
                 {item.label}
               </span>
             </Link>
