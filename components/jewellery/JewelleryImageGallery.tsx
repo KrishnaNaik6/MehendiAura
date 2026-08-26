@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Heart, X, ChevronLeft, ChevronRight, Maximize2, Sparkles, Images } from "lucide-react";
-import { ServiceImage } from "@/types/database";
+import { Gem, X, ChevronLeft, ChevronRight, Maximize2, Sparkles, Images } from "lucide-react";
+import { JewelleryImage } from "@/types/database";
 
-interface ServiceImageGalleryProps {
-  images?: ServiceImage[];
-  serviceName: string;
+interface JewelleryImageGalleryProps {
+  images?: JewelleryImage[];
+  itemName: string;
 }
 
-export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGalleryProps) {
+export function JewelleryImageGallery({ images = [], itemName }: JewelleryImageGalleryProps) {
   const sortedImages = [...images].sort(
     (a, b) => (a.display_order || 0) - (b.display_order || 0)
   );
@@ -47,11 +47,11 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
 
   if (sortedImages.length === 0) {
     return (
-      <div className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-brand-950 via-brand-900 to-brand-800 border border-gold-500/30 overflow-hidden shadow-2xl flex items-center justify-center relative p-6 text-center">
+      <div className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-earth-950 via-earth-900 to-earth-800 border border-gold-500/30 overflow-hidden shadow-2xl flex items-center justify-center relative p-6 text-center">
         <div className="flex flex-col items-center gap-3 text-gold-300">
-          <Heart className="w-12 h-12 sm:w-16 sm:h-16 stroke-1 opacity-80" />
+          <Gem className="w-12 h-12 sm:w-16 sm:h-16 stroke-1 opacity-80" />
           <span className="font-serif text-base sm:text-lg tracking-wider text-gold-400">
-            {serviceName}
+            {itemName}
           </span>
         </div>
       </div>
@@ -76,28 +76,28 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onClick={() => setIsLightboxOpen(true)}
-        className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-brand-950 via-brand-900 to-brand-800 border border-gold-500/30 overflow-hidden shadow-2xl relative cursor-pointer group select-none touch-pan-y"
+        className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-earth-950 via-earth-900 to-earth-800 border border-gold-500/30 overflow-hidden shadow-2xl relative cursor-pointer group select-none touch-pan-y"
       >
         <img
           src={activeImage.image_url}
-          alt={activeImage.alt_text || serviceName}
+          alt={activeImage.alt_text || itemName}
           className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
         />
 
         {/* Hover / Touch Expand Hint */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between text-white pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-t from-earth-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between text-white pointer-events-none">
           <span className="text-xs font-semibold flex items-center gap-1.5 text-gold-300">
             <Sparkles className="w-4 h-4" />
             <span>Tap to View Fullscreen</span>
           </span>
-          <div className="p-2 rounded-full bg-brand-900/80 text-gold-300 border border-gold-500/30">
+          <div className="p-2 rounded-full bg-earth-900/80 text-gold-300 border border-gold-500/30">
             <Maximize2 className="w-4 h-4" />
           </div>
         </div>
 
         {/* Photo Counter Badge */}
         {sortedImages.length > 1 && (
-          <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-brand-950/85 text-cream-100 text-xs font-semibold backdrop-blur-md shadow-md border border-gold-500/20">
+          <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-earth-950/85 text-cream-100 text-xs font-semibold backdrop-blur-md shadow-md border border-gold-500/20">
             Photo {activeIdx + 1} of {sortedImages.length}
           </span>
         )}
@@ -111,7 +111,7 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
                 e.stopPropagation();
                 handlePrev();
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center"
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-earth-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-earth-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center"
               aria-label="Previous Photo"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -122,7 +122,7 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
                 e.stopPropagation();
                 handleNext();
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-brand-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-earth-950/70 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-earth-900 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center"
               aria-label="Next Photo"
             >
               <ChevronRight className="w-5 h-5" />
@@ -136,7 +136,7 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-brand-900 uppercase tracking-wider">
-              Photo Showcase ({sortedImages.length} Photos)
+              Jewellery Photos ({sortedImages.length} Photos)
             </span>
             <button
               type="button"
@@ -173,11 +173,11 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
 
       {/* Fullscreen Lightbox Modal */}
       {isLightboxOpen && (
-        <div className="fixed inset-0 z-50 bg-brand-950/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-8 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 bg-earth-950/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-8 animate-in fade-in duration-200">
           {/* Close Button */}
           <button
             onClick={() => setIsLightboxOpen(false)}
-            className="absolute top-3 right-3 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/90 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
+            className="absolute top-3 right-3 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-earth-900/90 border border-gold-500/30 text-gold-300 hover:text-white hover:bg-earth-800 transition-colors z-50 flex items-center justify-center shadow-lg"
             aria-label="Close Lightbox"
           >
             <X className="w-6 h-6" />
@@ -187,7 +187,7 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
           {sortedImages.length > 1 && (
             <button
               onClick={handlePrev}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-earth-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-earth-800 transition-colors z-50 flex items-center justify-center shadow-lg"
               aria-label="Previous Photo"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -198,7 +198,7 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
           {sortedImages.length > 1 && (
             <button
               onClick={handleNext}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-brand-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-brand-800 transition-colors z-50 flex items-center justify-center shadow-lg"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-earth-900/80 border border-gold-500/20 text-gold-300 hover:text-white hover:bg-earth-800 transition-colors z-50 flex items-center justify-center shadow-lg"
               aria-label="Next Photo"
             >
               <ChevronRight className="w-6 h-6" />
@@ -206,17 +206,17 @@ export function ServiceImageGallery({ images = [], serviceName }: ServiceImageGa
           )}
 
           {/* Modal Container */}
-          <div className="max-w-4xl w-full bg-brand-900 border border-gold-500/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 max-h-[92vh] my-auto">
+          <div className="max-w-4xl w-full bg-earth-900 border border-gold-500/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 max-h-[92vh] my-auto">
             <div className="w-full bg-black flex items-center justify-center p-2 rounded-2xl overflow-hidden max-h-[75vh]">
               <img
                 src={activeImage.image_url}
-                alt={activeImage.alt_text || serviceName}
+                alt={activeImage.alt_text || itemName}
                 className="max-h-[70vh] w-auto object-contain rounded-xl"
               />
             </div>
             <div className="pt-4 text-center space-y-1">
               <h3 className="font-serif text-lg font-bold text-white">
-                {serviceName}
+                {itemName}
               </h3>
               <span className="text-xs text-gold-400 font-semibold block">
                 Photo {activeIdx + 1} of {sortedImages.length}

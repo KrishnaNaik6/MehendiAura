@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Gem, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Gem, Clock, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Jewellery } from "@/types/database";
 import { Container } from "@/components/ui/Container";
@@ -12,6 +12,7 @@ import { fetchBusinessSettings } from "@/lib/supabase/helper";
 import { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { getLocalizedField } from "@/lib/i18n/getLocalizedField";
+import { JewelleryImageGallery } from "@/components/jewellery/JewelleryImageGallery";
 
 interface JewelleryDetailPageProps {
   params: Promise<{ lang: string; slug: string }>;
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: JewelleryDetailPageProps) {
   const desc = getLocalizedField(item, "short_description", locale);
 
   return {
-    title: `${name} | Rental Jewellery Catalog`,
+    title: `${name} | Rental Jewellery | MHendi by Mamatha`,
     description: desc,
   };
 }
@@ -63,7 +64,6 @@ export default async function JewelleryDetailPage({ params }: JewelleryDetailPag
   const name = getLocalizedField(item, "name", locale);
   const shortDesc = getLocalizedField(item, "short_description", locale);
   const fullDesc = getLocalizedField(item, "description", locale);
-  const includedItems = getLocalizedField(item, "included_items", locale) || item.included_items;
   const whatsappMsg = buildJewelleryWhatsAppMsg(name, settings.business_name, locale);
 
   return (
@@ -80,40 +80,15 @@ export default async function JewelleryDetailPage({ params }: JewelleryDetailPag
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
           {/* Image Showcase */}
-          <div className="space-y-4">
-            <div className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-earth-900 via-earth-800 to-brand-950 border border-gold-500/30 overflow-hidden shadow-2xl flex items-center justify-center relative">
-              {item.jewellery_images && item.jewellery_images.length > 0 ? (
-                <img
-                  src={item.jewellery_images[0].image_url}
-                  alt={name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-3 text-gold-300 p-4 text-center">
-                  <Gem className="w-12 h-12 sm:w-16 sm:h-16 stroke-1 opacity-80" />
-                  <span className="font-serif text-base sm:text-lg tracking-wider text-gold-400">
-                    {name}
-                  </span>
-                </div>
-              )}
-              <span
-                className={`absolute top-3 left-3 sm:top-4 sm:left-4 text-white font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-md ${
-                  item.availability_status === "available"
-                    ? "bg-emerald-700"
-                    : item.availability_status === "booked"
-                    ? "bg-gold-700"
-                    : "bg-red-700"
-                }`}
-              >
-                {dictionary.common.status}: {item.availability_status === "available" ? dictionary.common.available : item.availability_status === "booked" ? dictionary.common.booked : dictionary.common.maintenance}
-              </span>
-            </div>
-          </div>
+          <JewelleryImageGallery
+            images={item.jewellery_images}
+            itemName={name}
+          />
 
-          {/* Details & Rental Booking CTA */}
+          {/* Jewellery Details & CTAs */}
           <div className="space-y-6 sm:space-y-8">
             <div className="space-y-2 sm:space-y-3">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 text-xs font-semibold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/10 border border-emerald-700/30 text-emerald-800 text-xs font-semibold uppercase tracking-wider">
                 <Gem className="w-3.5 h-3.5 shrink-0" />
                 <span>{item.category}</span>
               </div>
@@ -123,34 +98,36 @@ export default async function JewelleryDetailPage({ params }: JewelleryDetailPag
               </h1>
             </div>
 
-            {/* Rental Price & Deposit Box */}
-            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-cream-200 pb-3 gap-2">
+            {/* Price & Deposit Box */}
+            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-[11px] sm:text-xs font-semibold text-gold-700 uppercase tracking-wider">
-                    {dictionary.common.perDayRate}
+                  <span className="text-[11px] sm:text-xs font-semibold text-gold-700 uppercase tracking-wider block mb-1">
+                    {dictionary.common.rentalPrice}
                   </span>
-                  <div className="text-2xl sm:text-3xl font-serif font-bold text-emerald-700">
-                    {item.rental_price ? `₹${item.rental_price}` : dictionary.common.contactForPrice}
-                    <span className="text-xs sm:text-sm font-normal text-brand-600"> {dictionary.common.perDay}</span>
+                  <div className="text-xl sm:text-2xl font-serif font-bold text-emerald-800">
+                    {item.rental_price
+                      ? `₹${item.rental_price} ${dictionary.common.perDay}`
+                      : dictionary.common.contactForPrice}
                   </div>
                 </div>
 
                 {item.security_deposit && (
-                  <div className="sm:text-right">
-                    <span className="text-[11px] sm:text-xs font-semibold text-brand-600 uppercase tracking-wider">
+                  <div>
+                    <span className="text-[11px] sm:text-xs font-semibold text-brand-600 uppercase tracking-wider block mb-1">
                       {dictionary.common.securityDeposit}
                     </span>
-                    <div className="text-lg sm:text-xl font-bold text-brand-900">
-                      ₹{item.security_deposit}
+                    <div className="text-sm sm:text-base font-semibold text-brand-800">
+                      ₹{item.security_deposit} (Refundable)
                     </div>
                   </div>
                 )}
               </div>
 
-              <p className="text-xs text-brand-600 leading-relaxed">
-                {dictionary.jewelleryPage.depositNotice}
-              </p>
+              <div className="pt-3 border-t border-cream-200 text-xs text-brand-600 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{dictionary.jewelleryPage.depositNotice}</span>
+              </div>
             </div>
 
             {/* Description */}
@@ -163,22 +140,19 @@ export default async function JewelleryDetailPage({ params }: JewelleryDetailPag
               </p>
             </div>
 
-            {/* Included Items Checklist */}
-            {includedItems && includedItems.length > 0 && (
-              <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-cream-50 border border-gold-300/30">
-                <h3 className="font-serif font-bold text-brand-900 text-xs sm:text-sm">{dictionary.common.includedItems}:</h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-brand-700">
-                  {includedItems.map((piece: string, idx: number) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{piece}</span>
-                    </li>
-                  ))}
-                </ul>
+            {/* Guarantees */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-cream-50 border border-gold-300/30 space-y-2 text-xs text-brand-800">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Sanitized &amp; Sanitization Inspected After Every Event</span>
               </div>
-            )}
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Matching Earrings, Maang Tikka, &amp; Accessories Included</span>
+              </div>
+            </div>
 
-            {/* Primary Action Buttons */}
+            {/* Conversion Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4 border-t border-cream-200">
               <WhatsAppButton
                 fullWidth
