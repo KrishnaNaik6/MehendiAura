@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Heart, Clock, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Heart, Clock, ArrowLeft, CheckCircle2, Sparkle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Service } from "@/types/database";
 import { Container } from "@/components/ui/Container";
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: ServiceDetailPageProps) {
     .single();
 
   if (!service) {
-    return { title: "Mehendi Service | MHendi by Mamatha" };
+    return { title: "Service | MHendi by Mamatha" };
   }
 
   const name = getLocalizedField(service, "name", locale);
@@ -89,8 +89,8 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
           <div className="space-y-6 sm:space-y-8">
             <div className="space-y-2 sm:space-y-3">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 text-xs font-semibold uppercase tracking-wider">
-                <Heart className="w-3.5 h-3.5 shrink-0" />
-                <span>{service.category} {dictionary.common.mehendi}</span>
+                <Sparkle className="w-3.5 h-3.5 shrink-0 text-gold-600" />
+                <span>{service.category}</span>
               </div>
 
               <h1 className="font-serif text-2xl sm:text-4xl font-bold text-brand-900 leading-tight">
@@ -136,7 +136,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
             <div className="p-4 sm:p-5 rounded-2xl bg-cream-50 border border-gold-300/30 space-y-2 text-xs text-brand-800">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>100% Organic Henna Powder &amp; Essential Oils</span>
+                <span>Professional Artistry &amp; Premium Products</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />

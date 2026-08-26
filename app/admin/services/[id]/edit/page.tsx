@@ -41,10 +41,10 @@ export default async function EditServicePage({ params }: EditServicePageProps) 
           </div>
           <div>
             <h1 className="font-serif text-2xl font-bold text-brand-900">
-              Edit Mehendi Service
+              Edit Service Package
             </h1>
             <p className="text-xs text-brand-600">
-              Editing service: <span className="font-semibold text-gold-700">{service.name}</span>
+              Editing service: <span className="font-semibold text-gold-700">{service.name}</span> ({service.category})
             </p>
           </div>
         </div>

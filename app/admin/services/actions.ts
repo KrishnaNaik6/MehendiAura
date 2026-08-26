@@ -419,8 +419,8 @@ export async function fetchMediaLibraryImages() {
 
     const [{ data: gallery }, { data: serviceImgs }, { data: jewelleryImgs }] = await Promise.all([
       supabase.from("gallery").select("image_url, storage_path, title, category").order("created_at", { ascending: false }),
-      supabase.from("service_images").select("image_url, storage_path, alt_text").order("created_at", { ascending: false }),
-      supabase.from("jewellery_images").select("image_url, storage_path, alt_text").order("created_at", { ascending: false }),
+      supabase.from("service_images").select("image_url, storage_path, alt_text, services(name, category)").order("created_at", { ascending: false }),
+      supabase.from("jewellery_images").select("image_url, storage_path, alt_text, jewellery(name, category)").order("created_at", { ascending: false }),
     ]);
 
     const seenUrls = new Set<string>();
@@ -439,27 +439,27 @@ export async function fetchMediaLibraryImages() {
       }
     });
 
-    (serviceImgs || []).forEach((s) => {
+    (serviceImgs || []).forEach((s: any) => {
       if (s.image_url && !seenUrls.has(s.image_url)) {
         seenUrls.add(s.image_url);
         library.push({
           url: s.image_url,
           storage_path: s.storage_path,
-          title: s.alt_text || "Service Attachment",
-          category: "Mehendi Service",
+          title: s.alt_text || s.services?.name || "Service Photo",
+          category: s.services?.category || "Service Offering",
           source: "service",
         });
       }
     });
 
-    (jewelleryImgs || []).forEach((j) => {
+    (jewelleryImgs || []).forEach((j: any) => {
       if (j.image_url && !seenUrls.has(j.image_url)) {
         seenUrls.add(j.image_url);
         library.push({
           url: j.image_url,
           storage_path: j.storage_path,
-          title: j.alt_text || "Jewellery Set",
-          category: "Rental Jewellery",
+          title: j.alt_text || j.jewellery?.name || "Jewellery Set",
+          category: j.jewellery?.category || "Rental Jewellery",
           source: "jewellery",
         });
       }
