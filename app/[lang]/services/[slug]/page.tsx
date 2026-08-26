@@ -12,6 +12,7 @@ import { fetchBusinessSettings } from "@/lib/supabase/helper";
 import { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { getLocalizedField } from "@/lib/i18n/getLocalizedField";
+import { ServiceImageGallery } from "@/components/services/ServiceImageGallery";
 
 interface ServiceDetailPageProps {
   params: Promise<{ lang: string; slug: string }>;
@@ -79,24 +80,10 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
           {/* Service Image Showcase */}
-          <div className="space-y-4">
-            <div className="h-64 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-brand-950 via-brand-900 to-brand-800 border border-gold-500/30 overflow-hidden shadow-2xl flex items-center justify-center relative">
-              {service.service_images && service.service_images.length > 0 ? (
-                <img
-                  src={service.service_images[0].image_url}
-                  alt={name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-3 text-gold-300 p-4 text-center">
-                  <Heart className="w-12 h-12 sm:w-16 sm:h-16 stroke-1 opacity-80" />
-                  <span className="font-serif text-base sm:text-lg tracking-wider text-gold-400">
-                    {name}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
+          <ServiceImageGallery
+            images={service.service_images}
+            serviceName={name}
+          />
 
           {/* Service Details & Booking CTAs */}
           <div className="space-y-6 sm:space-y-8">

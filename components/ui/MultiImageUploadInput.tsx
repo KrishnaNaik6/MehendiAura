@@ -5,6 +5,7 @@ import { UploadCloud, CheckCircle2, Loader2, X, Plus, Sparkles, Images } from "l
 import { toast } from "sonner";
 import { uploadImageToSupabase } from "@/lib/supabase/storage";
 import { convertToWebP } from "@/lib/utils/imageCompressor";
+import { MediaSelectorModal, MediaItem } from "./MediaSelectorModal";
 
 interface MultiImageUploadInputProps {
   values?: string[];
@@ -22,6 +23,7 @@ export function MultiImageUploadInput({
   const [imageUrls, setImageUrls] = useState<string[]>(values);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
+  const [isMediaSelectorOpen, setIsMediaSelectorOpen] = useState(false);
 
   const handleMultipleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawFiles = Array.from(e.target.files || []);
@@ -87,16 +89,36 @@ export function MultiImageUploadInput({
     onChange(updated);
   };
 
+  const handleSelectMediaItems = (selectedItems: MediaItem[]) => {
+    const newUrls = selectedItems.map((m) => m.url).filter((url) => !imageUrls.includes(url));
+    if (newUrls.length > 0) {
+      const updated = [...imageUrls, ...newUrls];
+      setImageUrls(updated);
+      onChange(updated);
+      toast.success(`Added ${newUrls.length} image(s) from media library!`);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <label className="block text-xs font-semibold text-brand-900 uppercase tracking-wider flex items-center gap-2">
           <Images className="w-4 h-4 text-gold-600" />
           <span>{label}</span>
         </label>
-        <span className="text-xs font-bold text-gold-700">
-          {imageUrls.length} Photo(s) Attached
-        </span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsMediaSelectorOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gold-500/10 hover:bg-gold-500/20 text-gold-700 border border-gold-400/40 text-xs font-semibold transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Choose Existing Image</span>
+          </button>
+          <span className="text-xs font-bold text-gold-700">
+            {imageUrls.length} Photo(s) Attached
+          </span>
+        </div>
       </div>
 
       {/* Grid of Uploaded Preview Cards */}
@@ -170,6 +192,14 @@ export function MultiImageUploadInput({
 
       {/* Hidden serialization input */}
       <input type="hidden" name="image_urls" value={JSON.stringify(imageUrls)} />
+
+      {/* Media Selector Modal */}
+      <MediaSelectorModal
+        isOpen={isMediaSelectorOpen}
+        onClose={() => setIsMediaSelectorOpen(false)}
+        onSelectImages={handleSelectMediaItems}
+        alreadyAttachedUrls={imageUrls}
+      />
     </div>
   );
 }
