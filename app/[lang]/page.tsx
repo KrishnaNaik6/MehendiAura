@@ -14,7 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Service, Jewellery, Testimonial, FAQ } from "@/types/database";
+import { Service, Jewellery, Testimonial, FAQ, GalleryItem } from "@/types/database";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/Card";
@@ -28,6 +28,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { getLocalizedField } from "@/lib/i18n/getLocalizedField";
+import { HomeImageShowcase } from "@/components/home/HomeImageShowcase";
 
 interface HomePageProps {
   params: Promise<{ lang: string }>;
@@ -81,15 +82,64 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const faqs: FAQ[] = (faqsData as any[]) || [];
 
+  // 5. Fetch Gallery Items for Homepage Auto-Sliding Showcase
+  const { data: galleryData } = await supabase
+    .from("gallery")
+    .select("*")
+    .eq("active", true)
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const galleryItems: GalleryItem[] = (galleryData as any[]) || [];
+
+  // Construct showcase items from gallery or service/jewellery fallbacks
+  let showcaseItems: GalleryItem[] = galleryItems;
+
+  if (showcaseItems.length === 0) {
+    // Fallback showcase items from service/jewellery images
+    const fallbackServiceImgs: GalleryItem[] = services
+      .filter((s) => s.service_images && s.service_images.length > 0)
+      .map((s) => ({
+        id: `showcase-svc-${s.id}`,
+        title: s.name,
+        description: s.short_description || null,
+        category: s.category,
+        image_url: s.service_images![0].image_url,
+        storage_path: s.service_images![0].storage_path || "",
+        alt_text: s.name,
+        active: true,
+        display_order: 1,
+        created_at: new Date().toISOString(),
+      }));
+
+    const fallbackJewelleryImgs: GalleryItem[] = jewelleryItems
+      .filter((j) => j.jewellery_images && j.jewellery_images.length > 0)
+      .map((j) => ({
+        id: `showcase-jewel-${j.id}`,
+        title: j.name,
+        description: j.short_description || null,
+        category: "Rental Jewellery",
+        image_url: j.jewellery_images![0].image_url,
+        storage_path: j.jewellery_images![0].storage_path || "",
+        alt_text: j.name,
+        active: true,
+        display_order: 1,
+        created_at: new Date().toISOString(),
+      }));
+
+    showcaseItems = [...fallbackServiceImgs, ...fallbackJewelleryImgs];
+  }
+
   const generalWhatsappMsg = buildGeneralWhatsAppMsg(settings.business_name, locale);
   const heroTitle = getLocalizedField(settings, "hero_title", locale) || dictionary.hero.defaultTitle;
   const heroDescription = getLocalizedField(settings, "hero_description", locale) || dictionary.hero.defaultSubtitle;
   const aboutContent = getLocalizedField(settings, "about_content", locale);
 
   return (
-    <div className="space-y-12 sm:space-y-28 py-3 sm:py-6 overflow-hidden">
+    <div className="space-y-10 sm:space-y-24 py-3 sm:py-6 overflow-hidden">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-950 text-cream-100 py-10 sm:py-24 px-3.5 sm:px-8 rounded-2xl sm:rounded-3xl mx-1 sm:mx-8 border border-gold-500/30 shadow-2xl gold-ambient-glow">
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-950 text-cream-100 py-8 sm:py-20 px-3.5 sm:px-8 rounded-2xl sm:rounded-3xl mx-1 sm:mx-8 border border-gold-500/30 shadow-2xl gold-ambient-glow">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:16px_16px]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -150,7 +200,23 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* 2. BUSINESS INTRODUCTION */}
+      {/* 2. PROMINENT AUTO-SLIDING IMAGE SHOWCASE */}
+      {showcaseItems.length > 0 && (
+        <section>
+          <Container size="lg">
+            <AnimatedSection direction="up">
+              <HomeImageShowcase
+                items={showcaseItems}
+                locale={locale}
+                whatsappNumber={settings.whatsapp}
+                businessName={settings.business_name}
+              />
+            </AnimatedSection>
+          </Container>
+        </section>
+      )}
+
+      {/* 3. BUSINESS INTRODUCTION */}
       <section>
         <Container size="lg">
           <AnimatedSection direction="up" delay={150}>
@@ -216,7 +282,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* 3. FEATURED SERVICES */}
+      {/* 4. FEATURED SERVICES */}
       {services.length > 0 && (
         <section>
           <Container size="lg">
@@ -300,7 +366,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* 4. FEATURED RENTAL JEWELLERY */}
+      {/* 5. FEATURED RENTAL JEWELLERY */}
       {jewelleryItems.length > 0 && (
         <section>
           <Container size="lg">
@@ -388,7 +454,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* 5. PROCESS TIMELINE */}
+      {/* 6. PROCESS TIMELINE */}
       <section className="bg-cream-200/50 py-12 sm:py-16 border-y border-gold-300/20">
         <Container size="lg">
           <AnimatedSection direction="up">
@@ -402,7 +468,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* 6. TESTIMONIALS SECTION */}
+      {/* 7. TESTIMONIALS SECTION */}
       {testimonials.length > 0 && (
         <section>
           <Container size="lg">
@@ -450,7 +516,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* 7. FREQUENTLY ASKED QUESTIONS */}
+      {/* 8. FREQUENTLY ASKED QUESTIONS */}
       {faqs.length > 0 && (
         <section className="bg-cream-50 py-12 sm:py-16 border-y border-gold-300/20">
           <Container size="lg">
@@ -466,7 +532,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* 8. CONTACT CTA BANNER */}
+      {/* 9. CONTACT CTA BANNER */}
       <section>
         <Container size="lg">
           <AnimatedSection direction="up">

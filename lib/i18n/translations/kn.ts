@@ -46,11 +46,11 @@ export const kn = {
   },
   nav: {
     home: "ಮುಖಪುಟ",
-    services: "ಮೆಹೆಂದಿ ಸೇವೆಗಳು",
-    jewellery: "ಬಾಡಿಗೆ ಆಭರಣಗಳು",
+    services: "ಸೇವೆಗಳು",
+    jewellery: "ಆಭರಣಗಳು",
     gallery: "ಗ್ಯಾಲರಿ",
     about: "ನಮ್ಮ ಬಗ್ಗೆ",
-    contact: "ಸಂಪರ್ಕಿಸಿ",
+    contact: "ಸಂಪರ್ಕ",
     adminLogin: "ಅಡ್ಮಿನ್ ಲಾಗಿನ್",
   },
   hero: {

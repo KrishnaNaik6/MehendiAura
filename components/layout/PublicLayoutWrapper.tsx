@@ -28,7 +28,7 @@ export function PublicLayoutWrapper({
     <>
       <VisitorTracker />
       <Header settings={settings} />
-      <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+      <main className="flex-1 pb-24 lg:pb-0">{children}</main>
       <Footer settings={settings} />
       <MobileBottomBar settings={settings} />
     </>
