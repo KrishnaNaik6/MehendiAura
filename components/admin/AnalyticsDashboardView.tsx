@@ -22,15 +22,19 @@ import {
   ChevronLeft,
   ChevronRight,
   TrendingUp,
-  FileText,
+  Clock,
+  ArrowRight,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   ComprehensiveAnalyticsData,
   AnalyticsFilterOptions,
+  DailyVisitorRow,
   fetchComprehensiveAnalytics,
   deleteAnalyticsLogs,
 } from "@/app/actions/analytics";
+import { formatIndiaTime, formatIndiaDate, getIndiaDateString } from "@/lib/analytics/timezone";
 
 interface AnalyticsDashboardViewProps {
   initialData: ComprehensiveAnalyticsData;
@@ -41,7 +45,10 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Filter State
-  const [period, setPeriod] = useState<"today" | "yesterday" | "7days" | "30days" | "all" | "custom">("30days");
+  const [period, setPeriod] = useState<
+    "today" | "yesterday" | "single_date" | "7days" | "30days" | "all" | "custom"
+  >("30days");
+  const [singleDate, setSingleDate] = useState<string>(getIndiaDateString());
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [deviceType, setDeviceType] = useState<string>("all");
@@ -56,19 +63,25 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
   const [deleteEndDate, setDeleteEndDate] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const applyFilters = async (overridePage?: number, overridePeriod?: string) => {
+  const applyFilters = async (
+    overridePage?: number,
+    overridePeriod?: "today" | "yesterday" | "single_date" | "7days" | "30days" | "all" | "custom",
+    overrideDate?: string
+  ) => {
     setIsRefreshing(true);
-    const activePeriod = (overridePeriod as any) || period;
+    const activePeriod = overridePeriod !== undefined ? overridePeriod : period;
     const pageNum = overridePage !== undefined ? overridePage : currentPage;
+    const targetSingleDate = overrideDate !== undefined ? overrideDate : singleDate;
 
     try {
       const filters: AnalyticsFilterOptions = {
         period: activePeriod,
+        selectedDate: activePeriod === "single_date" ? targetSingleDate : undefined,
         startDate: activePeriod === "custom" ? startDate : undefined,
         endDate: activePeriod === "custom" ? endDate : undefined,
-        deviceType,
-        operatingSystem,
-        browser,
+        deviceType: deviceType !== "all" ? deviceType : undefined,
+        operatingSystem: operatingSystem !== "all" ? operatingSystem : undefined,
+        browser: browser !== "all" ? browser : undefined,
         page: pageNum,
         pageSize: 15,
       };
@@ -82,10 +95,22 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
     }
   };
 
-  const handlePeriodChange = (newPeriod: any) => {
+  const handlePeriodChange = (newPeriod: typeof period) => {
     setPeriod(newPeriod);
     setCurrentPage(1);
     applyFilters(1, newPeriod);
+  };
+
+  const handleSingleDateSelect = (dateStr: string) => {
+    setSingleDate(dateStr);
+    setPeriod("single_date");
+    setCurrentPage(1);
+    applyFilters(1, "single_date", dateStr);
+  };
+
+  const handleDrillDownDay = (row: DailyVisitorRow) => {
+    handleSingleDateSelect(row.dateStr);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePageChange = (newPage: number) => {
@@ -101,7 +126,17 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
       return;
     }
 
-    const headers = ["Session ID", "Action", "Page Path", "Device", "OS", "Browser", "Device Name", "Language", "Timestamp"];
+    const headers = [
+      "Session ID",
+      "Action",
+      "Page Path",
+      "Device",
+      "OS",
+      "Browser",
+      "Device Name",
+      "Language",
+      "Timestamp (IST)",
+    ];
     const rows = data.recentLogs.map((log) => [
       log.session_id,
       log.action,
@@ -111,7 +146,7 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
       log.browser || "Other",
       log.device_name || "Unknown",
       log.language || "en",
-      new Date(log.created_at).toISOString(),
+      formatIndiaDate(log.created_at) + " " + formatIndiaTime(log.created_at),
     ]);
 
     const csvContent =
@@ -121,11 +156,11 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `mhendi_analytics_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `mhendi_analytics_${getIndiaDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("CSV report downloaded!");
+    toast.success("CSV export downloaded successfully!");
   };
 
   // Delete Handler
@@ -152,20 +187,29 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
     }
   };
 
+  const isEmptyDay = data.isSingleDay && data.visitors === 0 && data.pageViews === 0 && data.callClicks === 0 && data.whatsappClicks === 0;
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-950 text-cream-100 p-6 sm:p-8 rounded-3xl border border-gold-500/30 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-500/20 text-gold-300 text-xs font-semibold uppercase tracking-wider mb-2">
-            <Activity className="w-3.5 h-3.5" />
-            <span>Privacy-Conscious Analytics CMS</span>
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-500/20 text-gold-300 text-xs font-semibold uppercase tracking-wider">
+              <Activity className="w-3.5 h-3.5" />
+              <span>Real Visitor Analytics</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-950/70 border border-gold-500/30 text-cream-200 text-[11px] font-mono">
+              <Clock className="w-3 h-3 text-gold-400" />
+              <span>IST (Asia/Kolkata)</span>
+            </span>
           </div>
+
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
             Visitor Traffic &amp; Analytics Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-cream-200 mt-1">
-            Real visitor stats, deduplicated sessions, device breakdown, and 365-day retention.
+            Real visitor tracking, call clicks, WhatsApp enquiries, and daily calendar breakdown.
           </p>
         </div>
 
@@ -190,20 +234,21 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
 
       {/* Filter Control Bar */}
       <div className="bg-white p-4 sm:p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Time Period Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             {[
               { id: "today", label: "Today" },
               { id: "yesterday", label: "Yesterday" },
+              { id: "single_date", label: "Select Any Date" },
               { id: "7days", label: "Last 7 Days" },
               { id: "30days", label: "Last 30 Days" },
-              { id: "all", label: "All History" },
               { id: "custom", label: "Custom Range" },
+              { id: "all", label: "All History" },
             ].map((p) => (
               <button
                 key={p.id}
-                onClick={() => handlePeriodChange(p.id)}
+                onClick={() => handlePeriodChange(p.id as any)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap min-h-[38px] transition-all ${
                   period === p.id
                     ? "bg-brand-900 text-gold-300 border border-gold-400/40 shadow-xs font-bold"
@@ -218,14 +263,33 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
           <button
             onClick={() => applyFilters()}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cream-100 border border-gold-300/40 text-brand-900 text-xs font-semibold hover:bg-cream-200 shrink-0 self-start md:self-auto"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cream-100 border border-gold-300/40 text-brand-900 text-xs font-semibold hover:bg-cream-200 shrink-0 self-start lg:self-auto"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-gold-700 ${isRefreshing ? "animate-spin" : ""}`} />
-            <span>Refresh Data</span>
+            <span>Refresh</span>
           </button>
         </div>
 
-        {/* Custom Date Range & Device Filters */}
+        {/* Single Date Picker Selector (Requirement 7 & 8) */}
+        {period === "single_date" && (
+          <div className="pt-3 border-t border-cream-200 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gold-600" />
+              <label className="text-xs font-bold text-brand-900">Choose Specific Date (IST):</label>
+            </div>
+            <input
+              type="date"
+              value={singleDate}
+              onChange={(e) => handleSingleDateSelect(e.target.value)}
+              className="px-3.5 py-2 rounded-xl border border-gold-400/40 bg-cream-50 text-brand-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-gold-500 min-h-[38px]"
+            />
+            <span className="text-xs text-brand-600 font-medium">
+              Viewing exact Indian day: <strong className="text-brand-950">{formatIndiaDate(singleDate)}</strong>
+            </span>
+          </div>
+        )}
+
+        {/* Custom Date Range (Requirement 8) */}
         {period === "custom" && (
           <div className="pt-3 border-t border-cream-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             <div>
@@ -256,142 +320,214 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
             </div>
           </div>
         )}
+
+        {/* Active Filter Scope Ribbon */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-cream-100 text-xs">
+          <div className="flex items-center gap-2 text-brand-700 font-medium">
+            <span className="font-bold text-brand-900">Active Scope:</span>
+            <span className="px-2.5 py-0.5 rounded-md bg-gold-50 text-gold-900 font-bold border border-gold-300/40">
+              {data.periodLabel}
+            </span>
+          </div>
+
+          {data.isSingleDay && (
+            <button
+              onClick={() => handlePeriodChange("30days")}
+              className="text-[11px] text-gold-700 font-semibold hover:underline"
+            >
+              ← Back to 30-Day Overview
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* 4 Visitor Overview Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Today */}
-        <div className="p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
+      {/* Empty Day Banner (Requirement 11) */}
+      {isEmptyDay && (
+        <div className="p-8 rounded-3xl bg-cream-50 border border-gold-300/40 text-center space-y-3 shadow-soft">
+          <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 flex items-center justify-center mx-auto">
+            <Calendar className="w-6 h-6" />
+          </div>
+          <h3 className="font-serif text-lg font-bold text-brand-900">
+            No visitor data recorded for this date.
+          </h3>
+          <p className="text-xs text-brand-600 max-w-md mx-auto">
+            No visitors, page views, call clicks, or WhatsApp clicks occurred on {data.periodLabel}.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => handlePeriodChange("today")}
+              className="px-4 py-2 rounded-xl bg-gold-500 text-brand-950 text-xs font-bold hover:bg-gold-400 transition-all"
+            >
+              View Today&apos;s Activity
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 4 Separate Unmixed Overview Metrics (Requirement 6, 7, 9, 19) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Real Visitors */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
           <div className="flex items-center justify-between text-brand-600">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Today</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">Unique Visitors</span>
             <Users className="w-4 h-4 text-gold-600" />
           </div>
           <div className="text-2xl sm:text-3xl font-serif font-bold text-brand-900">
-            {data.todayVisitors}
+            {data.visitors}
           </div>
-          <div className="text-[11px] text-brand-700 font-medium">
-            {data.todayViews} total page views
-          </div>
-        </div>
-
-        {/* Yesterday */}
-        <div className="p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
-          <div className="flex items-center justify-between text-brand-600">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Yesterday</span>
-            <Calendar className="w-4 h-4 text-brand-600" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-serif font-bold text-brand-900">
-            {data.yesterdayVisitors}
-          </div>
-          <div className="text-[11px] text-brand-700 font-medium">
-            {data.yesterdayViews} total page views
+          <div className="text-[11px] text-brand-600 font-medium">
+            Real visitor sessions
           </div>
         </div>
 
-        {/* Last 7 Days */}
-        <div className="p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
+        {/* Page Views */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
           <div className="flex items-center justify-between text-brand-600">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Last 7 Days</span>
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">Page Views</span>
+            <Eye className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-2xl sm:text-3xl font-serif font-bold text-brand-900">
-            {data.last7DaysVisitors}
+            {data.pageViews}
           </div>
-          <div className="text-[11px] text-brand-700 font-medium">
-            {data.last7DaysViews} total page views
+          <div className="text-[11px] text-brand-600 font-medium">
+            Navigations across pages
           </div>
         </div>
 
-        {/* Last 30 Days */}
-        <div className="p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
+        {/* Call Clicks */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
           <div className="flex items-center justify-between text-brand-600">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Last 30 Days</span>
-            <Activity className="w-4 h-4 text-gold-700" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">Call Clicks</span>
+            <Phone className="w-4 h-4 text-amber-600" />
           </div>
-          <div className="text-2xl sm:text-3xl font-serif font-bold text-brand-900">
-            {data.last30DaysVisitors}
+          <div className="text-2xl sm:text-3xl font-serif font-bold text-amber-700">
+            {data.callClicks}
           </div>
-          <div className="text-[11px] text-brand-700 font-medium">
-            {data.last30DaysViews} total page views
+          <div className="text-[11px] text-brand-600 font-medium">
+            Phone dialer taps
+          </div>
+        </div>
+
+        {/* WhatsApp Clicks */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-gold-300/40 shadow-soft space-y-1">
+          <div className="flex items-center justify-between text-brand-600">
+            <span className="text-[11px] font-bold uppercase tracking-wider">WhatsApp Clicks</span>
+            <MessageSquare className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-serif font-bold text-emerald-700">
+            {data.whatsappClicks}
+          </div>
+          <div className="text-[11px] text-brand-600 font-medium">
+            Enquiries initiated
           </div>
         </div>
       </div>
 
-      {/* Daily Visitor Interactive Bar Chart */}
-      <div className="bg-white p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-serif text-lg font-bold text-brand-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
-              <span>Daily Visitor Trend</span>
-            </h3>
-            <p className="text-xs text-brand-600">Real unique visitors per day (no estimated data)</p>
-          </div>
-          <span className="text-xs text-brand-700 font-semibold bg-cream-100 px-3 py-1 rounded-full border border-gold-300/30">
-            {data.dailyChart.length} Days Stored
-          </span>
-        </div>
-
-        {data.dailyChart.length === 0 ? (
-          <div className="p-8 text-center bg-cream-50 rounded-2xl text-xs text-brand-600">
-            No daily data available for selected filter period.
-          </div>
-        ) : (
-          <div className="pt-4 pb-2">
-            <div className="flex items-end gap-2 h-44 overflow-x-auto pb-6 scrollbar-none border-b border-cream-200">
-              {data.dailyChart.map((pt) => {
-                const maxVis = Math.max(...data.dailyChart.map((d) => d.visitors), 1);
-                const heightPct = Math.max((pt.visitors / maxVis) * 100, 10);
-
-                return (
-                  <div key={pt.dateStr} className="flex-1 min-w-[36px] flex flex-col items-center gap-1.5 group relative">
-                    <div className="text-[10px] font-bold text-brand-900 opacity-0 group-hover:opacity-100 transition-opacity absolute -top-5 bg-brand-900 text-gold-300 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
-                      {pt.visitors} Visitors ({pt.pageViews} Views)
-                    </div>
-                    <div
-                      style={{ height: `${heightPct}%` }}
-                      className="w-full bg-gradient-to-t from-gold-600 to-gold-400 rounded-t-lg group-hover:from-emerald-600 group-hover:to-emerald-400 transition-all shadow-xs"
-                    />
-                    <span className="text-[9px] font-semibold text-brand-700 truncate max-w-full">
-                      {pt.dateLabel}
-                    </span>
-                  </div>
-                );
-              })}
+      {/* DAILY VISITOR TABLE (Requirement 10: Date | Visitors | Page Views | Calls | WhatsApp) */}
+      {!data.isSingleDay && data.dailyTable && data.dailyTable.length > 0 && (
+        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
+                Daily Visitor Statistics Table
+              </h2>
+              <p className="text-xs text-brand-600">
+                Click any row or &quot;View Day&quot; to drill down into that specific day&apos;s metrics.
+              </p>
             </div>
+            <span className="text-xs font-semibold text-brand-700">
+              Showing {data.dailyTable.length} recorded days
+            </span>
           </div>
-        )}
-      </div>
 
-      {/* 2-Column Section: Popular Pages + Distribution Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Popular Pages */}
-        <div className="bg-white p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
-          <h3 className="font-serif text-lg font-bold text-brand-900 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-gold-600" />
-            <span>Popular Pages</span>
-          </h3>
+          <div className="overflow-x-auto rounded-2xl border border-cream-300">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-cream-100 text-brand-900 font-bold uppercase tracking-wider border-b border-cream-300">
+                  <th className="py-3 px-4">Date (IST)</th>
+                  <th className="py-3 px-4">Visitors</th>
+                  <th className="py-3 px-4">Page Views</th>
+                  <th className="py-3 px-4">Calls</th>
+                  <th className="py-3 px-4">WhatsApp</th>
+                  <th className="py-3 px-4 text-right">Drill-Down</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-cream-200 bg-white">
+                {data.dailyTable.map((row) => (
+                  <tr
+                    key={row.dateStr}
+                    onClick={() => handleDrillDownDay(row)}
+                    className="hover:bg-gold-50/50 transition-colors cursor-pointer"
+                  >
+                    <td className="py-3 px-4 font-bold text-brand-900 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5 text-gold-600 shrink-0" />
+                        <span>{row.dateLabel}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 font-bold text-brand-900">
+                      {row.visitors}
+                    </td>
+                    <td className="py-3 px-4 font-medium text-brand-700">
+                      {row.pageViews}
+                    </td>
+                    <td className="py-3 px-4 font-bold text-amber-700">
+                      {row.calls}
+                    </td>
+                    <td className="py-3 px-4 font-bold text-emerald-700">
+                      {row.whatsapp}
+                    </td>
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDrillDownDay(row);
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-gold-100 text-brand-900 hover:bg-gold-500 hover:text-brand-950 font-bold text-[11px] transition-all"
+                      >
+                        <span>View Day</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Breakdown Grid: Popular Pages & Device Types */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Popular Pages (Requirement 7 & 9) */}
+        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-serif text-base sm:text-lg font-bold text-brand-900">
+              Popular Pages ({data.periodLabel})
+            </h3>
+            <span className="text-xs text-brand-600 font-medium">
+              {data.popularPages.length} pages viewed
+            </span>
+          </div>
 
           {data.popularPages.length === 0 ? (
             <div className="p-6 text-center text-xs text-brand-600 bg-cream-50 rounded-2xl">
-              No page view records found.
+              No page view records in this timeframe.
             </div>
           ) : (
             <div className="space-y-3">
-              {data.popularPages.map((pg) => (
-                <div key={pg.path} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono font-semibold text-brand-900 truncate max-w-[220px]">
-                      {pg.path}
-                    </span>
-                    <span className="font-bold text-brand-800">
-                      {pg.views} views ({pg.percentage}%)
+              {data.popularPages.map((page) => (
+                <div key={page.path} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs font-semibold text-brand-900">
+                    <span className="font-mono truncate max-w-[200px] sm:max-w-xs">{page.path}</span>
+                    <span>
+                      {page.views} views ({page.percentage}%)
                     </span>
                   </div>
-                  <div className="w-full bg-cream-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-cream-100 overflow-hidden">
                     <div
-                      style={{ width: `${pg.percentage}%` }}
-                      className="bg-gold-500 h-full rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-gold-400 to-gold-600 rounded-full"
+                      style={{ width: `${Math.min(page.percentage, 100)}%` }}
                     />
                   </div>
                 </div>
@@ -400,101 +536,98 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
           )}
         </div>
 
-        {/* Device, OS, and Browser Distributions */}
-        <div className="bg-white p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-6">
-          {/* Device Type */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-brand-900 flex items-center gap-1.5">
-              <Smartphone className="w-4 h-4 text-gold-600" />
-              <span>Device Breakdown</span>
-            </h4>
-            <div className="space-y-2">
-              {data.deviceBreakdown.map((d) => (
-                <div key={d.label} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs font-semibold text-brand-800">
-                    <span>{d.label}</span>
-                    <span>{d.count} ({d.percentage}%)</span>
+        {/* Device & Platform Breakdown (Requirement 7 & 9) */}
+        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-serif text-base sm:text-lg font-bold text-brand-900">
+              Device Breakdown ({data.periodLabel})
+            </h3>
+            <span className="text-xs text-brand-600 font-medium">Platforms</span>
+          </div>
+
+          {data.deviceBreakdown.length === 0 ? (
+            <div className="p-6 text-center text-xs text-brand-600 bg-cream-50 rounded-2xl">
+              No device data available.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {data.deviceBreakdown.map((dev) => (
+                <div key={dev.label} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs font-semibold text-brand-900">
+                    <div className="flex items-center gap-1.5">
+                      {dev.label === "Mobile" ? (
+                        <Smartphone className="w-3.5 h-3.5 text-gold-600" />
+                      ) : dev.label === "Tablet" ? (
+                        <Tablet className="w-3.5 h-3.5 text-gold-600" />
+                      ) : (
+                        <Monitor className="w-3.5 h-3.5 text-brand-600" />
+                      )}
+                      <span>{dev.label}</span>
+                    </div>
+                    <span>
+                      {dev.count} interactions ({dev.percentage}%)
+                    </span>
                   </div>
-                  <div className="w-full bg-cream-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-cream-100 overflow-hidden">
                     <div
-                      style={{ width: `${d.percentage}%` }}
-                      className="bg-emerald-600 h-full rounded-full"
+                      className="h-full bg-gradient-to-r from-brand-700 to-brand-900 rounded-full"
+                      style={{ width: `${Math.min(dev.percentage, 100)}%` }}
                     />
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          )}
 
-          {/* Operating System */}
-          <div className="space-y-3 pt-2 border-t border-cream-200">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-brand-900 flex items-center gap-1.5">
-              <Monitor className="w-4 h-4 text-gold-700" />
-              <span>Operating System Breakdown</span>
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              {data.osBreakdown.map((os) => (
-                <div key={os.label} className="p-2.5 rounded-xl bg-cream-50 border border-cream-300 text-xs">
-                  <div className="font-bold text-brand-900">{os.label}</div>
-                  <div className="text-[11px] text-brand-700">
-                    {os.count} sessions ({os.percentage}%)
-                  </div>
-                </div>
-              ))}
+          {/* OS Breakdown Pills */}
+          {data.osBreakdown && data.osBreakdown.length > 0 && (
+            <div className="pt-3 border-t border-cream-200">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-brand-700 mb-2">
+                Operating Systems
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {data.osBreakdown.map((os) => (
+                  <span
+                    key={os.label}
+                    className="px-2.5 py-1 rounded-lg bg-cream-100 border border-cream-300 text-brand-900 text-xs font-semibold"
+                  >
+                    {os.label}: <strong>{os.count}</strong> ({os.percentage}%)
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Browser */}
-          <div className="space-y-3 pt-2 border-t border-cream-200">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-brand-900 flex items-center gap-1.5">
-              <Globe className="w-4 h-4 text-gold-600" />
-              <span>Browser Breakdown</span>
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              {data.browserBreakdown.map((b) => (
-                <div key={b.label} className="p-2.5 rounded-xl bg-cream-50 border border-cream-300 text-xs">
-                  <div className="font-bold text-brand-900">{b.label}</div>
-                  <div className="text-[11px] text-brand-700">
-                    {b.count} sessions ({b.percentage}%)
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Paginated Visitor Log Table */}
-      <div className="bg-white p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
+      {/* RECENT ACTIVITY STREAM (Requirement 20) */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gold-300/40 shadow-soft space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-serif text-lg font-bold text-brand-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-gold-600" />
-              <span>Recent Visitor Activity Stream</span>
+            <h3 className="font-serif text-lg sm:text-xl font-bold text-brand-900">
+              Recent Activity Feed ({data.periodLabel})
             </h3>
             <p className="text-xs text-brand-600">
-              Showing {data.recentLogs.length} of {data.totalLogCount} visitor records
+              Real-time sequence of visits, page views, call clicks, and WhatsApp enquiries in IST.
             </p>
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => handlePageChange(data.currentPage - 1)}
-              disabled={data.currentPage <= 1}
-              className="p-2 rounded-xl bg-cream-100 border border-gold-300/30 text-brand-900 disabled:opacity-40 hover:bg-cream-200 transition-all"
-              aria-label="Previous Page"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-xs font-bold text-brand-900 px-2">
+          <div className="flex items-center gap-2 self-start sm:self-auto text-xs">
+            <span className="text-brand-600 font-medium">
               Page {data.currentPage} of {data.totalPages}
             </span>
             <button
+              onClick={() => handlePageChange(data.currentPage - 1)}
+              disabled={data.currentPage <= 1 || isRefreshing}
+              className="p-1.5 rounded-lg border border-cream-300 text-brand-800 disabled:opacity-40 hover:bg-cream-100"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => handlePageChange(data.currentPage + 1)}
-              disabled={data.currentPage >= data.totalPages}
-              className="p-2 rounded-xl bg-cream-100 border border-gold-300/30 text-brand-900 disabled:opacity-40 hover:bg-cream-200 transition-all"
-              aria-label="Next Page"
+              disabled={data.currentPage >= data.totalPages || isRefreshing}
+              className="p-1.5 rounded-lg border border-cream-300 text-brand-800 disabled:opacity-40 hover:bg-cream-100"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -503,56 +636,50 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
 
         {data.recentLogs.length === 0 ? (
           <div className="p-8 text-center bg-cream-50 rounded-2xl text-xs text-brand-600">
-            No visitor log records found.
+            No activity logs found for this timeframe.
           </div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-cream-300">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-cream-100 text-brand-900 font-bold uppercase tracking-wider border-b border-cream-300">
+                  <th className="py-3 px-4">Time (IST)</th>
+                  <th className="py-3 px-4">Event Type</th>
+                  <th className="py-3 px-4">Page / Location</th>
                   <th className="py-3 px-4">Device &amp; OS</th>
-                  <th className="py-3 px-4">Browser</th>
-                  <th className="py-3 px-4">Action Event</th>
-                  <th className="py-3 px-4">Page Path</th>
                   <th className="py-3 px-4">Language</th>
-                  <th className="py-3 px-4 text-right">Visited At</th>
+                  <th className="py-3 px-4 text-right">Details</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-200 bg-white">
                 {data.recentLogs.map((log) => {
+                  const isVisit = log.action === "visit";
+                  const isPage = log.action === "page_view";
                   const isWhatsapp = log.action === "whatsapp_click";
                   const isCall = log.action === "call_click";
 
                   return (
                     <tr key={log.id} className="hover:bg-cream-50 transition-colors">
-                      <td className="py-3 px-4 font-medium">
-                        <div className="flex items-center gap-2">
-                          {log.device === "Mobile" ? (
-                            <Smartphone className="w-4 h-4 text-gold-600 shrink-0" />
-                          ) : log.device === "Tablet" ? (
-                            <Tablet className="w-4 h-4 text-gold-600 shrink-0" />
-                          ) : (
-                            <Monitor className="w-4 h-4 text-brand-600 shrink-0" />
-                          )}
-                          <div>
-                            <div className="font-bold text-brand-900">{log.device_name || `${log.operating_system || "Android"} • ${log.browser || "Chrome"} • ${log.device || "Mobile"}`}</div>
-                            <div className="text-[10px] text-brand-600">{log.operating_system || "OS"}</div>
-                          </div>
+                      <td className="py-3 px-4 font-mono font-bold text-brand-900 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-gold-600" />
+                          <span>{formatIndiaTime(log.created_at)}</span>
+                        </div>
+                        <div className="text-[10px] text-brand-600 font-normal">
+                          {formatIndiaDate(log.created_at, { day: "numeric", month: "short" })}
                         </div>
                       </td>
 
-                      <td className="py-3 px-4 font-semibold text-brand-800">
-                        {log.browser || "Browser"}
-                      </td>
-
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                             isWhatsapp
-                              ? "bg-emerald-500/10 text-emerald-700 border border-emerald-500/30"
+                              ? "bg-emerald-500/15 text-emerald-800 border border-emerald-500/30"
                               : isCall
-                              ? "bg-gold-500/20 text-gold-800 border border-gold-400/40"
-                              : "bg-brand-900/10 text-brand-900 border border-brand-800/20"
+                              ? "bg-amber-500/20 text-amber-900 border border-amber-500/40"
+                              : isVisit
+                              ? "bg-gold-500/20 text-gold-900 border border-gold-500/40"
+                              : "bg-blue-500/10 text-blue-800 border border-blue-500/20"
                           }`}
                         >
                           {isWhatsapp ? (
@@ -562,12 +689,17 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
                             </>
                           ) : isCall ? (
                             <>
-                              <Phone className="w-3 h-3 text-gold-700" />
-                              <span>Call</span>
+                              <Phone className="w-3 h-3 text-amber-600" />
+                              <span>Call Click</span>
+                            </>
+                          ) : isVisit ? (
+                            <>
+                              <Users className="w-3 h-3 text-gold-700" />
+                              <span>Website Visit</span>
                             </>
                           ) : (
                             <>
-                              <Eye className="w-3 h-3 text-brand-700" />
+                              <Eye className="w-3 h-3 text-blue-600" />
                               <span>Page View</span>
                             </>
                           )}
@@ -579,19 +711,29 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
                       </td>
 
                       <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          {log.device === "Mobile" ? (
+                            <Smartphone className="w-3.5 h-3.5 text-gold-600 shrink-0" />
+                          ) : log.device === "Tablet" ? (
+                            <Tablet className="w-3.5 h-3.5 text-gold-600 shrink-0" />
+                          ) : (
+                            <Monitor className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                          )}
+                          <span className="font-semibold text-brand-900">
+                            {log.operating_system || "OS"} • {log.browser || "Browser"}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-4">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cream-100 text-brand-900 text-[10px] font-semibold border border-cream-300">
                           <Globe className="w-3 h-3 text-gold-600" />
                           <span>{log.language === "kn" ? "KN" : "EN"}</span>
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 text-right text-brand-600 font-mono text-[11px]">
-                        {new Date(log.created_at).toLocaleString([], {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                      <td className="py-3 px-4 text-right text-brand-600 text-[11px] truncate max-w-[180px]">
+                        {log.details || "—"}
                       </td>
                     </tr>
                   );
@@ -602,12 +744,12 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
         )}
       </div>
 
-      {/* Confirmation Modal to Delete Analytics */}
+      {/* Delete Analytics Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 bg-brand-950/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="max-w-md w-full bg-white rounded-3xl p-6 border border-gold-300/40 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-600 pb-3 border-b border-cream-200">
-              <div className="p-2.5 rounded-xl bg-rose-100 shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-200 space-y-5">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="p-3 bg-rose-50 rounded-2xl">
                 <AlertTriangle className="w-6 h-6 text-rose-600" />
               </div>
               <div>
@@ -615,68 +757,70 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
                   Delete Visitor Analytics?
                 </h3>
                 <p className="text-xs text-brand-600">
-                  This action permanently deletes the selected data.
+                  Admin authorization required. This action cannot be undone.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="block text-xs font-bold text-brand-900">Delete Option:</label>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
-                  <input
-                    type="radio"
-                    name="deleteMode"
-                    value="date_range"
-                    checked={deleteMode === "date_range"}
-                    onChange={() => setDeleteMode("date_range")}
-                    className="accent-gold-500"
-                  />
-                  <span>Delete Date Range</span>
-                </label>
-                <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
-                  <input
-                    type="radio"
-                    name="deleteMode"
-                    value="all"
-                    checked={deleteMode === "all"}
-                    onChange={() => setDeleteMode("all")}
-                    className="accent-gold-500"
-                  />
-                  <span>Delete ALL History</span>
-                </label>
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="font-bold text-brand-900">Deletion Mode</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteMode("date_range")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                      deleteMode === "date_range"
+                        ? "bg-rose-50 border-rose-500 text-rose-800"
+                        : "border-cream-300 hover:bg-cream-100 text-brand-800"
+                    }`}
+                  >
+                    Specific Date Range
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteMode("all")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                      deleteMode === "all"
+                        ? "bg-rose-50 border-rose-500 text-rose-800"
+                        : "border-cream-300 hover:bg-cream-100 text-brand-800"
+                    }`}
+                  >
+                    Delete All History
+                  </button>
+                </div>
               </div>
 
               {deleteMode === "date_range" && (
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-2 gap-2 pt-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-brand-900 mb-1">Start Date</label>
+                    <label className="block text-[11px] font-semibold text-brand-800 mb-1">Start Date</label>
                     <input
                       type="date"
                       value={deleteStartDate}
                       onChange={(e) => setDeleteStartDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs focus:outline-none focus:ring-2 focus:ring-gold-400"
+                      className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs focus:ring-2 focus:ring-rose-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-brand-900 mb-1">End Date</label>
+                    <label className="block text-[11px] font-semibold text-brand-800 mb-1">End Date</label>
                     <input
                       type="date"
                       value={deleteEndDate}
                       onChange={(e) => setDeleteEndDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs focus:outline-none focus:ring-2 focus:ring-gold-400"
+                      className="w-full px-3 py-2 rounded-xl border border-cream-300 text-xs focus:ring-2 focus:ring-rose-400"
                     />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-cream-200">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 rounded-xl bg-cream-100 text-brand-800 font-semibold text-xs hover:bg-cream-200 transition-colors"
+                className="px-4 py-2.5 rounded-xl border border-cream-300 hover:bg-cream-100 text-xs font-semibold text-brand-800 min-h-[44px]"
               >
                 Cancel
               </button>
@@ -684,7 +828,7 @@ export function AnalyticsDashboardView({ initialData }: AnalyticsDashboardViewPr
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-md transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md transition-all inline-flex items-center gap-2 min-h-[44px]"
               >
                 {isDeleting ? (
                   <>

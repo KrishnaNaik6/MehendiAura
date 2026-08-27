@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles, Maximize2, ChevronLeft, ChevronRight, Images, X, MessageSquare } from "lucide-react";
 import { GalleryItem } from "@/types/database";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { trackEvent } from "@/lib/analytics/track";
 import { Locale } from "@/lib/i18n/config";
 
 interface HomeImageShowcaseProps {
@@ -273,6 +274,12 @@ export function HomeImageShowcase({
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("whatsapp_click", {
+                      details: `Showcase Lightbox: ${activeItem.title || "Design"}`,
+                      phoneNumber: whatsappNumber,
+                    })
+                  }
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />

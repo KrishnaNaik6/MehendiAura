@@ -1,11 +1,15 @@
+"use client";
+
 import React from "react";
 import { Phone } from "lucide-react";
 import { getCallUrl } from "@/lib/call";
 import { Button, ButtonProps } from "@/components/ui/Button";
+import { trackEvent } from "@/lib/analytics/track";
 
 interface CallButtonProps extends Omit<ButtonProps, "onClick"> {
   phoneNumber?: string;
   label?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 export function CallButton({
@@ -15,6 +19,7 @@ export function CallButton({
   variant = "call",
   fullWidth = false,
   className,
+  onClick,
   ...props
 }: CallButtonProps) {
   const defaultPhone =
@@ -22,8 +27,26 @@ export function CallButton({
   const targetPhone = phoneNumber || defaultPhone;
   const callUrl = getCallUrl(targetPhone);
 
+  const handleClick = (e: React.MouseEvent) => {
+    // Record call click event immediately before navigating
+    trackEvent("call_click", {
+      pagePath: typeof window !== "undefined" ? window.location.pathname : "/",
+      details: `Call Button: ${label} (${targetPhone})`,
+      phoneNumber: targetPhone,
+    });
+
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   return (
-    <a href={callUrl} className={fullWidth ? "w-full" : "inline-block"}>
+    <a
+      href={callUrl}
+      onClick={handleClick}
+      className={fullWidth ? "w-full" : "inline-block"}
+      aria-label={label}
+    >
       <Button
         variant={variant}
         size={size}

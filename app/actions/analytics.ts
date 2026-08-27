@@ -3,11 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { VisitorLog } from "@/types/database";
+import {
+  getIndiaDateString,
+  getIndiaDayUtcBounds,
+  getIndiaRangeUtcBounds,
+  getIndiaDateDaysAgo,
+  formatIndiaDate,
+} from "@/lib/analytics/timezone";
 
 export interface AnalyticsFilterOptions {
-  period?: "today" | "yesterday" | "7days" | "30days" | "all" | "custom";
-  startDate?: string;
-  endDate?: string;
+  period?: "today" | "yesterday" | "single_date" | "7days" | "30days" | "all" | "custom";
+  selectedDate?: string; // "YYYY-MM-DD" for single day view
+  startDate?: string;    // "YYYY-MM-DD"
+  endDate?: string;      // "YYYY-MM-DD"
   deviceType?: string;
   operatingSystem?: string;
   browser?: string;
@@ -29,34 +37,54 @@ export interface BreakdownStat {
 }
 
 export interface DailyChartPoint {
-  dateStr: string; // "YYYY-MM-DD"
-  dateLabel: string; // "Aug 26"
+  dateStr: string;  // "YYYY-MM-DD"
+  dateLabel: string; // "27 Aug"
   visitors: number;
   pageViews: number;
+  calls: number;
+  whatsapp: number;
 }
 
-export interface MonthlyStat {
-  monthKey: string;
-  monthName: string;
+export interface DailyVisitorRow {
+  dateStr: string;   // "YYYY-MM-DD"
+  dateLabel: string; // "27 Aug 2026"
+  visitors: number;
   pageViews: number;
-  uniqueVisitors: number;
-  whatsappClicks: number;
-  callClicks: number;
+  calls: number;
+  whatsapp: number;
 }
 
 export interface ComprehensiveAnalyticsData {
+  // Current Filtered Period Metrics
+  periodLabel: string;
+  isSingleDay: boolean;
+  selectedDate?: string;
+  visitors: number;
+  pageViews: number;
+  callClicks: number;
+  whatsappClicks: number;
+
+  // Comparison Indicators (Today vs Yesterday)
   todayVisitors: number;
   todayViews: number;
+  todayCalls: number;
+  todayWhatsapp: number;
+
   yesterdayVisitors: number;
   yesterdayViews: number;
+  yesterdayCalls: number;
+  yesterdayWhatsapp: number;
+
   last7DaysVisitors: number;
   last7DaysViews: number;
   last30DaysVisitors: number;
   last30DaysViews: number;
+
   totalVisitorsStored: number;
   totalPageViewsStored: number;
-  whatsappClicks: number;
-  callClicks: number;
+
+  // Tables and Breakdowns
+  dailyTable: DailyVisitorRow[];
   dailyChart: DailyChartPoint[];
   popularPages: PopularPageStat[];
   deviceBreakdown: BreakdownStat[];
@@ -66,6 +94,15 @@ export interface ComprehensiveAnalyticsData {
   totalLogCount: number;
   currentPage: number;
   totalPages: number;
+}
+
+export interface MonthlyStat {
+  monthKey: string;
+  monthName: string;
+  pageViews: number;
+  uniqueVisitors: number;
+  whatsappClicks: number;
+  callClicks: number;
 }
 
 export interface AnalyticsSummary {
@@ -83,7 +120,7 @@ export interface AnalyticsSummary {
 export async function recordVisitorActivity(payload: {
   sessionId: string;
   pagePath: string;
-  action: 'page_view' | 'whatsapp_click' | 'call_click' | 'service_view' | 'jewellery_view' | 'gallery_view';
+  action: "visit" | "page_view" | "whatsapp_click" | "call_click" | string;
   details?: string;
   language?: string;
   device?: string;
@@ -103,9 +140,9 @@ export async function recordVisitorActivity(payload: {
     }
 
     const now = new Date();
-    const visitDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    const visitDate = getIndiaDateString(now); // Exact YYYY-MM-DD in Asia/Kolkata!
 
-    const { error } = await supabase.from("visitor_logs").insert({
+    const insertData: Record<string, any> = {
       session_id: payload.sessionId,
       page_path: payload.pagePath,
       action: payload.action,
@@ -120,10 +157,20 @@ export async function recordVisitorActivity(payload: {
       referrer: payload.referrer || null,
       visited_at: now.toISOString(),
       visit_date: visitDate,
-    });
+    };
+
+    const { error } = await supabase.from("visitor_logs").insert(insertData);
 
     if (error) {
-      console.warn("Analytics insertion note:", error.message);
+      // Safe fallback for older table schemas missing optional columns
+      await supabase.from("visitor_logs").insert({
+        session_id: payload.sessionId,
+        page_path: payload.pagePath,
+        action: payload.action,
+        details: payload.details || null,
+        language: payload.language || "en",
+        device: payload.device || "Desktop",
+      });
     }
 
     return { success: true };
@@ -147,153 +194,234 @@ export async function fetchComprehensiveAnalytics(
         .delete()
         .lt("created_at", cutoffDate.toISOString());
     } catch {
-      // Retention cleanup fails silently if database has restricted permissions
+      // Silently proceed if retention cleanup has restricted permissions
     }
 
-    // 2. Fetch all visitor logs for aggregation calculations
-    const { data: rawData } = await supabase
+    const todayStr = getIndiaDateString();
+    const yesterdayStr = getIndiaDateDaysAgo(1);
+
+    // Determine query date bounds in Asia/Kolkata
+    let startUtc = "";
+    let endUtc = "";
+    let periodLabel = "Last 30 Days";
+    let isSingleDay = false;
+    let selectedDateForDisplay = "";
+
+    const activePeriod = filters.period || "30days";
+
+    if (activePeriod === "today") {
+      isSingleDay = true;
+      selectedDateForDisplay = todayStr;
+      periodLabel = `Today (${formatIndiaDate(todayStr)})`;
+      const bounds = getIndiaDayUtcBounds(todayStr);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    } else if (activePeriod === "yesterday") {
+      isSingleDay = true;
+      selectedDateForDisplay = yesterdayStr;
+      periodLabel = `Yesterday (${formatIndiaDate(yesterdayStr)})`;
+      const bounds = getIndiaDayUtcBounds(yesterdayStr);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    } else if (activePeriod === "single_date" && filters.selectedDate) {
+      isSingleDay = true;
+      selectedDateForDisplay = filters.selectedDate;
+      periodLabel = formatIndiaDate(filters.selectedDate);
+      const bounds = getIndiaDayUtcBounds(filters.selectedDate);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    } else if (activePeriod === "7days") {
+      const startDay = getIndiaDateDaysAgo(6);
+      periodLabel = `Last 7 Days (${formatIndiaDate(startDay)} - ${formatIndiaDate(todayStr)})`;
+      const bounds = getIndiaRangeUtcBounds(startDay, todayStr);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    } else if (activePeriod === "custom" && filters.startDate && filters.endDate) {
+      if (filters.startDate === filters.endDate) {
+        isSingleDay = true;
+        selectedDateForDisplay = filters.startDate;
+        periodLabel = formatIndiaDate(filters.startDate);
+      } else {
+        periodLabel = `${formatIndiaDate(filters.startDate)} - ${formatIndiaDate(filters.endDate)}`;
+      }
+      const bounds = getIndiaRangeUtcBounds(filters.startDate, filters.endDate);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    } else if (activePeriod === "all") {
+      periodLabel = "All History (Last 365 Days)";
+      const startDay = getIndiaDateDaysAgo(365);
+      const bounds = getIndiaRangeUtcBounds(startDay, todayStr);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    } else {
+      // Default: 30 days
+      const startDay = getIndiaDateDaysAgo(29);
+      periodLabel = `Last 30 Days (${formatIndiaDate(startDay)} - ${formatIndiaDate(todayStr)})`;
+      const bounds = getIndiaRangeUtcBounds(startDay, todayStr);
+      startUtc = bounds.startUtc;
+      endUtc = bounds.endUtc;
+    }
+
+    // 2. Query logs bounded by Indian Standard Time UTC range (Requirement 13: Database-side filtering)
+    let query = supabase
       .from("visitor_logs")
       .select("*")
+      .gte("created_at", startUtc)
+      .lte("created_at", endUtc)
       .order("created_at", { ascending: false })
       .limit(5000);
 
-    const allLogs: VisitorLog[] = rawData || [];
-
-    const now = new Date();
-    const todayStr = now.toISOString().split("T")[0];
-
-    const yesterdayDate = new Date(now);
-    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    const yesterdayStr = yesterdayDate.toISOString().split("T")[0];
-
-    const date7Ago = new Date(now);
-    date7Ago.setDate(date7Ago.getDate() - 7);
-
-    const date30Ago = new Date(now);
-    date30Ago.setDate(date30Ago.getDate() - 30);
-
-    // Compute Overall Overview Cards
-    const todayLogs = allLogs.filter((l) => (l.visit_date || l.created_at.split("T")[0]) === todayStr);
-    const todayVisitors = new Set(todayLogs.map((l) => l.session_id)).size;
-    const todayViews = todayLogs.length;
-
-    const yesterdayLogs = allLogs.filter((l) => (l.visit_date || l.created_at.split("T")[0]) === yesterdayStr);
-    const yesterdayVisitors = new Set(yesterdayLogs.map((l) => l.session_id)).size;
-    const yesterdayViews = yesterdayLogs.length;
-
-    const last7Logs = allLogs.filter((l) => new Date(l.created_at) >= date7Ago);
-    const last7DaysVisitors = new Set(last7Logs.map((l) => l.session_id)).size;
-    const last7DaysViews = last7Logs.length;
-
-    const last30Logs = allLogs.filter((l) => new Date(l.created_at) >= date30Ago);
-    const last30DaysVisitors = new Set(last30Logs.map((l) => l.session_id)).size;
-    const last30DaysViews = last30Logs.length;
-
-    const totalVisitorsStored = new Set(allLogs.map((l) => l.session_id)).size;
-    const totalPageViewsStored = allLogs.length;
-
-    // Filter logs based on active filter criteria
-    let filteredLogs = allLogs;
-
-    const period = filters.period || "30days";
-    if (period === "today") {
-      filteredLogs = todayLogs;
-    } else if (period === "yesterday") {
-      filteredLogs = yesterdayLogs;
-    } else if (period === "7days") {
-      filteredLogs = last7Logs;
-    } else if (period === "30days") {
-      filteredLogs = last30Logs;
-    } else if (period === "custom" && (filters.startDate || filters.endDate)) {
-      filteredLogs = filteredLogs.filter((l) => {
-        const d = l.created_at.split("T")[0];
-        const matchStart = filters.startDate ? d >= filters.startDate : true;
-        const matchEnd = filters.endDate ? d <= filters.endDate : true;
-        return matchStart && matchEnd;
-      });
-    }
-
     if (filters.deviceType && filters.deviceType !== "all") {
-      filteredLogs = filteredLogs.filter((l) => l.device === filters.deviceType);
+      query = query.eq("device", filters.deviceType);
     }
-
     if (filters.operatingSystem && filters.operatingSystem !== "all") {
-      filteredLogs = filteredLogs.filter((l) => l.operating_system === filters.operatingSystem);
+      query = query.eq("operating_system", filters.operatingSystem);
     }
-
     if (filters.browser && filters.browser !== "all") {
-      filteredLogs = filteredLogs.filter((l) => l.browser === filters.browser);
+      query = query.eq("browser", filters.browser);
     }
-
     if (filters.pagePath && filters.pagePath !== "all") {
-      filteredLogs = filteredLogs.filter((l) => l.page_path === filters.pagePath);
+      query = query.eq("page_path", filters.pagePath);
     }
 
-    // 3. Compute Daily Chart Data (last 14 days or selected timeframe)
+    const { data: rawData } = await query;
+    const filteredLogs: VisitorLog[] = rawData || [];
+
+    // 3. Compute Today & Yesterday comparison stats via separate focused queries
+    const todayBounds = getIndiaDayUtcBounds(todayStr);
+    const yesterdayBounds = getIndiaDayUtcBounds(yesterdayStr);
+
+    const [{ data: todayRaw }, { data: yesterdayRaw }] = await Promise.all([
+      supabase
+        .from("visitor_logs")
+        .select("session_id, action")
+        .gte("created_at", todayBounds.startUtc)
+        .lte("created_at", todayBounds.endUtc),
+      supabase
+        .from("visitor_logs")
+        .select("session_id, action")
+        .gte("created_at", yesterdayBounds.startUtc)
+        .lte("created_at", yesterdayBounds.endUtc),
+    ]);
+
+    const todayList = todayRaw || [];
+    const todayVisitors = new Set(
+      todayList.filter((l) => l.action === "visit" || l.action === "page_view").map((l) => l.session_id)
+    ).size;
+    const todayViews = todayList.filter((l) => l.action === "page_view").length;
+    const todayCalls = todayList.filter((l) => l.action === "call_click").length;
+    const todayWhatsapp = todayList.filter((l) => l.action === "whatsapp_click").length;
+
+    const yesterdayList = yesterdayRaw || [];
+    const yesterdayVisitors = new Set(
+      yesterdayList.filter((l) => l.action === "visit" || l.action === "page_view").map((l) => l.session_id)
+    ).size;
+    const yesterdayViews = yesterdayList.filter((l) => l.action === "page_view").length;
+    const yesterdayCalls = yesterdayList.filter((l) => l.action === "call_click").length;
+    const yesterdayWhatsapp = yesterdayList.filter((l) => l.action === "whatsapp_click").length;
+
+    // 4. Compute Accurate Unmixed Metrics for Selected Period (Requirement 6)
+    // - Unique visitors: count of distinct sessions that had a visit or page_view
+    const visitors = new Set(
+      filteredLogs.filter((l) => l.action === "visit" || l.action === "page_view").map((l) => l.session_id)
+    ).size;
+    // - Page views: count of page_view actions only
+    const pageViews = filteredLogs.filter((l) => l.action === "page_view").length;
+    // - Call clicks: count of call_click actions only
+    const callClicks = filteredLogs.filter((l) => l.action === "call_click").length;
+    // - WhatsApp clicks: count of whatsapp_click actions only
+    const whatsappClicks = filteredLogs.filter((l) => l.action === "whatsapp_click").length;
+
+    // 5. Compute Daily Visitor Table and Chart Points (Requirement 10)
     const dailyMap = new Map<string, VisitorLog[]>();
     filteredLogs.forEach((log) => {
-      const dStr = log.visit_date || log.created_at.split("T")[0];
+      // Group by exact Indian calendar date
+      const dStr = log.visit_date || getIndiaDateString(new Date(log.created_at));
       if (!dailyMap.has(dStr)) {
         dailyMap.set(dStr, []);
       }
       dailyMap.get(dStr)!.push(log);
     });
 
-    const dailyChart: DailyChartPoint[] = [];
-    const sortedDates = Array.from(dailyMap.keys()).sort();
+    const sortedDatesAsc = Array.from(dailyMap.keys()).sort();
+    const sortedDatesDesc = [...sortedDatesAsc].reverse();
 
-    sortedDates.forEach((dStr) => {
-      const logsForDay = dailyMap.get(dStr) || [];
-      const dObj = new Date(dStr);
-      const dateLabel = isNaN(dObj.getTime())
-        ? dStr
-        : dObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const dailyChart: DailyChartPoint[] = sortedDatesAsc.map((dStr) => {
+      const logs = dailyMap.get(dStr) || [];
+      const dayVisitors = new Set(
+        logs.filter((l) => l.action === "visit" || l.action === "page_view").map((l) => l.session_id)
+      ).size;
+      const dayViews = logs.filter((l) => l.action === "page_view").length;
+      const dayCalls = logs.filter((l) => l.action === "call_click").length;
+      const dayWhatsapp = logs.filter((l) => l.action === "whatsapp_click").length;
 
-      dailyChart.push({
+      return {
         dateStr: dStr,
-        dateLabel,
-        visitors: new Set(logsForDay.map((l) => l.session_id)).size,
-        pageViews: logsForDay.length,
-      });
+        dateLabel: formatIndiaDate(dStr, { day: "numeric", month: "short" }),
+        visitors: dayVisitors,
+        pageViews: dayViews,
+        calls: dayCalls,
+        whatsapp: dayWhatsapp,
+      };
     });
 
-    // 4. Compute Popular Pages
+    const dailyTable: DailyVisitorRow[] = sortedDatesDesc.map((dStr) => {
+      const logs = dailyMap.get(dStr) || [];
+      const dayVisitors = new Set(
+        logs.filter((l) => l.action === "visit" || l.action === "page_view").map((l) => l.session_id)
+      ).size;
+      const dayViews = logs.filter((l) => l.action === "page_view").length;
+      const dayCalls = logs.filter((l) => l.action === "call_click").length;
+      const dayWhatsapp = logs.filter((l) => l.action === "whatsapp_click").length;
+
+      return {
+        dateStr: dStr,
+        dateLabel: formatIndiaDate(dStr),
+        visitors: dayVisitors,
+        pageViews: dayViews,
+        calls: dayCalls,
+        whatsapp: dayWhatsapp,
+      };
+    });
+
+    // 6. Compute Popular Pages (using page_view events only)
     const pageMap = new Map<string, number>();
-    filteredLogs.forEach((l) => {
-      pageMap.set(l.page_path, (pageMap.get(l.page_path) || 0) + 1);
-    });
+    filteredLogs
+      .filter((l) => l.action === "page_view")
+      .forEach((l) => {
+        pageMap.set(l.page_path, (pageMap.get(l.page_path) || 0) + 1);
+      });
 
+    const totalViewsCount = pageViews || 1;
     const popularPages: PopularPageStat[] = [];
-    const totalFilteredViews = filteredLogs.length || 1;
-
     pageMap.forEach((count, path) => {
       popularPages.push({
         path,
         views: count,
-        percentage: parseFloat(((count / totalFilteredViews) * 100).toFixed(1)),
+        percentage: parseFloat(((count / totalViewsCount) * 100).toFixed(1)),
       });
     });
-
     popularPages.sort((a, b) => b.views - a.views);
 
-    // 5. Compute Device Breakdown
+    // 7. Compute Device Breakdown
     const deviceMap = new Map<string, number>();
     filteredLogs.forEach((l) => {
-      const dev = l.device || "Unknown";
+      const dev = l.device || "Desktop";
       deviceMap.set(dev, (deviceMap.get(dev) || 0) + 1);
     });
 
+    const totalLogEvents = filteredLogs.length || 1;
     const deviceBreakdown: BreakdownStat[] = [];
     deviceMap.forEach((count, label) => {
       deviceBreakdown.push({
         label,
         count,
-        percentage: parseFloat(((count / totalFilteredViews) * 100).toFixed(1)),
+        percentage: parseFloat(((count / totalLogEvents) * 100).toFixed(1)),
       });
     });
     deviceBreakdown.sort((a, b) => b.count - a.count);
 
-    // 6. Compute OS Breakdown
+    // 8. Compute OS Breakdown
     const osMap = new Map<string, number>();
     filteredLogs.forEach((l) => {
       const os = l.operating_system || "Other";
@@ -305,12 +433,12 @@ export async function fetchComprehensiveAnalytics(
       osBreakdown.push({
         label,
         count,
-        percentage: parseFloat(((count / totalFilteredViews) * 100).toFixed(1)),
+        percentage: parseFloat(((count / totalLogEvents) * 100).toFixed(1)),
       });
     });
     osBreakdown.sort((a, b) => b.count - a.count);
 
-    // 7. Compute Browser Breakdown
+    // 9. Compute Browser Breakdown
     const browserMap = new Map<string, number>();
     filteredLogs.forEach((l) => {
       const b = l.browser || "Other";
@@ -322,34 +450,46 @@ export async function fetchComprehensiveAnalytics(
       browserBreakdown.push({
         label,
         count,
-        percentage: parseFloat(((count / totalFilteredViews) * 100).toFixed(1)),
+        percentage: parseFloat(((count / totalLogEvents) * 100).toFixed(1)),
       });
     });
     browserBreakdown.sort((a, b) => b.count - a.count);
 
-    // 8. Pagination for Recent Log Stream
+    // 10. Paginated Recent Activity Log Stream (Requirement 20)
     const page = filters.page || 1;
     const pageSize = filters.pageSize || 15;
     const startIndex = (page - 1) * pageSize;
     const paginatedLogs = filteredLogs.slice(startIndex, startIndex + pageSize);
     const totalPages = Math.ceil(filteredLogs.length / pageSize) || 1;
 
-    const whatsappClicks = filteredLogs.filter((l) => l.action === "whatsapp_click").length;
-    const callClicks = filteredLogs.filter((l) => l.action === "call_click").length;
-
     return {
+      periodLabel,
+      isSingleDay,
+      selectedDate: selectedDateForDisplay,
+      visitors,
+      pageViews,
+      callClicks,
+      whatsappClicks,
+
       todayVisitors,
       todayViews,
+      todayCalls,
+      todayWhatsapp,
+
       yesterdayVisitors,
       yesterdayViews,
-      last7DaysVisitors,
-      last7DaysViews,
-      last30DaysVisitors,
-      last30DaysViews,
-      totalVisitorsStored,
-      totalPageViewsStored,
-      whatsappClicks,
-      callClicks,
+      yesterdayCalls,
+      yesterdayWhatsapp,
+
+      last7DaysVisitors: visitors,
+      last7DaysViews: pageViews,
+      last30DaysVisitors: visitors,
+      last30DaysViews: pageViews,
+
+      totalVisitorsStored: visitors,
+      totalPageViewsStored: pageViews,
+
+      dailyTable,
       dailyChart,
       popularPages: popularPages.slice(0, 10),
       deviceBreakdown,
@@ -360,20 +500,34 @@ export async function fetchComprehensiveAnalytics(
       currentPage: page,
       totalPages,
     };
-  } catch {
+  } catch (err: any) {
     return {
+      periodLabel: "Error Loading Data",
+      isSingleDay: false,
+      visitors: 0,
+      pageViews: 0,
+      callClicks: 0,
+      whatsappClicks: 0,
+
       todayVisitors: 0,
       todayViews: 0,
+      todayCalls: 0,
+      todayWhatsapp: 0,
+
       yesterdayVisitors: 0,
       yesterdayViews: 0,
+      yesterdayCalls: 0,
+      yesterdayWhatsapp: 0,
+
       last7DaysVisitors: 0,
       last7DaysViews: 0,
       last30DaysVisitors: 0,
       last30DaysViews: 0,
+
       totalVisitorsStored: 0,
       totalPageViewsStored: 0,
-      whatsappClicks: 0,
-      callClicks: 0,
+
+      dailyTable: [],
       dailyChart: [],
       popularPages: [],
       deviceBreakdown: [],
@@ -387,11 +541,15 @@ export async function fetchComprehensiveAnalytics(
   }
 }
 
-// Backward-compatible exports for Admin Dashboard Widgets
 export async function fetchAnalyticsSummary(filterMonth?: string): Promise<AnalyticsSummary> {
-  const data = await fetchComprehensiveAnalytics({ period: filterMonth ? "custom" : "30days", page: 1, pageSize: 15 });
+  const data = await fetchComprehensiveAnalytics({
+    period: filterMonth ? "custom" : "30days",
+    startDate: filterMonth ? `${filterMonth}-01` : undefined,
+    endDate: filterMonth ? `${filterMonth}-31` : undefined,
+    page: 1,
+    pageSize: 15,
+  });
 
-  // Compute monthly stats
   const monthMap = new Map<string, VisitorLog[]>();
   data.recentLogs.forEach((log) => {
     const d = new Date(log.created_at);
@@ -417,7 +575,7 @@ export async function fetchAnalyticsSummary(filterMonth?: string): Promise<Analy
     monthlyStats.push({
       monthKey: mKey,
       monthName,
-      pageViews: mLogs.length,
+      pageViews: mLogs.filter((l) => l.action === "page_view").length,
       uniqueVisitors: new Set(mLogs.map((l) => l.session_id)).size,
       whatsappClicks: mLogs.filter((l) => l.action === "whatsapp_click").length,
       callClicks: mLogs.filter((l) => l.action === "call_click").length,
@@ -425,8 +583,8 @@ export async function fetchAnalyticsSummary(filterMonth?: string): Promise<Analy
   });
 
   return {
-    totalPageViews: data.totalPageViewsStored,
-    totalUniqueVisitors: data.totalVisitorsStored,
+    totalPageViews: data.pageViews,
+    totalUniqueVisitors: data.visitors,
     todayPageViews: data.todayViews,
     todayUniqueVisitors: data.todayVisitors,
     whatsappClicks: data.whatsappClicks,
@@ -457,14 +615,12 @@ export async function deleteAnalyticsLogs(payload: {
         .neq("id", "00000000-0000-0000-0000-000000000000");
       if (error) throw error;
     } else if (payload.mode === "date_range" && payload.startDate && payload.endDate) {
-      const startIso = new Date(`${payload.startDate}T00:00:00.000Z`).toISOString();
-      const endIso = new Date(`${payload.endDate}T23:59:59.999Z`).toISOString();
-
+      const bounds = getIndiaRangeUtcBounds(payload.startDate, payload.endDate);
       const { error } = await supabase
         .from("visitor_logs")
         .delete()
-        .gte("created_at", startIso)
-        .lte("created_at", endIso);
+        .gte("created_at", bounds.startUtc)
+        .lte("created_at", bounds.endUtc);
       if (error) throw error;
     } else if (payload.mode === "selected" && payload.selectedIds && payload.selectedIds.length > 0) {
       const { error } = await supabase

@@ -8,6 +8,7 @@ import { useLanguage } from "@/lib/i18n/context";
 import { getWhatsAppUrl, buildGeneralWhatsAppMsg } from "@/lib/whatsapp";
 import { getCallUrl } from "@/lib/call";
 import { BusinessSettings } from "@/types/database";
+import { trackEvent } from "@/lib/analytics/track";
 
 interface FooterProps {
   settings?: BusinessSettings;
@@ -48,6 +49,12 @@ export function Footer({ settings }: FooterProps) {
             <div className="pt-2 flex items-center gap-3">
               <a
                 href={callUrl}
+                onClick={() =>
+                  trackEvent("call_click", {
+                    details: "Footer Call Icon",
+                    phoneNumber: phone,
+                  })
+                }
                 className="w-9 h-9 rounded-full bg-brand-800 border border-gold-500/30 flex items-center justify-center text-gold-300 hover:bg-gold-500 hover:text-brand-950 transition-colors shadow-xs"
                 aria-label="Call Business"
               >
@@ -57,6 +64,12 @@ export function Footer({ settings }: FooterProps) {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackEvent("whatsapp_click", {
+                    details: "Footer WhatsApp Icon",
+                    phoneNumber: whatsappNumber,
+                  })
+                }
                 className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white hover:bg-emerald-500 transition-colors shadow-xs"
                 aria-label="WhatsApp Business"
               >

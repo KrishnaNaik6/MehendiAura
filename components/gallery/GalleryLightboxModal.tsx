@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { X, ChevronLeft, ChevronRight, MessageSquare, Sparkles } from "lucide-react";
 import { GalleryItem } from "@/types/database";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { trackEvent } from "@/lib/analytics/track";
 import { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { getLocalizedField } from "@/lib/i18n/getLocalizedField";
@@ -167,6 +168,12 @@ export function GalleryLightboxModal({
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("whatsapp_click", {
+                      details: `Gallery Lightbox: ${activeItem.title || "Design"} (${activeItem.category})`,
+                      phoneNumber: whatsappNumber,
+                    })
+                  }
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm min-h-[44px] shadow-md transition-all text-center"
                 >
                   <MessageSquare className="w-4 h-4 shrink-0" />

@@ -265,7 +265,7 @@ export interface VisitorLog {
   visited_at?: string;
   visit_date?: string;
   page_path: string;
-  action: 'page_view' | 'whatsapp_click' | 'call_click' | 'service_view' | 'jewellery_view' | 'gallery_view';
+  action: 'visit' | 'page_view' | 'whatsapp_click' | 'call_click' | 'service_view' | 'jewellery_view' | 'gallery_view' | string;
   details?: string | null;
   language?: string | null;
   device?: string | null;
